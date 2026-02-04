@@ -1,0 +1,510 @@
+{
+  "nav": {
+    "home": "Home",
+    "quiz": "Start Quiz",
+    "about": "About Ask Seba",
+    "faq": "FAQ",
+    "pricing": "Pricing",
+    "privacy": "Privacy Policy",
+    "results": "Results",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out",
+    "languageToggle": {
+      "label": "Language",
+      "ariaLabel": "Switch language",
+      "locales": {
+        "ar": "العربية",
+        "en": "English"
+      }
+    },
+    "userMenuAriaLabel": "User menu",
+    "notificationsLoginPrompt": "Log in for notifications"
+  },
+  "home": {
+    "hero": {
+      "title": "A smart quiz to discover your perfect fragrance",
+      "subtitle": "ask.seba analyzes your olfactory profile, sensitivities, and lifestyle to recommend fragrances that truly fit you—before you buy.",
+      "badge": "Free experience • Just 3 minutes",
+      "primaryCta": "Start the quiz",
+      "primaryCtaHref": "/quiz",
+      "secondaryCta": "How does Ask Seba work?",
+      "secondaryCtaHref": "/about",
+      "trust": "Trusted by fragrance lovers across the GCC and the Arab world"
+    },
+    "questions": {
+      "title": "Have you experienced this?",
+      "items": [
+        "You buy a fragrance and regret it after the first wear?",
+        "You’re sensitive to certain smells but don’t know the real trigger?",
+        "You fell for marketing hype and bought a fragrance that doesn’t feel like you?"
+      ]
+    },
+    "stats": [
+      { "number": "+80,000", "label": "Global fragrances in our database" },
+      { "number": "98%", "label": "User satisfaction" },
+      { "number": "3 minutes", "label": "Average quiz time" },
+      { "number": "+10,000", "label": "Users who tried Ask Seba" }
+    ],
+    "benefits": {
+      "title": "We help you",
+      "items": [
+        {
+          "icon": "🎯",
+          "title": "Choose the right fragrance",
+          "description": "We match your preferences to real fragrances in the market instead of random guessing."
+        },
+        {
+          "icon": "🧪",
+          "title": "Avoid triggers & allergies",
+          "description": "We identify ingredients that bother you and automatically exclude them from recommendations."
+        },
+        {
+          "icon": "💰",
+          "title": "Save money",
+          "description": "We reduce the chance of buying fragrances that end up forgotten on the shelf."
+        }
+      ]
+    },
+    "valueProposition": {
+      "title": "Why Ask Seba is different",
+      "bullets": [
+        "Scientific analysis of notes and fragrance families—not just generic opinions.",
+        "Full consideration of your sensitivities and past symptoms to avoid bad experiences.",
+        "Recommendations tuned to your climate and daily lifestyle, not one-size-fits-all lists.",
+        "A fully Arabic-first experience with a simple, clear interface."
+      ]
+    },
+    "cta": {
+      "title": "Ready to discover your perfect fragrance?",
+      "body": "Answer a few simple questions about fragrances you love, ones you dislike, and any sensitivities you have—and let Ask Seba do the rest.",
+      "primary": "Start the smart quiz",
+      "primaryHref": "/quiz",
+      "secondary": "Learn how Ask Seba works",
+      "secondaryHref": "/about"
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "Our Story at Ask Seba",
+      "subtitle": "An app that analyzes fragrance compatibility based on your personal preferences",
+      "cta": "Start the Quiz"
+    },
+    "sections": [
+      {
+        "id": "story-hero",
+        "title": "Why Ask Seba?",
+        "icon": "🎯",
+        "body": [
+          "Our journey began with those elegant bottles lined up on the shelves, covered in dust despite their hefty price tags.",
+          "We discovered that buying a fragrance based on a quick store experience is a real gamble. We don't suggest random perfumes; we engineer olfactory compatibility by connecting your personal preferences with a database of thousands of global fragrances under IFRA safety standards."
+        ],
+        "bullets": []
+      },
+      {
+        "id": "pain-points",
+        "title": "Traditional Fragrance Problems",
+        "icon": "🔍",
+        "body": [],
+        "bullets": [
+          "Random selection: Buying based on a quick store experience or generic recommendations that don't consider your unique olfactory profile",
+          "Sensitivity: Hidden ingredients that may cause headaches or skin irritation hours after use",
+          "Incompatibility: The fragrance simply doesn't suit your body chemistry or personality, leading to wasted money and abandoned bottles"
+        ]
+      },
+      {
+        "id": "solution",
+        "title": "The Solution: Olfactory Compatibility Engineering",
+        "icon": "🧬",
+        "body": [
+          "We don't suggest random perfumes; we engineer olfactory compatibility",
+          "By linking your personal preferences with a database of thousands of global fragrances under IFRA safety standards, we analyze every note from top to base"
+        ],
+        "bullets": []
+      },
+      {
+        "id": "how-it-works",
+        "title": "How does ask.seba work?",
+        "icon": "🎨",
+        "body": [],
+        "bullets": [
+          "🎯 Phase 1 - We understand your olfactory profile: A smart 3-minute quiz that reveals loved notes, fragrance families, past symptoms, and restricted ingredients",
+          "🔬 Phase 2 - Precise scientific analysis: We use Fragrantica, IFRA, and global safety standards with daily updates",
+          "🎨 Phase 3 - Smart matching: Our algorithm analyzes each fragrance based on note compatibility + allergy avoidance + lifestyle fit"
+        ]
+      }
+    ],
+    "stats": [
+      {
+        "number": "50k",
+        "label": "Fragrances analyzed"
+      },
+      {
+        "number": "95%",
+        "label": "Compatibility accuracy"
+      },
+      {
+        "number": "100%",
+        "label": "Skin-safe"
+      }
+    ],
+    "testimonials": [
+      {
+        "quote": "I had 7 bottles I never used. After ask.seba, every fragrance I buy now I use down to the last drop!",
+        "author": "Ahmed",
+        "city": "Jeddah"
+      },
+      {
+        "quote": "I discovered the problem wasn't my skin, but the synthetic musk note that was in all my previous fragrances.",
+        "author": "Noura",
+        "city": "Riyadh"
+      },
+      {
+        "quote": "It saved me thousands of riyals. Now I buy with full confidence.",
+        "author": "Khalid",
+        "city": "Doha"
+      }
+    ],
+    "values": [
+      {
+        "title": "🔬 Scientific accuracy, not guesswork",
+        "description": "We build our knowledge base on global fragrance sources and international safety standards. We don't rely on opinions or trends, but on precise analysis of chemical composition"
+      },
+      {
+        "title": "💰 Protecting your investment",
+        "description": "We consider fragrance an investment in your presence, not just a random purchase. Every recommendation is designed to ensure you use the fragrance to the last drop"
+      },
+      {
+        "title": "🧬 100% tailored to your olfactory profile",
+        "description": "No one-size-fits-all recommendations. We consider your unique body chemistry even if you have rare sensitivities"
+      },
+      {
+        "title": "🌍 Living database",
+        "description": "Daily updates with the latest global releases and new ingredient information as soon as it's published"
+      },
+      {
+        "title": "Fully integrated Arabic interface",
+        "description": "Easy interface with clear terminology and Arabic technical support"
+      }
+    ],
+    "cta": {
+      "title": "Your journey begins now",
+      "body": "No more guessing. No more regret. No more abandoned bottles. Your perfect fragrance awaits. Your smart advisor is ready.",
+      "button": "Start the quiz now ←",
+      "button_href": "/quiz"
+    }
+  },
+  "faq": {
+    "hero": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Everything you want to know"
+    },
+    "categories": [
+      {
+        "name": "Getting Started",
+        "questions": [
+          {
+            "id": "q1",
+            "question": "How do I get started?",
+            "answer": "ask.seba is your smart fragrance advisor. We help you discover the perfect fragrance that suits your taste, skin, and daily life—before you buy it. Through a smart quiz (just 3 minutes with 4 simple questions), we analyze your preferences and match them with over 50,000 global fragrances, ensuring you get: ✅ A fragrance containing the notes you love, ✅ Completely free of ingredients that may irritate you or cause allergies, ✅ Suitable for your climate and occasions. 💡 Tip: Try the quiz from your phone while at the store to compare results on the spot!"
+          },
+          {
+            "id": "q2-pricing",
+            "question": "What are the prices and available plans?",
+            "answer": "Free plan: ✅ Full free quiz, ✅ 3-5 fragrance recommendations with high compatibility scores (80%+), ✅ View details for each fragrance (notes, compatibility percentage, price comparison). Premium plan (optional): ✅ Unlimited quizzes, ✅ 8-12 recommendations categorized by occasion (daily/work, evening/events, winter, summer/light), ✅ 2-3 alternatives per category, ✅ Save your quiz history and favorites, ✅ Faster technical support. 💡 Note: You can cancel your subscription at any time with no obligations!"
+          },
+          {
+            "id": "q3-mobile",
+            "question": "Does it work on mobile?",
+            "answer": "✅ Yes, absolutely! ask.seba is designed to run smoothly on: 📱 Smartphones (iOS & Android), 💻 Laptops and desktops, 🖥️ Tablets. The interface is fully responsive and optimized for small screens, with full Arabic language support (RTL)."
+          }
+        ]
+      },
+      {
+        "name": "🧪 Allergies & Safety",
+        "questions": [
+          {
+            "id": "q1-allergy",
+            "question": "How does the app handle allergies?",
+            "answer": "✅ We specialize in this! We use international fragrance databases and IFRA global standards to pinpoint the exact triggering note. Practical example: If you're sensitive to synthetic oud, we automatically exclude all fragrances containing it. But we may suggest fragrances with 100% natural oud wood if they're safe for you. How do we analyze your sensitivity? Note type (natural vs. synthetic), precise chemical components, potential reactions with your skin. ⚠️ Important: If you develop a new severe allergy, consult a dermatologist first!"
+          },
+          {
+            "id": "q2-compatibility",
+            "question": "How does ask.seba calculate the compatibility score?",
+            "answer": "We analyze 3 main factors to calculate the compatibility score with high accuracy: 1️⃣ Note compatibility (40%): How many of your loved notes are in the fragrance? Do the main notes (Heart & Base) match your taste? 2️⃣ Health safety (40%): Is the fragrance completely free of your personal allergens? Does it comply with IFRA safety standards? 3️⃣ Lifestyle fit (20%): Does it suit your region's climate? Is it appropriate for the occasions you specified (daily, evening, formal...)? Why might the score be 87% and not 100%? A 100% score means perfect match in everything, which is very rare. Because we're honest with you! 💡 Tip: Any fragrance at 85%+ is an excellent choice!"
+          },
+          {
+            "id": "q3-allergy-change",
+            "question": "Can my sensitivities change over time?",
+            "answer": "✅ Yes, absolutely! Sensitivities may: 📈 Develop: A new allergy appears that wasn't there before, 📉 Subside: An old allergy disappears with treatment or lifestyle changes, 🔄 Change: Become less or more severe. 💡 Solution: You can retake the quiz periodically or when buying a new fragrance or checking one you own."
+          }
+        ]
+      },
+      {
+        "name": "🎯 Quiz & Results",
+        "questions": [
+          {
+            "id": "q1-accuracy",
+            "question": "Are the results really accurate?",
+            "answer": "95%+ success rate based on: 🔬 Scientific sources: The world's largest fragrance databases (50,000+ fragrances), IFRA: The global organization for fragrance safety standards, Daily updates from trusted sources. 👥 Real user experience: Thousands of positive reviews, Ongoing monitoring of customer satisfaction, Algorithm improvements based on feedback. ⚠️ But remember: Every skin is unique, and results may vary slightly. Test a small sample first before buying the full bottle. Personal experience is the final judge!"
+          }
+        ]
+      },
+      {
+        "name": "🔐 Registration & Privacy",
+        "questions": [
+          {
+            "id": "q1-registration",
+            "question": "Do I need to register?",
+            "answer": "❌ No, registration is completely optional! For guests (without registration): ✅ Use the full quiz, ✅ See results immediately, ✅ Save results temporarily on your device. For registered users (free): ✅ Everything above + 📊 Save your previous results, ⭐ Create a favorites list, 📈 Track your quiz history, 🎯 Improved recommendations over time, 📱 Share your results with friends via direct link, WhatsApp, or Twitter. ⚠️ Privacy note: When sharing, your friend only sees fragrance recommendations—not your sensitivity data or personal details."
+          },
+          {
+            "id": "q2-privacy",
+            "question": "How do you protect my privacy and data?",
+            "answer": "✅ Military-grade security for your data! What we protect: 🔐 AES-256 encryption for all data, 🔒 Mandatory HTTPS (SSL/TLS 1.3), 🚫 No selling, no sharing, no use for advertising, 🗑️ Immediate and permanent deletion upon request. What we collect (for registered users only): Email (for login), fragrance preferences, quiz history. What we never collect: ❌ Your phone number, ❌ Your address, ❌ Sensitive payment info, ❌ Your precise location. 📄 For full details: Privacy policy"
+          }
+        ]
+      },
+      {
+        "name": "🌍 Fragrances & Availability",
+        "questions": [
+          {
+            "id": "q1-supported-perfumes",
+            "question": "What fragrances are supported in the app?",
+            "answer": "Included fragrances: ✅ We cover global, Arab, and Eastern fragrances registered in international databases. Important requirement—the fragrance must be: ✅ Documented in Fragrantica or IFRA, ✅ Have a clear composition (notes known), ✅ Available in the market. Unsupported fragrances: ❌ Locally produced fragrances not internationally documented, ❌ Personal blends without clear composition, ❌ Counterfeit fragrances (Fake/Replica)."
+          },
+          {
+            "id": "q2-favorite-not-found",
+            "question": "What if I can't find my favorite fragrance?",
+            "answer": "Several possibilities: 1️⃣ The fragrance exists but with lower compatibility: It may be outside the main results due to compatibility below 80%. 2️⃣ The fragrance isn't in the database: It may be very local or exclusive—email us at support@askseba.com and we'll add it! 3️⃣ Your preferences have changed: Maybe what you loved before isn't right for you now—try the new recommendations, you might discover something better!"
+          },
+          {
+            "id": "q3-selling",
+            "question": "Does ask.seba sell fragrances?",
+            "answer": "❌ No, we don't sell fragrances! We only: 🔍 Help you discover the right fragrance, 📊 Show you details for each fragrance (notes, approximate price), 🗺️ Guide you to trusted places to buy (stores, websites). Why? ✅ We maintain our neutrality and independence, ✅ We're not influenced by commissions or commercial deals, ✅ Our recommendations are 100% for your benefit only."
+          }
+        ]
+      },
+      {
+        "name": "📞 Support & Contact",
+        "questions": [
+          {
+            "id": "q1-contact",
+            "question": "How do I contact support?",
+            "answer": "Several easy ways: 📧 For general inquiries: Email: support@askseba.com, ⏱️ We typically respond within 24 hours, 💬 Support form: On the Profile page → Contact us. 🐛 Have a technical issue? Do the following: 1. Take a screenshot of the problem, 2. Explain the issue in detail (what were you doing? what happened? what device and browser?), 3. Email us at support@askseba.com with subject: Technical issue."
+          },
+          {
+            "id": "q2-suggestions",
+            "question": "Have a suggestion to improve the app?",
+            "answer": "We love new ideas! 🚀 Share your suggestion via: 📧 Email: support@askseba.com, 📝 Email subject: Improvement suggestion, 💬 Suggestions page in the app. What we're looking for: New features you'd like to see, Interface improvements, Fragrances or brands you'd like added, Anything that makes your experience better! 🎯 We promise: Careful review of every suggestion, Response within 48 hours, Implementing the most requested ideas."
+          }
+        ]
+      }
+    ]
+  },
+  "quiz": {
+    "title": "Your olfactory profile",
+    "subtitle": "Discover your ideal fragrances through a simple guided quiz",
+    "startButton": "Start quiz",
+    "step1": {
+      "title": "Fragrances I love 🧡",
+      "description": "Select 3–12 fragrances you like",
+      "minError": "Please select at least 3 fragrances",
+      "maxError": "You’ve reached the maximum (12)",
+      "placeholder": "Type a fragrance name to start...",
+      "helperText": "Search by fragrance name or brand. We’ll show you the best matches.",
+      "emptyStateTitle": "Type a fragrance name to start...",
+      "emptyStateDescription": "Search for your favorite fragrances by name or brand",
+      "selectedTitle": "Selected fragrances",
+      "favoritesLabel": "Favorites",
+      "addMoreText": "at least one more fragrance",
+      "maxWarning": "Maximum is 12 fragrances!",
+      "helpText": "💡 The more fragrances you add, the more accurate and tailored your recommendations will be.",
+      "searchResults": "result",
+      "noResults": "No results found for",
+      "confirmClear": "Are you sure you want to clear all selected fragrances?",
+      "ariaLabel": "Search for a favorite fragrance",
+      "searchTimeout": "Search timed out (10 seconds). Please try again.",
+      "searchRateLimit": "Search limit reached. Please wait a bit and try again.",
+      "searchError": "Something went wrong while searching. Please try again."
+    },
+    "step2": {
+      "title": "❌ Fragrances I don’t like",
+      "description": "Select 3–12 fragrances you dislike",
+      "placeholder": "Search for a fragrance...",
+      "dislikedLabel": "Disliked",
+      "addMoreText": "at least one more fragrance",
+      "selectedTitle": "Selected fragrances",
+      "searchResults": "Search results",
+      "noResults": "No results match your search",
+      "emptyStateTitle": "Start by searching for a fragrance",
+      "emptyStateDescription": "Type the fragrance or brand name, e.g. Dior, Chanel, Oud, Jasmine",
+      "skipButton": "💡 Skip this step",
+      "skipDescription": "You can skip this step if there are no fragrances you hate",
+      "dataError": "Fragrance data is currently unavailable"
+    },
+    "step3": {
+      "title": "3",
+      "description": "Select the symptoms you experience",
+      "level1Question": "Have fragrances ever caused you any of these symptoms?",
+      "level2Question": "What type of fragrances usually bother you?",
+      "level3Question": "Which ingredients trigger your sensitivity?",
+      "level3Description": "Choose the ingredients you already know irritate you",
+      "level1Title": "1. Symptoms",
+      "level2Title": "2. Fragrance families",
+      "level3Title": "3. Ingredients",
+      "saveButton": "Save my profile",
+      "transitioning": "Saving and moving on..."
+    }
+  },
+  "privacy": {
+    "hero": {
+      "title": "Privacy Policy",
+      "subtitle": "Your protection is our priority",
+      "last_updated": "January 2026"
+    },
+    "summaryBullets": [
+      "We don't sell your data",
+      "Full encryption"
+    ],
+    "sections": [
+      {
+        "id": "data-collected",
+        "title": "Data We Collect",
+        "content": [
+          "For guests (without registration): We don't collect any data at all. The quiz runs locally in your browser (local storage) and results are temporary—not sent to our servers.",
+          "For registered users: We only collect email (for login), name (optional), fragrance preferences (loved notes, personal sensitivities), quiz history (to save your results).",
+          "What we never collect: ❌ Your home address or phone number, ❌ Financial data (payment via secure processors outside our system), ❌ Your precise location, ❌ Sensitive health data"
+        ]
+      },
+      {
+        "id": "data-usage",
+        "title": "2. How do we use your data?",
+        "content": [
+          "We use it exclusively for: Custom fragrance recommendations that match your notes and avoid your sensitivities, Saving your history and favorites across devices, Improving the algorithm (anonymized aggregate data), General statistics (e.g., most popular note: oud).",
+          "We never use it for: Targeted advertising, selling to third parties, or off-site tracking."
+        ]
+      },
+      {
+        "id": "data-sharing",
+        "title": "3. Data Sharing",
+        "content": [
+          "We don't share your personal data with any commercial entity. The only exceptions:",
+          "GDPR-bound technical partners: Payment processors (PCI-compliant payment processing), Databases (protected database), Authentication (secure, encrypted login). All partners are bound by GDPR + Saudi PDPL standards and cannot use your data for other purposes.",
+          "Legal cases only: Formal request from Saudi authorities with a court order, Your explicit consent (e.g., sharing a result on Twitter)"
+        ]
+      },
+      {
+        "id": "legal-rights",
+        "title": "4. Your Legal Rights",
+        "content": [
+          "You have full right to:",
+          "Access: Get a copy of all your data (JSON file) from dashboard → Download my data",
+          "Rectification: Update your preferences or sensitivities anytime from account settings",
+          "Immediate deletion: Delete your account entirely from dashboard → Delete account (data is permanently removed within 30 days)",
+          "Objection: Stop use of your data for statistics",
+          "Portability: Transfer your data in a readable format",
+          "Contact: support@askseba.com with subject: Privacy request"
+        ]
+      },
+      {
+        "id": "security",
+        "title": "5. Security & Encryption",
+        "content": [
+          "We protect your data with the highest technical standards:",
+          "🔐 AES-256 encryption for all stored data",
+          "🔒 Mandatory HTTPS with SSL/TLS 1.3 for all connections",
+          "🔍 Monthly security audits by independent experts",
+          "💾 Encrypted daily backups",
+          "🚨 Immediate notification (within 72 hours) in case of any security breach"
+        ]
+      },
+      {
+        "id": "policy-changes",
+        "title": "6. Changes to This Policy",
+        "content": [
+          "We will update this policy when necessary (technical updates or new regulations).",
+          "When we update: Notification on the privacy policy page, Updated last modified date, Summary of key changes in dashboard.",
+          "Your continued use of Ask Seba after the update means you agree to the new policy. You can delete your account at any time if you disagree."
+        ]
+      },
+      {
+        "id": "contact",
+        "title": "7. Contact Us",
+        "content": [
+          "Questions about your privacy?",
+          "📧 support@askseba.com",
+          "⏱️ We typically respond within 24-48 hours",
+          "We don't retain support correspondence for more than 90 days"
+        ]
+      }
+    ],
+    "contact": {
+      "email": "support@askseba.com",
+      "response_time": "24-48 hours"
+    },
+    "compliance": {
+      "title": "Fully compliant with",
+      "standards": ["GDPR (European)", "Saudi PDPL (Saudi)"],
+      "note": "This policy protects you and us legally. Your privacy is never for sale."
+    }
+  },
+  "footer": {
+    "tagline": "Ask Seba – your smart fragrance advisor",
+    "description": "We help you discover fragrances that match your taste, skin, and sensitivities—before you spend a single riyal.",
+    "navAriaLabel": "Important links",
+    "links": {
+      "about": "Our story",
+      "faq": "FAQ",
+      "privacy": "Privacy",
+      "pricing": "Pricing",
+      "feedback": "Share your feedback",
+      "contact": "Contact us"
+    },
+    "social": {
+      "title": "Follow us",
+      "emailAriaLabel": "Contact us by email",
+      "instagramAriaLabel": "Follow us on Instagram",
+      "twitterAriaLabel": "Follow us on Twitter",
+      "instagram": "Instagram",
+      "twitter": "Twitter",
+      "tiktok": "TikTok"
+    },
+    "legal": {
+      "rights": "© {year} Ask Seba. All rights reserved.",
+      "cookies": "We use cookies to improve your experience.",
+      "terms": "Terms & Conditions"
+    },
+    "madeWithLove": "Built with love for fragrance lovers everywhere."
+  },
+  "common": {
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success"
+  },
+  "errorBoundary": {
+    "title": "Sorry, something went wrong",
+    "description": "We apologize for the inconvenience. Something didn't work as expected.",
+    "suggestion": "Our team is working on it. You can try again or return to the home page.",
+    "detailsSummary": "Error details (for developers)",
+    "errorLabel": "Error:",
+    "infoLabel": "Additional info:",
+    "retry": "Try again",
+    "home": "Home page",
+    "report": "Report error",
+    "tipsTitle": "💡 Tips that might help:",
+    "tip1": "Check your internet connection",
+    "tip2": "Refresh the page (F5 or Cmd+R)",
+    "tip3": "Clear your browser cache",
+    "tip4": "Try a different browser"
+  }
+}

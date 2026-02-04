@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import Script from 'next/script';
 import { Noto_Sans_Arabic, Manrope, Cormorant_Garamond } from "next/font/google";
+import { getLocale, getMessages } from "next-intl/server";
+import { NextIntlClientProvider } from "next-intl";
 import "./globals.css";
 import { Toaster } from 'sonner';
 import { PWARegister } from "@/components/PWARegister";
@@ -131,13 +133,15 @@ export function generateViewport(): Viewport {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
   const HOTJAR_ID = process.env.NEXT_PUBLIC_HOTJAR_ID;
+  const locale = await getLocale();
+  const messages = await getMessages();
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning className={`${notoSansArabic.variable} ${manrope.variable} ${cormorantGaramond.variable} ${notoSansArabic.className} antialiased`}>
       <head>
@@ -184,9 +188,11 @@ export default function RootLayout({
           <ErrorBoundary>
             <SessionProvider>
               <QuizProvider>
-                <ConditionalLayout>
-                  {children}
-                </ConditionalLayout>
+                <NextIntlClientProvider locale={locale} messages={messages}>
+                  <ConditionalLayout>
+                    {children}
+                  </ConditionalLayout>
+                </NextIntlClientProvider>
                 {/* HARDCODED TEST: red=light, blue=dark – remove after verifying */}
                 <div className="bg-red-500 dark:bg-blue-500 h-20 w-20 fixed bottom-4 left-4 z-50 flex items-center justify-center text-white text-xs font-bold p-1 text-center rounded-lg shadow-lg">
                   HARDCODED TEST

@@ -1,28 +1,19 @@
-import { auth } from '@/auth'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import createMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
 
-export async function middleware(request: NextRequest) {
-  const session = await auth()
-  const { pathname } = request.nextUrl
+// Create i18n middleware
+export default createMiddleware(routing);
 
-  // ✅ استثناء Fragella API routes - لا معالجة أو redirects
-  if (pathname.startsWith('/api/perfumes')) {
-    return NextResponse.next()
-  }
-
-  // Protect dashboard routes
-  if (pathname.startsWith('/dashboard')) {
-    if (!session) {
-      const loginUrl = new URL('/login', request.url)
-      loginUrl.searchParams.set('callbackUrl', pathname)
-      return NextResponse.redirect(loginUrl)
-    }
-  }
-
-  return NextResponse.next()
-}
-
+// Middleware configuration
 export const config = {
-  matcher: ['/dashboard/:path*']
-}
+  // Match all pathnames except:
+  // - API routes (/api/*)
+  // - Next.js internals (/_next/*)
+  // - Static files (files with extensions)
+  matcher: [
+    '/((?!api|_next|_vercel|.*\\..*).*)',
+    // Also match locale-prefixed routes
+    '/(ar|en)/:path*'
+  ]
+};
+

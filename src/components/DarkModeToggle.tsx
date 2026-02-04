@@ -12,7 +12,21 @@ const DarkModeToggle = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  // Prevent hydration mismatch and layout shift: reserve space with same dimensions
+  if (!mounted) {
+    return (
+      <button
+        className="theme-toggle group"
+        disabled
+        aria-hidden
+        style={{ cursor: 'default' }}
+      >
+        <div className="icon-container">
+          <span className="sr-only">Loading theme</span>
+        </div>
+      </button>
+    );
+  }
 
   const isDark = theme === "dark";
 
