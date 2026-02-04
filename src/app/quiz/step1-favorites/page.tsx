@@ -150,16 +150,16 @@ export default function Step1FavoritesPage() {
           {/* Search Section - Text Only ⚡ */}
           <div className="mb-8 relative">
             <div className="relative">
-              <Search className="absolute inset-inline-start-3 top-1/2 -translate-y-1/2 text-text-secondary dark:text-text-muted w-5 h-5" />
+              <Search data-icon="search" className="absolute inset-inline-start-5 top-1/2 -translate-y-1/2 text-text-secondary dark:text-text-muted w-5 h-5 scale-90" aria-hidden="true" />
               <Input
                 type="text"
                 placeholder={content.quiz.step1.placeholder}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pe-10 py-6 text-lg"
+                className="ps-14 pe-14 py-6 text-lg"
               />
               {isSearching && (
-                <Loader2 className="absolute inset-inline-end-3 top-1/2 -translate-y-1/2 animate-spin text-primary w-5 h-5" />
+                <Loader2 className="absolute inset-inline-end-4 top-1/2 -translate-y-1/2 animate-spin text-primary w-5 h-5" />
               )}
             </div>
 

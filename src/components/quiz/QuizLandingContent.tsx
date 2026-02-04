@@ -17,7 +17,7 @@ export function QuizLandingContent() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" href="/quiz/step1-favorites" className="min-h-[52px] w-full sm:w-auto">
+          <Button size="lg" href="/quiz/step1-favorites" className="min-h-[52px] w-full sm:w-auto !bg-gradient-to-r !from-amber-500 !to-amber-700 !text-white font-bold shadow-lg hover:shadow-xl">
             {content.quiz.startButton}
           </Button>
           <Button variant="outline" size="lg" href="/" className="min-h-[52px] w-full sm:w-auto">

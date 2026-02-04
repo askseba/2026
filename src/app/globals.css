@@ -158,3 +158,16 @@ DarkModeToggle Styles (Ask Seba)
   .theme-toggle { @apply w-12 h-12; }
   .icon-container { @apply w-10 h-10; }
 }
+
+/* ============================================
+Landing CTA "ابدأ الرحلة" / quiz – visible in light + dark, contrast 4.5:1+
+============================================ */
+.landing-cta-quiz {
+  display: inline-flex;
+  opacity: 1;
+  visibility: visible;
+  color: white;
+}
+.landing-cta-quiz span {
+  color: white;
+}

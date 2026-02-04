@@ -77,7 +77,7 @@ export function CTASection() {
           <motion.button
             onClick={handleClick}
             disabled={isClicked}
-            className="group relative w-[90%] max-w-[300px] overflow-hidden rounded-full bg-[linear-gradient(to_right,var(--gold),var(--gold-active))] dark:!bg-gradient-to-r dark:from-amber-600 dark:to-amber-800 px-12 py-[18px] text-lg font-semibold !text-white shadow-lg dark:shadow-amber-900/30 transition-all duration-300 disabled:opacity-70 md:w-auto"
+            className="landing-cta-quiz group relative w-[90%] max-w-[300px] overflow-hidden rounded-full bg-gradient-to-r from-gold to-gold-dark dark:from-amber-600 dark:to-amber-800 px-12 py-[18px] text-lg font-semibold text-white shadow-lg dark:shadow-amber-900/30 transition-all duration-300 disabled:opacity-70 md:w-auto"
             
             // ✅ Breathing animation (theme-aware shadows)
             animate={{
@@ -104,7 +104,7 @@ export function CTASection() {
             <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 dark:via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
             
             {/* Button text - white for max contrast on gold/amber gradient */}
-            <span className="relative z-10 text-3xl md:text-4xl text-white font-semibold">
+            <span className="relative z-10 text-3xl md:text-4xl text-white font-bold">
               {isClicked ? 'جاري التحميل...' : 'ابدأ الرحلة'}
             </span>
           </motion.button>

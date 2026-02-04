@@ -67,8 +67,9 @@ export const Input = ({
           type={inputType}
           aria-invalid={!!error}
           className={cn(
-            'w-full rounded-2xl border-2 border-border bg-white dark:bg-surface text-base transition-all',
+            'w-full rounded-2xl border-2 border-border bg-background dark:bg-surface text-base transition-all',
             'px-4 py-3',
+            'placeholder:text-text-muted/80 dark:placeholder:text-slate-200/90 placeholder:opacity-100',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:bg-primary/5 focus-visible:border-primary',
             'dark:focus-visible:ring-accent-primary/70 dark:focus-visible:ring-offset-background dark:focus-visible:border-accent-primary',
             /* RTL-safe: ps=padding-inline-start, pe=padding-inline-end (match start-3/end-3 icon positions) */
