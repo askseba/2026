@@ -5,7 +5,7 @@
 'use client'
 import { Crown, Zap, Check, ArrowLeft } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface UpsellCardProps {
   position: 'mid-grid' | 'bottom'
@@ -15,15 +15,6 @@ interface UpsellCardProps {
 }
 
 export function UpsellCard({ position, remainingCount, averageMatch, onUpgrade }: UpsellCardProps) {
-  const router = useRouter()
-  
-  const handleUpgrade = () => {
-    if (onUpgrade) {
-      onUpgrade()
-    } else {
-      router.push('/pricing')
-    }
-  }
   
   return (
     <motion.div
@@ -119,14 +110,15 @@ export function UpsellCard({ position, remainingCount, averageMatch, onUpgrade }
         
         {/* CTA */}
         <div className="space-y-3">
-          <button
-            onClick={handleUpgrade}
+          <Link
+            href="/pricing"
+            onClick={(e) => { onUpgrade?.(); }}
             className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-2xl font-bold text-lg shadow-2xl hover:shadow-amber-500/50 transition-all duration-300 hover:scale-105 active:scale-95 w-full sm:w-auto justify-center"
           >
             <Crown className="w-6 h-6 group-hover:rotate-12 transition-transform" />
             <span>اشترك الآن</span>
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          </button>
+          </Link>
         </div>
       </div>
     </motion.div>

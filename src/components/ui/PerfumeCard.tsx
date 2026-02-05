@@ -66,7 +66,7 @@ export function PerfumeCard({
       {/* Badges Overlay */}
       <div className="absolute top-4 left-4 right-4 z-20 flex justify-between items-start pointer-events-none">
         <div className="flex flex-col gap-2 pointer-events-auto">
-          {isSafe && (
+          {isSafe && displayScore >= 70 && (
             <div className="bg-safe-green/90 dark:bg-green-600 backdrop-blur-md !text-white opacity-100 px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-sm">
               <ShieldCheck className="w-3 h-3" />
               آمن تماماً

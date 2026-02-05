@@ -547,6 +547,9 @@
       "description": "Discover your ideal fragrances based on your personality and preferences analysis"
     }
   },
+  "dashboard": {
+    "matchFormat": "{pct}% match"
+  },
   "common": {
     "next": "Next",
     "previous": "Previous",

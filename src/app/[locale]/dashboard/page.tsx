@@ -13,7 +13,7 @@ import {
   Star,
   Clock
 } from 'lucide-react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useSession } from 'next-auth/react'
 import { useRouter } from '@/i18n/routing'
 import { Button } from '@/components/ui/button'
@@ -25,9 +25,15 @@ const RadarChart = dynamic(
   { ssr: false, loading: () => <div className="aspect-square bg-cream-bg animate-pulse rounded-3xl" /> }
 )
 
+const LATEST_RECOMMENDATIONS = [
+  { category: 'Perfume', brand: 'Dior', name: 'Sauvage Elixir', match: 95 },
+  { category: 'Perfume', brand: 'Dior', name: 'Sauvage Elixir', match: 95 }
+] as const
+
 export default function DashboardPage() {
   const locale = useLocale()
   const direction = locale === 'ar' ? 'rtl' : 'ltr'
+  const t = useTranslations('dashboard')
   const { data: session, status } = useSession()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('overview')
@@ -130,17 +136,18 @@ export default function DashboardPage() {
                         <Button variant="ghost" size="sm" className="text-primary font-bold">عرض الكل</Button>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[1, 2].map((i) => (
+                        {LATEST_RECOMMENDATIONS.map((p, i) => (
                           <div key={i} className="bg-white p-4 rounded-3xl border border-primary/5 flex items-center gap-4 hover:shadow-elevation-2 transition-all cursor-pointer group">
                             <div className="relative w-20 h-20 bg-cream-bg rounded-2xl overflow-hidden">
-                              <Image src={`/placeholder-perfume.svg`} alt="Perfume" fill className="object-contain p-2 group-hover:scale-110 transition-transform" />
+                              <Image src="/placeholder-perfume.svg" alt={p.name} fill className="object-contain p-2 group-hover:scale-110 transition-transform" />
                             </div>
                             <div className="flex-1">
-                              <p className="text-[10px] font-bold text-primary uppercase">ديور</p>
-                              <h4 className="font-bold text-text-primary">ساواج إلكسير</h4>
+                              <p className="text-[10px] font-bold text-primary uppercase">{p.category}</p>
+                              <p className="text-[10px] font-bold text-primary uppercase">{p.brand}</p>
+                              <h4 className="font-bold text-text-primary">{p.name}</h4>
                               <div className="flex items-center gap-1 mt-1">
                                 <Star className="w-3 h-3 text-warning-amber fill-current" />
-                                <span className="text-xs font-bold text-text-secondary">95% تطابق</span>
+                                <span className="text-xs font-bold text-text-secondary">{t('matchFormat', { pct: p.match })}</span>
                               </div>
                             </div>
                             <ChevronLeft className="w-5 h-5 text-text-secondary group-hover:text-primary transition-colors" />

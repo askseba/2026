@@ -203,12 +203,12 @@ export default function Step1FavoritesPage() {
             )}
           </div>
 
-          <div className="mt-12">
+          <div className="mt-12 mx-auto max-w-md">
             <Button
               onClick={handleNext}
               disabled={selectedPerfumes.length < MIN_SELECTIONS || isPending}
               isLoading={isPending}
-              className="w-full py-6 text-xl text-white shadow-lg"
+              className="w-full py-6 text-xl bg-gradient-to-r from-primary to-primary-dark text-primary-dark dark:text-white shadow-lg opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"
               size="lg"
             >
               {t('step1.nextButtonWithCount', { count: selectedPerfumes.length, max: MAX_SELECTIONS })}

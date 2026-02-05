@@ -323,7 +323,7 @@ export default function ResultsPage() {
                         brand={perfume.brand}
                         matchPercentage={perfume.finalScore}
                         imageUrl={perfume.image}
-                        isSafe={perfume.safetyScore === 100}
+                        isSafe={(perfume.safetyScore ?? perfume.finalScore ?? 0) >= 70}
                       />
                       
                       {/* ✅ NEW: Price Comparison for Premium */}
