@@ -528,6 +528,7 @@
       "feedback": "Share your feedback",
       "contact": "Contact us"
     },
+    "linksRich": "<about>About</about> · <faq>FAQ</faq> · <privacy>Privacy</privacy> · <feedback>Share your feedback</feedback>",
     "social": {
       "title": "Follow us",
       "emailAriaLabel": "Contact us by email",

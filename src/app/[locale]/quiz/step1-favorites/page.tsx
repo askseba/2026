@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect, useTransition } from 'react'
 import { useRouter } from '@/i18n/routing'
-import { Search, X, Loader2 } from 'lucide-react'
+import { X, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { useLocale, useTranslations } from 'next-intl'
@@ -159,13 +159,12 @@ export default function Step1FavoritesPage() {
 
           <div className="mb-8 relative">
             <div className="relative">
-              <Search data-icon="search" className="absolute inset-inline-start-5 top-1/2 -translate-y-1/2 text-text-secondary dark:text-text-muted w-5 h-5 scale-90" aria-hidden="true" />
               <Input
                 type="text"
                 placeholder={t('step1.placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="ps-14 pe-14 py-6 text-lg"
+                className="ps-4 pe-14 py-6 text-lg"
               />
               {isSearching ? (
                 <Loader2 className="absolute inset-inline-end-4 top-1/2 -translate-y-1/2 animate-spin text-primary w-5 h-5" />

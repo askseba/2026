@@ -528,6 +528,7 @@
       "feedback": "شاركنا رأيك",
       "contact": "تواصل معنا"
     },
+    "linksRich": "<about>قصتنا</about> · <faq>تساؤلات</faq> · <privacy>الخصوصية</privacy> · <feedback>شاركنا رأيك</feedback>",
     "social": {
       "title": "تابعنا",
       "emailAriaLabel": "تواصل معنا بالبريد الإلكتروني",

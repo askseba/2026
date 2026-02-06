@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect, useCallback, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, X, AlertTriangle, Loader2, ChevronRight } from 'lucide-react'
+import { X, AlertTriangle, Loader2, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
@@ -158,13 +158,12 @@ export default function Step2DislikedPage() {
           {/* Search Section - Text Only ⚡ */}
           <div className="mb-8 relative">
             <div className="relative">
-              <Search data-icon="search" className="absolute inset-inline-start-5 top-1/2 -translate-y-1/2 text-text-secondary dark:text-text-muted w-5 h-5 scale-90" aria-hidden="true" />
               <Input
                 type="text"
                 placeholder={content.quiz.step2.placeholder}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="ps-14 pe-14 py-6 text-lg"
+                className="ps-4 pe-14 py-6 text-lg"
               />
               {isSearching && (
                 <Loader2 className="absolute inset-inline-end-4 top-1/2 -translate-y-1/2 animate-spin text-primary w-5 h-5" />

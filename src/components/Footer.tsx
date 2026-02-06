@@ -1,47 +1,50 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import { Twitter, Instagram, Mail } from 'lucide-react'
 
+const linkClassName =
+  '!inline-flex !items-center !justify-center !min-h-[44px] !min-w-[44px] !transition-colors !text-[rgb(var(--color-accent-primary))] hover:!text-[rgb(var(--color-accent-primary))] touch-manipulation'
+
 export function Footer() {
+  const locale = useLocale()
   const t = useTranslations('footer')
+  const dir = locale === 'ar' ? 'rtl' : 'ltr'
 
   return (
     <footer
-      dir="rtl"
+      dir={dir}
       className="bg-white dark:bg-slate-900/50 border-t border-border-subtle dark:border-slate-700/50 py-6 px-4"
     >
       <div className="container mx-auto max-w-6xl">
-        {/* 4 CTA row – light: accent, dark: amber explicit for contrast >4.5:1 */}
+        {/* Nav row: rich text so links are real <Link>s; locale comes from routing, no /ar hardcoded */}
         <nav
           className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4 mb-6"
           aria-label={t('navAriaLabel')}
         >
-          <Link
-            href="/about"
-            className="!flex !items-center !justify-center !min-h-[44px] !min-w-[44px] !transition-colors !text-[rgb(var(--color-accent-primary))] hover:!text-[rgb(var(--color-accent-primary))] touch-manipulation"
-          >
-            {t('links.about')}
-          </Link>
-          <Link
-            href="/faq"
-            className="!flex !items-center !justify-center !min-h-[44px] !min-w-[44px] !transition-colors !text-[rgb(var(--color-accent-primary))] hover:!text-[rgb(var(--color-accent-primary))] touch-manipulation"
-          >
-            {t('links.faq')}
-          </Link>
-          <Link
-            href="/privacy"
-            className="!flex !items-center !justify-center !min-h-[44px] !min-w-[44px] !transition-colors !text-[rgb(var(--color-accent-primary))] hover:!text-[rgb(var(--color-accent-primary))] touch-manipulation"
-          >
-            {t('links.privacy')}
-          </Link>
-          <Link
-            href="/feedback"
-            className="!flex !items-center !justify-center !min-h-[44px] !min-w-[44px] !transition-colors !text-[rgb(var(--color-accent-primary))] hover:!text-[rgb(var(--color-accent-primary))] touch-manipulation"
-          >
-            {t('links.feedback')}
-          </Link>
+          {t.rich('linksRich', {
+            about: (chunks) => (
+              <Link href="/about" className={linkClassName}>
+                {chunks}
+              </Link>
+            ),
+            faq: (chunks) => (
+              <Link href="/faq" className={linkClassName}>
+                {chunks}
+              </Link>
+            ),
+            privacy: (chunks) => (
+              <Link href="/privacy" className={linkClassName}>
+                {chunks}
+              </Link>
+            ),
+            feedback: (chunks) => (
+              <Link href="/feedback" className={linkClassName}>
+                {chunks}
+              </Link>
+            ),
+          })}
         </nav>
 
         {/* Icons row – dark:fill-amber-300 */}
