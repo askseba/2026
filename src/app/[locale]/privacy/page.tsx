@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import * as Accordion from '@radix-ui/react-accordion'
 import { ChevronDown, ArrowLeft, Mail, Shield } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { motion } from 'framer-motion'
 
 type PrivacySection = { id: string; title: string; content: string[] }
@@ -94,11 +95,13 @@ export default function PrivacyPage() {
                   <button
                     key={section.id}
                     onClick={() => scrollToSection(section.id)}
-                    className={`w-full text-right px-4 py-2 rounded-xl text-sm transition-colors ${
+                    className={cn(
+                      'w-full px-4 py-2 rounded-xl text-sm transition-colors',
+                      direction === 'rtl' ? 'text-right' : 'text-left',
                       activeSection === section.id
                         ? 'bg-brand-gold/20 text-brand-gold font-bold'
                         : 'text-brand-brown/70 hover:bg-brand-gold/10 hover:text-brand-brown'
-                    }`}
+                    )}
                   >
                     {section.title}
                   </button>
@@ -133,8 +136,7 @@ export default function PrivacyPage() {
                 type="single"
                 collapsible
                 className="space-y-2"
-                value={activeSection || undefined}
-                onValueChange={(value) => setActiveSection(value)}
+                defaultValue={sections[0]?.id}
               >
                 {sections.map((section) => (
                   <Accordion.Item
@@ -144,12 +146,18 @@ export default function PrivacyPage() {
                     className="bg-white/90 backdrop-blur-sm shadow-lg rounded-3xl border border-brand-brown/20 mb-2 overflow-hidden"
                   >
                     <Accordion.Header>
-                      <Accordion.Trigger className="w-full px-6 py-4 flex justify-between items-center text-base font-bold text-brand-brown hover:bg-brand-gold/50 transition-colors text-right">
+                      <Accordion.Trigger className={cn(
+                        'w-full px-6 py-4 flex justify-between items-center text-base font-bold text-brand-brown hover:bg-brand-gold/50 transition-colors',
+                        direction === 'rtl' ? 'flex-row-reverse text-right' : 'text-left'
+                      )}>
                         <span>{section.title}</span>
                         <ChevronDown className="w-5 h-5 flex-shrink-0 transition-transform duration-300 data-[state=open]:rotate-180" />
                       </Accordion.Trigger>
                     </Accordion.Header>
-                    <Accordion.Content className="px-6 pb-4 text-base text-brand-brown/80 overflow-hidden text-right">
+                    <Accordion.Content className={cn(
+                      'px-6 pb-4 text-base text-brand-brown/80 overflow-hidden',
+                      direction === 'rtl' ? 'text-right' : 'text-left'
+                    )}>
                       <div className="py-2 space-y-2">
                         {section.content.map((paragraph, pIdx) => (
                           <p key={pIdx} className="whitespace-pre-line">{paragraph}</p>
