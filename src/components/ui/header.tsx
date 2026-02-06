@@ -44,8 +44,8 @@ export default function Header() {
         {/* Left side: StatusCircles - لا تُلمس */}
         <StatusCircles />
         
-        {/* Right side: Controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right side: Controls - z-10 so toggle stays above header backdrop */}
+        <div className="relative z-10 flex items-center gap-2 sm:gap-3">
           {/* Theme Toggle */}
           <DarkModeToggle />
           

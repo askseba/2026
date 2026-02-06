@@ -1,7 +1,6 @@
 import { AlertTriangle } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import DarkModeToggle from "@/components/DarkModeToggle"
 
 export default function NotFound() {
   return (
@@ -9,9 +8,6 @@ export default function NotFound() {
       dir="rtl"
       className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50 dark:from-background dark:to-surface px-4"
     >
-      <div className="absolute top-4 left-4">
-        <DarkModeToggle />
-      </div>
       <div className="text-center max-w-md mx-auto">
         <div className="mb-6 flex justify-center">
           <AlertTriangle className="w-20 h-20 text-red-600 dark:text-red-400" />

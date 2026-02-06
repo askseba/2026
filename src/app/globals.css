@@ -124,7 +124,7 @@ body {
 DarkModeToggle Styles (Ask Seba)
 ============================================ */
 .theme-toggle {
-  @apply relative flex items-center justify-center;
+  @apply relative z-10 flex items-center justify-center;
   @apply w-14 h-14 p-2 rounded-full;
   @apply transition-all duration-300 ease-in-out;
   @apply hover:bg-black/5 dark:hover:bg-white/10;
