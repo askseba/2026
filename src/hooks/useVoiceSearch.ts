@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { VoiceState } from '@/types/voice-search';
+import { translateArabicToEnglish, normalizeArabic } from '@/lib/voice-search-mapping';
 
 export type { VoiceState } from '@/types/voice-search';
 
@@ -52,18 +53,44 @@ async function getPerfumesForFuzzy(): Promise<{ name: string; brand: string }[]>
 /** Optional fuzzy match: transcript → best perfume name/brand or transcript */
 async function fuzzyTranscript(transcript: string): Promise<string> {
   try {
+    // LAYER 1: Try Arabic to English translation first (fast & accurate)
+    const translated = translateArabicToEnglish(transcript);
+    if (translated) {
+      console.log('[Voice Search] Translated:', transcript, '→', translated);
+      return translated;
+    }
+
+    // LAYER 2: Try Fuse.js fuzzy matching on original transcript
     const Fuse = (await import('fuse.js')).default;
     const perfumes = await getPerfumesForFuzzy();
-    if (!perfumes.length) return transcript;
+
+    if (!perfumes.length) {
+      console.log('[Voice Search] No perfumes available for fuzzy matching');
+      return transcript;
+    }
+
     const fuse = new Fuse(perfumes, {
       keys: ['name', 'brand'],
-      threshold: 0.4,
+      threshold: 0.35, // Slightly more strict for better accuracy
+      ignoreLocation: true,
+      distance: 100,
     });
-    const result = fuse.search(transcript);
-    const best = result[0];
-    if (best?.item?.name) return best.item.name;
+
+    // Search with normalized transcript
+    const normalized = normalizeArabic(transcript);
+    const result = fuse.search(normalized);
+
+    if (result.length > 0 && result[0].score !== undefined && result[0].score < 0.35) {
+      const match = result[0].item;
+      console.log('[Voice Search] Fuzzy match:', transcript, '→', match.name, 'score:', result[0].score);
+      return match.name;
+    }
+
+    // LAYER 3: If no good match, return original
+    console.log('[Voice Search] No good match, using original:', transcript);
     return transcript;
-  } catch {
+  } catch (error) {
+    console.error('[Voice Search] Error in fuzzyTranscript:', error);
     return transcript;
   }
 }
@@ -114,6 +141,7 @@ export const useVoiceSearch = (options?: UseVoiceSearchOptions) => {
           .join(' ')
           .trim();
         if (transcript) {
+          console.log('[Voice Search] Raw transcript:', transcript);
           setState((s) => ({
             ...s,
             status: 'transcript',

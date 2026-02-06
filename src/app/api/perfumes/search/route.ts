@@ -23,6 +23,8 @@ export async function GET(request: NextRequest) {
       name: p.name,
       brand: p.brand,
       image: p.image ?? (p as { imageUrl?: string }).imageUrl ?? '',
+      source: p.source ?? 'local',
+      fragellaId: (p as { fragellaId?: string }).fragellaId,
     }))
 
     return NextResponse.json({
@@ -61,6 +63,8 @@ export async function POST(request: NextRequest) {
       name: p.name,
       brand: p.brand,
       image: p.image ?? (p as { imageUrl?: string }).imageUrl ?? '',
+      source: p.source ?? 'local',
+      fragellaId: (p as { fragellaId?: string }).fragellaId,
     }))
 
     return NextResponse.json({

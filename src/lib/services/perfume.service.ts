@@ -142,7 +142,8 @@ export async function searchPerfumes(query: string, limit = 20): Promise<SearchR
     )
 
     if (!response.ok) {
-      logger.warn(`⚠️ Fragella API error (${response.status}), using local fallback`)
+      const errText = await response.text()
+      logger.warn(`⚠️ Fragella API error (${response.status}), using local fallback. Body: ${errText.substring(0, 200)}`)
       return searchLocalPerfumes(query, limit)
     }
 
@@ -153,8 +154,17 @@ export async function searchPerfumes(query: string, limit = 20): Promise<SearchR
     }
 
     const raw = await response.json() as unknown
+    // Fragella API returns { results: [...] } OR array directly
     if (raw !== null && typeof raw === 'object' && 'results' in raw && Array.isArray((raw as SearchResultsResponse).results)) {
+      const count = (raw as SearchResultsResponse).results.length
+      logger.info(`Fragella API: Found ${count} results`)
       return raw as SearchResultsResponse
+    }
+    // Fragella may return array directly: [{...}, {...}]
+    if (Array.isArray(raw)) {
+      const count = raw.length
+      logger.info(`Fragella API: Found ${count} results (array format)`)
+      return { results: raw } as SearchResultsResponse
     }
     return { results: [] }
   } catch (error) {
@@ -202,6 +212,7 @@ export async function searchPerfumesWithCache<T = { results: unknown[] }>(query:
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
         }
       })
+      logger.info('Cache updated')
     } catch (cacheError) {
       logger.warn('Failed to cache search results:', cacheError)
       // Continue anyway - cache failure should not break search

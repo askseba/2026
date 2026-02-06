@@ -38,3 +38,4 @@ export {
   DropdownMenuRadioGroup,
 } from './dropdown-menu'
 export { Avatar, AvatarImage, AvatarFallback } from './avatar'
+export { VoiceMicButton } from './VoiceMicButton'

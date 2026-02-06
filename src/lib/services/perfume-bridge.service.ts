@@ -103,7 +103,7 @@ export async function searchUnified(
         }
         
         const fragellaResults = fragellaArray
-          .map((item: any) => convertFragellaToUnified(item))
+          .map((item: any, index: number) => convertFragellaToUnified(item, undefined, index))
           .filter((p): p is UnifiedPerfume => p !== null)
         
         results.push(...fragellaResults)
@@ -201,33 +201,41 @@ export async function getPerfumesUnified(ids: string[]): Promise<UnifiedPerfume[
  */
 export function convertFragellaToUnified(
   fragellaData: any,
-  fragellaId?: string
+  fragellaId?: string,
+  fallbackIndex?: number
 ): UnifiedPerfume | null {
   if (!fragellaData || typeof fragellaData !== 'object') {
     return null
   }
 
   try {
-    const id = fragellaId || fragellaData.id
+    // Fragella API uses PascalCase: Name, Brand, "Image URL"; some responses have id
+    const name = fragellaData.name || fragellaData.Name || 'Unknown'
+    const brand = fragellaData.brand?.name ?? fragellaData.brand ?? fragellaData.Brand ?? 'Unknown'
+    const id = fragellaId || fragellaData.id || fragellaData._id
+    const effectiveId = id || (fallbackIndex !== undefined ? `idx-${fallbackIndex}` : null)
     
-    if (!id) {
+    if (!effectiveId) {
       logger.warn('Fragella data missing ID')
       return null
     }
     
+    const image = fragellaData.image_url || fragellaData.image || fragellaData['Image URL'] || '/placeholder-perfume.jpg'
+    const price = fragellaData.price ?? fragellaData.Price ?? null
+    
     return {
-      id: `fragella-${id}`,
-      fragellaId: id,
-      name: fragellaData.name || 'Unknown',
-      brand: fragellaData.brand?.name || fragellaData.brand || 'Unknown',
-      image: fragellaData.image_url || fragellaData.image || '/placeholder-perfume.jpg',
+      id: `fragella-${effectiveId}`,
+      fragellaId: String(effectiveId),
+      name,
+      brand: String(brand),
+      image,
       description: fragellaData.description || '',
       
       /**
        * Reference price for internal filtering only
        * ⚠️ DO NOT DISPLAY IN UI - Use /api/prices/compare endpoint
        */
-      price: fragellaData.price || null,
+      price,
       originalPrice: fragellaData.original_price || null,
       
       // Default matching score - will be calculated by matching algorithm
@@ -259,25 +267,18 @@ export function convertFragellaToUnified(
  */
 function extractFamilies(fragellaData: any): string[] {
   const families: string[] = []
-  
-  // Validate and extract from main_accords
-  if (fragellaData.main_accords && Array.isArray(fragellaData.main_accords)) {
-    families.push(...fragellaData.main_accords
-      .map((a: any) => {
-        if (typeof a === 'string') return a
-        if (a && typeof a === 'object' && a.name) return a.name
-        return null
-      })
-      .filter(Boolean)
-    )
+  const addAccords = (arr: unknown) => {
+    if (!arr || !Array.isArray(arr)) return
+    arr.forEach((a: any) => {
+      if (typeof a === 'string') families.push(a)
+      else if (a && typeof a === 'object' && a.name) families.push(a.name)
+    })
   }
-  
-  // Validate and extract from olfactive_family
+  addAccords(fragellaData.main_accords)
+  addAccords(fragellaData['Main Accords'])
   if (fragellaData.olfactive_family && typeof fragellaData.olfactive_family === 'string') {
     families.push(fragellaData.olfactive_family)
   }
-  
-  // Remove duplicates and filter empty values
   return [...new Set(families)].filter(f => f && typeof f === 'string' && f.trim())
 }
 
@@ -298,10 +299,17 @@ function extractIngredients(fragellaData: any): string[] {
     return []
   }
   
-  // Extract from all pyramid levels
+  // Extract from all pyramid levels (snake_case or Fragella's Notes.Top/Middle/Base)
   allNotes.push(...extractNotesArray(fragellaData.top_notes))
   allNotes.push(...extractNotesArray(fragellaData.middle_notes))
   allNotes.push(...extractNotesArray(fragellaData.base_notes))
+  const notesObj = fragellaData.Notes || fragellaData.notes
+  if (notesObj && typeof notesObj === 'object') {
+    allNotes.push(...extractNotesArray(notesObj.Top || notesObj.top))
+    allNotes.push(...extractNotesArray(notesObj.Middle || notesObj.middle))
+    allNotes.push(...extractNotesArray(notesObj.Base || notesObj.base))
+  }
+  allNotes.push(...extractNotesArray(fragellaData['General Notes'] || fragellaData.general_notes))
   
   // Map notes to ingredients
   for (const note of allNotes) {
@@ -319,32 +327,18 @@ function extractIngredients(fragellaData: any): string[] {
  * Extract scent pyramid from Fragella data
  */
 function extractPyramid(fragellaData: any): any[] | undefined {
-  const hasNotes = fragellaData.top_notes || fragellaData.middle_notes || fragellaData.base_notes
+  const notesObj = fragellaData.Notes || fragellaData.notes
+  const top = fragellaData.top_notes ?? notesObj?.Top ?? notesObj?.top ?? []
+  const middle = fragellaData.middle_notes ?? notesObj?.Middle ?? notesObj?.middle ?? []
+  const base = fragellaData.base_notes ?? notesObj?.Base ?? notesObj?.base ?? []
+  const hasNotes = (Array.isArray(top) && top.length) || (Array.isArray(middle) && middle.length) || (Array.isArray(base) && base.length)
   
   if (!hasNotes) return undefined
   
   return [
-    {
-      stage: 'top',
-      stageAr: 'المقدمة',
-      notes: extractNoteNames(fragellaData.top_notes || []),
-      duration: '15-30 دقيقة',
-      color: '#FFE5B4'
-    },
-    {
-      stage: 'heart',
-      stageAr: 'القلب',
-      notes: extractNoteNames(fragellaData.middle_notes || []),
-      duration: '2-4 ساعات',
-      color: '#FFC0CB'
-    },
-    {
-      stage: 'base',
-      stageAr: 'القاعدة',
-      notes: extractNoteNames(fragellaData.base_notes || []),
-      duration: '4-8 ساعات',
-      color: '#DEB887'
-    }
+    { stage: 'top', stageAr: 'المقدمة', notes: extractNoteNames(top), duration: '15-30 دقيقة', color: '#FFE5B4' },
+    { stage: 'heart', stageAr: 'القلب', notes: extractNoteNames(middle), duration: '2-4 ساعات', color: '#FFC0CB' },
+    { stage: 'base', stageAr: 'القاعدة', notes: extractNoteNames(base), duration: '4-8 ساعات', color: '#DEB887' }
   ]
 }
 

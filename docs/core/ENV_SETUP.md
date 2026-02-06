@@ -13,6 +13,10 @@ NEXTAUTH_URL=http://localhost:3000
 # Get credentials from: https://console.cloud.google.com/apis/credentials
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
+
+# Fragella API (Optional - search uses local/cache if missing)
+# Get key from: https://api.fragella.com
+FRAGELLA_API_KEY=
 ```
 
 ## Quick Setup
@@ -54,3 +58,8 @@ These credentials work with the demo authentication setup.
 3. Update `.env.local` with production values
 
 4. Set `NEXTAUTH_URL` to your production domain
+
+## Fragella & IFRA
+
+- **FRAGELLA_API_KEY** (اختياري): مفتاح API لـ [Fragella](https://api.fragella.com) لبحث العطور الحي. إن لم يُضف، البحث يعمل من البيانات المحلية والكاش فقط.
+- **IFRA**: لا يتطلب متغير بيئة؛ يعتمد على Prisma وجدول `ifra_materials`. شغّل `npx prisma db seed` لملء بيانات IFRA إن لزم.
