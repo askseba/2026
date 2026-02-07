@@ -16,14 +16,14 @@ export function FavoritesContent() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-cream-bg dark:bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-cream-bg dark:!bg-surface">
         <LoadingSpinner size="lg" />
       </div>
     )
   }
 
   return (
-    <div dir={direction} className="min-h-screen bg-cream-bg dark:bg-background text-brand-brown dark:text-text-primary pb-20">
+    <div dir={direction} className="min-h-screen bg-cream-bg dark:!bg-surface text-brand-brown dark:text-text-primary pb-20">
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <Link
           href={status === 'authenticated' ? '/dashboard' : '/'}

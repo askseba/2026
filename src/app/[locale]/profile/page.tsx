@@ -36,7 +36,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream-bg pb-20" dir={direction}>
+    <div className="min-h-screen bg-cream-bg dark:!bg-surface pb-20" dir={direction}>
       <div className="bg-white border-b border-primary/5 pt-12 pb-8 px-6 text-center">
         <div className="max-w-2xl mx-auto">
           <div className="relative inline-block group">

@@ -14,7 +14,7 @@ export default function SettingsPage() {
   if (status === 'unauthenticated') {
     router.push('/login?callbackUrl=/settings');
     return (
-      <div className="min-h-screen bg-cream-bg/50 flex items-center justify-center">
+      <div className="min-h-screen bg-cream-bg/50 dark:!bg-surface flex items-center justify-center">
         <LoadingSpinner message="جاري التحويل..." />
       </div>
     );
@@ -23,7 +23,7 @@ export default function SettingsPage() {
   // Show loading while checking session
   if (status === 'loading' || !session) {
     return (
-      <div className="min-h-screen bg-cream-bg/50 flex items-center justify-center">
+      <div className="min-h-screen bg-cream-bg/50 dark:!bg-surface flex items-center justify-center">
         <LoadingSpinner message="جاري التحميل..." />
       </div>
     );
@@ -61,7 +61,7 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-cream-bg/50" dir="rtl">
+    <div className="min-h-screen bg-cream-bg/50 dark:!bg-surface" dir="rtl">
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         {/* Header */}
         <div className="mb-8">

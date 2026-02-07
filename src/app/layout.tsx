@@ -145,7 +145,7 @@ export default async function RootLayout({
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
   const lang = locale === 'ar' ? 'ar' : 'en';
   return (
-    <html lang={lang} dir={direction} suppressHydrationWarning className={`${notoSansArabic.variable} ${manrope.variable} ${cormorantGaramond.variable} ${notoSansArabic.className} antialiased`}>
+    <html lang={lang} dir={direction} suppressHydrationWarning>
       <head>
         <StructuredData />
         {/* Google Analytics */}
@@ -184,7 +184,7 @@ export default async function RootLayout({
           </Script>
         )}
       </head>
-      <body>
+      <body className={`${notoSansArabic.variable} ${manrope.variable} ${cormorantGaramond.variable} ${notoSansArabic.className} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" storageKey="theme" enableSystem>
           <PostHogProviderWrapper>
           <ErrorBoundary>

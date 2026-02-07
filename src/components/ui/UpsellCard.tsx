@@ -63,7 +63,7 @@ export function UpsellCard({ position, remainingCount, averageMatch, onUpgrade }
         
         {/* Features */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto">
-          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm rounded-xl p-4 text-right">
+          <div className="flex items-start gap-3 bg-white/60 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 text-right">
             <Check className="w-5 h-5 text-safe-green flex-shrink-0 mt-0.5" />
             <div>
               <p className="font-bold text-brown-text text-sm">اختبارات غير محدودة</p>
@@ -71,7 +71,7 @@ export function UpsellCard({ position, remainingCount, averageMatch, onUpgrade }
             </div>
           </div>
           
-          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm rounded-xl p-4 text-right">
+          <div className="flex items-start gap-3 bg-white/60 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 text-right">
             <Check className="w-5 h-5 text-safe-green flex-shrink-0 mt-0.5" />
             <div>
               <p className="font-bold text-brown-text text-sm">{remainingCount} نتيجة إضافية</p>
@@ -79,7 +79,7 @@ export function UpsellCard({ position, remainingCount, averageMatch, onUpgrade }
             </div>
           </div>
           
-          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm rounded-xl p-4 text-right">
+          <div className="flex items-start gap-3 bg-white/60 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 text-right">
             <Check className="w-5 h-5 text-safe-green flex-shrink-0 mt-0.5" />
             <div>
               <p className="font-bold text-brown-text text-sm">تنبيهات الأسعار</p>
@@ -87,7 +87,7 @@ export function UpsellCard({ position, remainingCount, averageMatch, onUpgrade }
             </div>
           </div>
           
-          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm rounded-xl p-4 text-right">
+          <div className="flex items-start gap-3 bg-white/60 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 text-right">
             <Check className="w-5 h-5 text-safe-green flex-shrink-0 mt-0.5" />
             <div>
               <p className="font-bold text-brown-text text-sm">سجل اختباراتك</p>
@@ -97,7 +97,7 @@ export function UpsellCard({ position, remainingCount, averageMatch, onUpgrade }
         </div>
         
         {/* Pricing */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 max-w-md mx-auto">
+        <div className="bg-white/70 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-6 max-w-md mx-auto">
           <div className="flex items-baseline justify-center gap-2 mb-2">
             <span className="text-4xl font-black text-brown-text">15</span>
             <span className="text-2xl font-bold text-brown-text/75">ريال</span>

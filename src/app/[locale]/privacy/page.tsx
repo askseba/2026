@@ -52,13 +52,13 @@ export default function PrivacyPage() {
   }
 
   return (
-    <div dir={direction} className="min-h-screen bg-cream-bg text-brand-brown">
+    <div dir={direction} className="min-h-screen bg-cream-bg dark:!bg-surface text-brand-brown dark:text-text-primary">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <button
           type="button"
           onClick={handleBack}
           aria-label={t('backAriaLabel')}
-          className="flex items-center gap-2 text-brand-brown mb-6 hover:text-brand-gold transition-colors touch-manipulation"
+          className="flex items-center gap-2 text-brand-brown dark:text-text-primary mb-6 hover:text-brand-gold dark:hover:text-accent-primary transition-colors touch-manipulation"
         >
           <ArrowLeft className="w-5 h-5" aria-hidden />
           <span>{t('backButton')}</span>
@@ -68,15 +68,15 @@ export default function PrivacyPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-cream-bg py-12 px-6 text-center mb-8"
+          className="bg-cream-bg dark:bg-surface py-12 px-6 text-center mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-brand-brown">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-brand-brown dark:text-text-primary">
             {t('hero.title')}
           </h1>
-          <p className="text-xl font-bold mb-2 text-brand-brown/80">
+          <p className="text-xl font-bold mb-2 text-brand-brown/80 dark:text-text-secondary">
             {t('hero.subtitle')}
           </p>
-          <p className="text-sm text-brand-brown/60">
+          <p className="text-sm text-brand-brown/60 dark:text-text-muted">
             {t('hero.lastUpdatedPrefix')} {t('hero.last_updated')}
           </p>
         </motion.section>
@@ -87,20 +87,20 @@ export default function PrivacyPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
-              className="sticky top-8 bg-white/90 backdrop-blur-sm shadow-lg rounded-3xl p-6 border border-brand-brown/20"
+              className="sticky top-8 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-lg rounded-3xl p-6 border border-brand-brown/20 dark:border-text-primary/20"
             >
-              <h3 className="text-xl md:text-2xl font-bold mb-4 text-brand-brown">{t('tocTitle')}</h3>
+              <h3 className="text-xl md:text-2xl font-bold mb-4 text-brand-brown dark:text-text-primary">{t('tocTitle')}</h3>
               <nav className="space-y-2">
                 {sections.map((section) => (
                   <button
                     key={section.id}
                     onClick={() => scrollToSection(section.id)}
                     className={cn(
-                      'w-full px-4 py-2 rounded-xl text-sm transition-colors',
+                      'w-full px-4 py-2 rounded-xl text-sm transition-colors lg:text-justify',
                       direction === 'rtl' ? 'text-right' : 'text-left',
                       activeSection === section.id
-                        ? 'bg-brand-gold/20 text-brand-gold font-bold'
-                        : 'text-brand-brown/70 hover:bg-brand-gold/10 hover:text-brand-brown'
+                        ? 'bg-brand-gold/20 dark:bg-accent-primary/20 text-brand-gold dark:text-accent-primary font-bold'
+                        : 'text-brand-brown/70 dark:text-text-secondary hover:bg-brand-gold/10 dark:hover:bg-accent-primary/10 hover:text-brand-brown dark:hover:text-text-primary'
                     )}
                   >
                     {section.title}
@@ -115,13 +115,13 @@ export default function PrivacyPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="bg-brand-gold/10 border-2 border-brand-gold rounded-3xl p-6 mb-8"
+              className="bg-brand-gold/10 dark:bg-accent-primary/10 border-2 border-brand-gold dark:border-accent-primary rounded-3xl p-6 mb-8"
             >
-              <h3 className="text-2xl md:text-3xl font-bold mb-4 text-brand-brown">{t('summaryTitle')}</h3>
+              <h3 className="text-2xl md:text-3xl font-bold mb-4 text-brand-brown dark:text-text-primary">{t('summaryTitle')}</h3>
               {summaryBullets.map((bullet, idx) => (
                 <div key={idx} className="flex gap-3 items-start mb-4 last:mb-0">
                   <Shield className="w-5 h-5 text-brand-gold mt-1 flex-shrink-0" />
-                  <p className="text-base">{bullet}</p>
+                  <p className="text-base text-brand-brown dark:text-text-primary lg:text-justify">{bullet}</p>
                 </div>
               ))}
             </motion.div>
@@ -143,11 +143,11 @@ export default function PrivacyPage() {
                     key={section.id}
                     id={section.id}
                     value={section.id}
-                    className="bg-white/90 backdrop-blur-sm shadow-lg rounded-3xl border border-brand-brown/20 mb-2 overflow-hidden"
+                    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-lg rounded-3xl border border-brand-brown/20 mb-2 overflow-hidden"
                   >
                     <Accordion.Header>
                       <Accordion.Trigger className={cn(
-                        'w-full px-6 py-4 flex justify-between items-center text-base font-bold text-brand-brown hover:bg-brand-gold/50 transition-colors',
+                        'w-full px-6 py-4 flex justify-between items-center text-base font-bold text-brand-brown dark:text-text-primary hover:bg-brand-gold/50 dark:hover:bg-accent-primary/20 transition-colors lg:text-justify',
                         direction === 'rtl' ? 'flex-row-reverse text-right' : 'text-left'
                       )}>
                         <span>{section.title}</span>
@@ -155,12 +155,12 @@ export default function PrivacyPage() {
                       </Accordion.Trigger>
                     </Accordion.Header>
                     <Accordion.Content className={cn(
-                      'px-6 pb-4 text-base text-brand-brown/80 overflow-hidden',
+                      'px-6 pb-4 text-base text-brand-brown/80 dark:text-text-secondary overflow-hidden lg:text-justify',
                       direction === 'rtl' ? 'text-right' : 'text-left'
                     )}>
                       <div className="py-2 space-y-2">
                         {section.content.map((paragraph, pIdx) => (
-                          <p key={pIdx} className="whitespace-pre-line">{paragraph}</p>
+                          <p key={pIdx} className="whitespace-pre-line lg:text-justify">{paragraph}</p>
                         ))}
                       </div>
                     </Accordion.Content>
@@ -173,7 +173,7 @@ export default function PrivacyPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="bg-white/90 backdrop-blur-sm shadow-lg rounded-3xl p-6 border border-brand-brown/20 mb-8"
+              className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-lg rounded-3xl p-6 border border-brand-brown/20 mb-8"
             >
               <div className="flex gap-3 items-center mb-3">
                 <Mail className="w-6 h-6 text-[var(--color-primary)]" />

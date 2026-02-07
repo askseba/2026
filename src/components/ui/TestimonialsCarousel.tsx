@@ -45,7 +45,7 @@ export function TestimonialsCarousel({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
             transition={{ duration: 0.5 }}
-            className="bg-white/90 backdrop-blur-sm shadow-lg rounded-3xl p-8 md:p-10 border border-brown-text/20"
+            className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-lg rounded-3xl p-8 md:p-10 border border-brown-text/20 dark:border-slate-600/40"
           >
             {/* Quote Icon */}
             <Quote className="w-8 h-8 text-primary mb-6" />

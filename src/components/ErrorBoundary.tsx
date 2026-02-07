@@ -34,7 +34,7 @@ function ErrorBoundaryFallback({ error, errorInfo, onReset }: ErrorBoundaryFallb
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream-bg via-amber-50 to-orange-50 flex items-center justify-center p-4" dir="rtl">
-      <div className="max-w-2xl w-full bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-brown-text/10 p-8 md:p-12">
+      <div className="max-w-2xl w-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-brown-text/10 dark:border-slate-600/40 p-8 md:p-12">
         {/* Error Icon */}
         <div className="flex justify-center mb-6">
           <div className="relative">

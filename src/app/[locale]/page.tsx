@@ -25,7 +25,7 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale);
 
   return (
-    <main className="min-h-screen bg-cream">
+    <main className="min-h-screen bg-cream dark:!bg-surface">
       <HeroSection />
       <QuestionsSection />
       <StatsSection />

@@ -111,7 +111,7 @@ export function TestHistory() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-brown-text/10 hover:shadow-lg transition-all cursor-pointer group"
+            className="bg-white/70 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-5 border border-brown-text/10 dark:border-slate-600/40 hover:shadow-lg dark:hover:bg-slate-700/80 transition-all cursor-pointer group"
             onClick={() => {
               // TODO: Navigate to test results
               router.push(`/test-history/${test.id}`)

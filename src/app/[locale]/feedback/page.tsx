@@ -140,14 +140,14 @@ export default function FeedbackPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen bg-cream-bg dark:bg-surface flex items-center justify-center">
+      <div className="min-h-screen bg-cream-bg dark:!bg-surface flex items-center justify-center">
         <div className="text-brand-brown dark:text-text-primary text-xl">جاري التحميل...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background/95 dark:bg-surface p-6" dir={direction}>
+    <div className="min-h-screen bg-background/95 dark:!bg-surface p-6" dir={direction}>
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-12 space-y-6">
           <h1 className="text-4xl md:text-5xl font-bold text-brand-brown dark:text-text-primary mb-3 leading-tight">

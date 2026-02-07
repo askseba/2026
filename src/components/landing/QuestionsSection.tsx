@@ -56,7 +56,7 @@ export function QuestionsSection() {
                 y: -5,
                 transition: { type: 'spring', stiffness: 300 }
               }}
-              className="group relative w-full max-w-[min(90%,600px)] mx-auto cursor-pointer overflow-hidden rounded-2xl border border-gold/20 bg-white/70 px-8 py-5 text-center shadow-md backdrop-blur-md transition-all duration-300 hover:shadow-xl"
+              className="group relative w-full max-w-[min(90%,600px)] mx-auto cursor-pointer overflow-hidden rounded-2xl border border-gold/20 bg-white/70 dark:bg-slate-800/80 px-8 py-5 text-center shadow-md backdrop-blur-md transition-all duration-300 hover:shadow-xl"
             >
               {/* ✅ Shimmer effect */}
               <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:translate-x-full" />

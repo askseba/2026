@@ -79,7 +79,7 @@ export default function Step3AllergyPage() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-cream-bg dark:bg-background" dir={direction}>
+      <div className="min-h-screen bg-cream-bg dark:!bg-surface" dir={direction}>
       {isPending && (
         <div className="fixed inset-0 bg-cream-bg/80 dark:bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
           <LoadingSpinner type={3} message={t('step3.transitioning')} size="lg" />

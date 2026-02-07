@@ -143,7 +143,7 @@ export default function Step2DislikedPage() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-cream-bg dark:bg-background p-6" dir={direction}>
+      <div className="min-h-screen bg-cream-bg dark:!bg-surface p-6" dir={direction}>
         <div className="max-w-2xl mx-auto">
           <div className="flex justify-center gap-2 mb-8">
             <div className="w-3 h-3 rounded-full bg-primary dark:bg-amber-500" />

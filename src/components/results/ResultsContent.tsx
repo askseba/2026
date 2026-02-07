@@ -74,11 +74,11 @@ export function ResultsContent() {
     )
   }
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-cream-bg dark:bg-background"><LoadingSpinner size="lg" /></div>
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-cream-bg dark:!bg-surface"><LoadingSpinner size="lg" /></div>
 
   const direction = locale === 'ar' ? 'rtl' : 'ltr'
   return (
-    <div className="min-h-screen bg-cream-bg dark:bg-background pb-20" dir={direction}>
+    <div className="min-h-screen bg-cream-bg dark:!bg-surface pb-20" dir={direction}>
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-primary/10 dark:from-amber-500/10 to-transparent pt-16 pb-12 px-6 text-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>

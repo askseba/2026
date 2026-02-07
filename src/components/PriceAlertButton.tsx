@@ -148,7 +148,7 @@ export function PriceAlertButton({
   }
   
   return (
-    <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-4 border border-brown-text/10">
+    <div className="bg-white/70 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-4 border border-brown-text/10 dark:border-slate-600/40">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Bell className="w-5 h-5 text-amber-500" />

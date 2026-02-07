@@ -13,7 +13,7 @@ export default function NotFound() {
   return (
     <div
       dir={direction}
-      className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50 dark:from-background dark:to-surface px-4"
+      className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50 dark:!from-background dark:!to-surface px-4"
     >
       <div className="text-center max-w-md mx-auto">
         <div className="mb-6 flex justify-center">

@@ -221,7 +221,7 @@ export default function ResultsPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-cream-bg dark:bg-background flex items-center justify-center" dir="rtl">
+      <div className="min-h-screen bg-cream-bg dark:!bg-surface flex items-center justify-center" dir="rtl">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary dark:border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-xl text-brown-text dark:text-text-primary">جاري حساب التوافق...</p>
@@ -233,7 +233,7 @@ export default function ResultsPage() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-cream-bg dark:bg-background flex items-center justify-center" dir="rtl">
+      <div className="min-h-screen bg-cream-bg dark:!bg-surface flex items-center justify-center" dir="rtl">
         <div className="text-center max-w-md">
           <p className="text-xl text-red-500 dark:text-red-400 mb-4">{error}</p>
           {error.includes('الاختبارات الشهرية') && (
@@ -254,7 +254,7 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream-bg dark:bg-background pb-12" dir="rtl">
+    <div className="min-h-screen bg-cream-bg dark:!bg-surface pb-12" dir="rtl">
       <div className="max-w-7xl mx-auto px-6">
         {/* Hero Header */}
         <div className="py-12 text-center">

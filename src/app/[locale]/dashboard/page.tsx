@@ -38,12 +38,12 @@ export default function DashboardPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('overview')
 
-  if (status === 'loading') return <div className="min-h-screen flex items-center justify-center bg-cream-bg"><LoadingSpinner size="lg" /></div>
+  if (status === 'loading') return <div className="min-h-screen flex items-center justify-center bg-cream-bg dark:!bg-surface"><LoadingSpinner size="lg" /></div>
   if (status === 'unauthenticated') { router.push('/login'); return null; }
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-cream-bg dark:bg-background pb-20" dir={direction}>
+      <div className="min-h-screen bg-cream-bg dark:!bg-surface pb-20" dir={direction}>
         <header className="bg-white dark:bg-surface border-b border-primary/5 dark:border-border-subtle pt-12 pb-8 px-6">
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-6">
