@@ -1,14 +1,17 @@
 'use client'
 
 import { useLocale, useTranslations } from 'next-intl'
+import { usePathname } from 'next/navigation'
 import { Link } from '@/i18n/routing'
 import { Twitter, Instagram, Mail } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const linkClassName =
-  '!inline-flex !items-center !justify-center !min-h-[44px] !min-w-[44px] !transition-colors !text-[rgb(var(--color-accent-primary))] hover:!text-[rgb(var(--color-accent-primary))] touch-manipulation'
+  '!inline-flex !items-center !justify-center !min-h-[44px] !min-w-[44px] !transition-colors !text-[rgb(var(--color-accent-primary))] hover:!text-[rgb(var(--color-accent-primary))] hover:underline touch-manipulation'
 
 export function Footer() {
   const locale = useLocale()
+  const pathname = usePathname()
   const t = useTranslations('footer')
   const dir = locale === 'ar' ? 'rtl' : 'ltr'
 
@@ -25,22 +28,22 @@ export function Footer() {
         >
           {t.rich('linksRich', {
             about: (chunks) => (
-              <Link href="/about" className={linkClassName}>
+              <Link href="/about" className={cn(linkClassName, pathname.endsWith('/about') && 'font-bold underline bg-accent-primary/10')}>
                 {chunks}
               </Link>
             ),
             faq: (chunks) => (
-              <Link href="/faq" className={linkClassName}>
+              <Link href="/faq" className={cn(linkClassName, pathname.endsWith('/faq') && 'font-bold underline bg-accent-primary/10')}>
                 {chunks}
               </Link>
             ),
             privacy: (chunks) => (
-              <Link href="/privacy" className={linkClassName}>
+              <Link href="/privacy" className={cn(linkClassName, pathname.endsWith('/privacy') && 'font-bold underline bg-accent-primary/10')}>
                 {chunks}
               </Link>
             ),
             feedback: (chunks) => (
-              <Link href="/feedback" className={linkClassName}>
+              <Link href="/feedback" className={cn(linkClassName, pathname.endsWith('/feedback') && 'font-bold underline bg-accent-primary/10')}>
                 {chunks}
               </Link>
             ),
