@@ -104,7 +104,7 @@
     "stats": [
       { "number": "80,000+", "label": "Global fragrance" },
       { "number": "98%", "label": "User satisfaction" },
-      { "number": "minutes 3", "label": "Test duration" },
+      { "number": "3 minutes", "label": "Test duration" },
       { "number": "10,000+", "label": "User" }
     ],
     "benefits": {
