@@ -1,4 +1,7 @@
+import { getLocale } from 'next-intl/server';
 import { redirect } from '@/i18n/routing';
-export default function SettingsRedirect() {
-  redirect('/profile');  // next-intl auto-prefixes locale (proven by P0.2 diagnostic)
+
+export default async function SettingsRedirect() {
+  const locale = await getLocale();
+  redirect({ href: '/profile', locale });
 }
