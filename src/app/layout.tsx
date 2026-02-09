@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import Script from 'next/script';
+import { headers } from "next/headers";
 import { Noto_Sans_Arabic, Manrope, Cormorant_Garamond } from "next/font/google";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
+import { routing } from "@/i18n/routing";
 import "./globals.css";
 import { Toaster } from 'sonner';
 import { PWARegister } from "@/components/PWARegister";
@@ -140,9 +142,15 @@ export default async function RootLayout({
 }>) {
   const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
   const HOTJAR_ID = process.env.NEXT_PUBLIC_HOTJAR_ID;
-  const locale = await getLocale();
-  const messages = await getMessages();
-  const direction = locale === 'ar' ? 'rtl' : 'ltr';
+  // Prefer middleware-set header so Footer (and all i18n) get correct locale on /en locally
+  const headersList = await headers();
+  const headerLocale = headersList.get("x-next-intl-locale");
+  const locale =
+    headerLocale && routing.locales.includes(headerLocale as "ar" | "en")
+      ? headerLocale
+      : await getLocale();
+  const messages = (await import(`../../messages/${locale}.json`)).default;
+  const direction = locale === "ar" ? "rtl" : "ltr";
   const lang = locale === 'ar' ? 'ar' : 'en';
   return (
     <html lang={lang} dir={direction} suppressHydrationWarning>
