@@ -1,10 +1,10 @@
 'use client'
 
-import { Link } from '@/i18n/routing'
 import { useLocale, useTranslations } from 'next-intl'
 import { useState } from 'react'
 import * as Accordion from '@radix-ui/react-accordion'
-import { ChevronDown, ArrowLeft, Search } from 'lucide-react'
+import { ChevronDown, Search } from 'lucide-react'
+import { BackButton } from '@/components/ui/BackButton'
 import { motion } from 'framer-motion'
 
 type FAQQuestion = { id: string; question: string; answer: string }
@@ -32,13 +32,11 @@ export default function FAQPage() {
     <div dir={direction} className="min-h-screen bg-cream-bg dark:!bg-surface text-brand-brown dark:text-text-primary">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Back Button */}
-        <Link
-          href="/profile"
-          className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center gap-2 text-brand-brown dark:text-text-primary mb-6 hover:text-brand-gold dark:hover:text-accent-primary transition-colors touch-manipulation"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span>{t('backToProfile')}</span>
-        </Link>
+        <BackButton
+          variant="link"
+          label={t('backToProfile')}
+          className="mb-6 min-h-[44px] min-w-[44px]"
+        />
 
         {/* Hero Section */}
         <motion.section

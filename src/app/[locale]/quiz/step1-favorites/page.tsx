@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { useLocale, useTranslations } from 'next-intl'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { BackButton } from '@/components/ui/BackButton'
 import { useVoiceSearch } from '@/hooks/useVoiceSearch'
 import { VoiceMicButton } from '@/components/ui/VoiceMicButton'
 import { voiceSearchEnabled } from '@/lib/feature-flags'
@@ -144,6 +145,7 @@ export default function Step1FavoritesPage() {
     <ErrorBoundary>
       <div className="min-h-screen bg-cream-bg dark:!bg-surface p-6" dir={direction}>
         <div className="max-w-2xl mx-auto">
+          <BackButton href="/quiz" label={t('backToQuizIntro')} variant="link" className="mb-6" />
           <div className="flex justify-center gap-2 mb-8">
             <div className="w-3 h-3 rounded-full bg-primary dark:bg-amber-500" />
             <div className="w-3 h-3 rounded-full bg-text-primary/20 dark:bg-surface-muted" />

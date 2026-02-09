@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, ArrowRightLeft, Zap } from 'lucide-react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { PerfumeCard } from '@/components/ui/PerfumeCard'
 import { Button } from '@/components/ui/button'
 import { useQuiz } from '@/contexts/QuizContext'
@@ -12,6 +12,7 @@ import { safeFetch } from '@/lib/utils/api-helpers'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { UpsellCard } from '@/components/ui/UpsellCard'
 import { BlurredTeaserCard } from '@/components/ui/BlurredTeaserCard'
+import { BackButton } from '@/components/ui/BackButton'
 import logger from '@/lib/logger'
 
 interface BlurredItem {
@@ -29,6 +30,7 @@ interface MatchResponse {
 
 export function ResultsContent() {
   const locale = useLocale()
+  const t = useTranslations('results')
   const { data: quizData } = useQuiz()
   const { data: session } = useSession()
   const [scoredPerfumes, setScoredPerfumes] = useState<ScoredPerfume[]>([])
@@ -79,6 +81,14 @@ export function ResultsContent() {
   const direction = locale === 'ar' ? 'rtl' : 'ltr'
   return (
     <div className="min-h-screen bg-cream-bg dark:!bg-surface pb-20" dir={direction}>
+      <div className="container mx-auto px-6 pt-6">
+        <BackButton
+          href={`/${locale}/dashboard`}
+          label={t('backToDashboard')}
+          variant="link"
+          className="mb-6"
+        />
+      </div>
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-primary/10 dark:from-amber-500/10 to-transparent pt-16 pb-12 px-6 text-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>

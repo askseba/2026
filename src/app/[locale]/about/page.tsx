@@ -4,7 +4,8 @@ import { useEffect, useRef } from 'react'
 import { Link } from '@/i18n/routing'
 import { useLocale, useTranslations } from 'next-intl'
 import { useTheme } from 'next-themes'
-import { ArrowLeft, Quote } from 'lucide-react'
+import { Quote } from 'lucide-react'
+import { BackButton } from '@/components/ui/BackButton'
 import { motion } from 'framer-motion'
 
 type SectionItem = {
@@ -119,13 +120,11 @@ export default function AboutPage() {
       `}</style>
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Back Button */}
-        <Link
-          href="/profile"
-          className="flex items-center gap-2 text-brand-brown dark:text-text-primary mb-6 hover:text-brand-gold dark:hover:text-accent-primary transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span>{t('backToProfile')}</span>
-        </Link>
+        <BackButton
+          variant="link"
+          label={t('backToProfile')}
+          className="mb-6"
+        />
 
         {/* Hero Section — light/dark visible on cream/surface */}
         <motion.section

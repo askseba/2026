@@ -7,6 +7,7 @@ import { useLocale } from 'next-intl'
 import { useRouter, Link } from '@/i18n/routing'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { BackButton } from '@/components/ui/BackButton'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { AlertCircle } from 'lucide-react'
 import logger from '@/lib/logger'
@@ -86,6 +87,7 @@ function LoginContent() {
   return (
     <div className="min-h-screen bg-cream-bg flex items-center justify-center p-4 py-6" dir={direction}>
       <div className="max-w-sm w-full mx-auto p-6 rounded-3xl shadow-elevation-3 border-2 border-primary/15 bg-gradient-to-b from-white to-cream-bg/50 dark:from-surface dark:to-cream-bg/10 backdrop-blur-xl">
+        <BackButton href="/" variant="ghost" className="mb-4" />
         <div className="text-center mb-6">
           <h1 className="text-2xl font-black text-primary dark:text-accent-primary mb-1">
             تسجيل الدخول

@@ -1,12 +1,4 @@
 {
-  "crons": [
-    {
-      "path": "/api/cron/update-prices",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/recovery",
-      "schedule": "0 */1 * * *"
-    }
-  ]
+    "buildCommand":  "npm run build",
+    "installCommand":  "npm ci"
 }

@@ -377,6 +377,7 @@
     "title": "Your olfactory profile",
     "subtitle": "Discover your ideal fragrances through a simple guided quiz",
     "startButton": "Start quiz",
+    "backToQuizIntro": "Back to quiz",
     "step1": {
       "metadata": {
         "title": "Favorites – Quiz | Ask Seba",
@@ -580,12 +581,18 @@
     "metadata": {
       "title": "Your quiz results - Your fragrance profile",
       "description": "Discover your ideal fragrances based on your personality and preferences analysis"
-    }
+    },
+    "backToDashboard": "Back to dashboard"
   },
   "dashboard": {
     "matchFormat": "{pct}% match"
   },
   "common": {
+    "back": "Back",
+    "backAriaLabel": "Go back to previous page",
+    "backToHome": "Back to home",
+    "backToProfile": "Back to profile",
+    "backToPreviousStep": "Previous step",
     "next": "Next",
     "previous": "Previous",
     "submit": "Submit",

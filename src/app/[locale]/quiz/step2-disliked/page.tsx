@@ -1,12 +1,13 @@
 "use client"
 import { useState, useEffect, useTransition } from 'react'
 import { useRouter } from '@/i18n/routing'
-import { X, Loader2, ChevronRight } from 'lucide-react'
+import { X, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { useLocale, useTranslations } from 'next-intl'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { BackButton } from '@/components/ui/BackButton'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { useQuiz } from '@/contexts/QuizContext'
 import logger from '@/lib/logger'
@@ -214,15 +215,12 @@ export default function Step2DislikedPage() {
 
           <div className="mt-12 flex flex-col gap-4">
             <div className="flex gap-4">
-              <Button
-                variant="outline"
-                onClick={() => startTransition(() => router.back())}
-                disabled={isPending}
-                className="flex-1 py-6"
-              >
-                <ChevronRight className="w-5 h-5 ms-2" />
-                {t('step2.backButton')}
-              </Button>
+              <BackButton
+                variant="button"
+                onClick={() => startTransition(() => router.push(`/${locale}/quiz/step1-favorites`))}
+                label={t('step2.backButton')}
+                className="flex-1 py-6 min-h-[44px]"
+              />
               <Button
                 onClick={handleNext}
                 disabled={(selectedPerfumes.length > 0 && selectedPerfumes.length < MIN_SELECTIONS) || isPending}

@@ -39,3 +39,5 @@ export {
 } from './dropdown-menu'
 export { Avatar, AvatarImage, AvatarFallback } from './avatar'
 export { VoiceMicButton } from './VoiceMicButton'
+export { BackButton } from './BackButton'
+export type { BackButtonProps } from './BackButton'

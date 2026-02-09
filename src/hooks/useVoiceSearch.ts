@@ -25,8 +25,6 @@ const getSpeechRecognition = (): SpeechRecognitionCtor | null => {
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 };
 
-const SpeechRecognition = getSpeechRecognition();
-
 /** Perfumes list cache for fuzzy matching (api/perfumes or local) */
 let perfumesCache: { name: string; brand: string }[] | null = null;
 
@@ -118,10 +116,16 @@ export const useVoiceSearch = (options?: UseVoiceSearchOptions) => {
     error: '',
   });
 
+  const [isSupported, setIsSupported] = useState(false);
+  useEffect(() => {
+    setIsSupported(!!getSpeechRecognition());
+  }, []);
+
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
   const getRecognition = useCallback(() => {
-    if (!SpeechRecognition) {
+    const SR = getSpeechRecognition();
+    if (!SR) {
       setState((s) => ({
         ...s,
         status: 'error',
@@ -130,7 +134,7 @@ export const useVoiceSearch = (options?: UseVoiceSearchOptions) => {
       return null;
     }
     if (!recognitionRef.current) {
-      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current = new SR();
       recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = langRef.current;
@@ -232,6 +236,6 @@ export const useVoiceSearch = (options?: UseVoiceSearchOptions) => {
     startListening,
     stopListening,
     reset,
-    isSupported: !!SpeechRecognition,
+    isSupported,
   };
 };

@@ -6,6 +6,7 @@ import { useLocale } from 'next-intl'
 import { useRouter, Link } from '@/i18n/routing'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { BackButton } from '@/components/ui/BackButton'
 import { ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import logger from '@/lib/logger'
@@ -101,6 +102,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-cream-bg flex items-center justify-center p-4 py-6" dir={direction}>
       <div className="max-w-sm w-full mx-auto p-6 rounded-3xl shadow-elevation-3 border-2 border-primary/15 bg-gradient-to-b from-white to-cream-bg/50 dark:from-surface dark:to-cream-bg/10 backdrop-blur-xl">
+        <BackButton href="/" variant="ghost" className="mb-4" />
         <div className="text-center mb-4">
           <h1 className="text-2xl font-black text-primary dark:text-accent-primary mb-0.5">
             إنشاء حساب جديد

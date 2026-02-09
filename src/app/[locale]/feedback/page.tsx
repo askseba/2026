@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import FeedbackCard from '@/components/FeedbackCard'
+import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/button'
 import { safeFetch, validateArray } from '@/lib/utils/api-helpers'
 import {
@@ -149,6 +150,7 @@ export default function FeedbackPage() {
   return (
     <div className="min-h-screen bg-background/95 dark:!bg-surface p-6" dir={direction}>
       <div className="max-w-2xl mx-auto">
+        <BackButton variant="link" className="mb-6" />
         <div className="text-center mb-12 space-y-6">
           <h1 className="text-4xl md:text-5xl font-bold text-brand-brown dark:text-text-primary mb-3 leading-tight">
             ساعدنا نكون أفضل لأجلك

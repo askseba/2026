@@ -17,6 +17,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useSession } from 'next-auth/react'
 import { useRouter } from '@/i18n/routing'
 import { Button } from '@/components/ui/button'
+import { BackButton } from '@/components/ui/BackButton'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 
@@ -45,7 +46,9 @@ export default function DashboardPage() {
     <ErrorBoundary>
       <div className="min-h-screen bg-cream-bg dark:!bg-surface pb-20" dir={direction}>
         <header className="bg-white dark:bg-surface border-b border-primary/5 dark:border-border-subtle pt-12 pb-8 px-6">
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="max-w-6xl mx-auto flex flex-col gap-4">
+            <BackButton variant="link" className="mb-6" />
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-6">
               <div className="relative w-24 h-24 rounded-[2rem] overflow-hidden shadow-elevation-2 border-4 border-white">
                 <Image

@@ -377,6 +377,7 @@
     "title": "بصمتك العطرية",
     "subtitle": "اكتشف العطور المثالية لك من خلال اختبار بسيط",
     "startButton": "ابدأ الاختبار",
+    "backToQuizIntro": "العودة للاختبار",
     "step1": {
       "metadata": {
         "title": "المفضلة – الاختبار | اسأل صبا",
@@ -580,12 +581,18 @@
     "metadata": {
       "title": "نتائج اختبارك - بصمتك العطرية",
       "description": "اكتشف العطور المثالية لك بناءً على تحليل شخصيتك وتفضيلاتك"
-    }
+    },
+    "backToDashboard": "العودة للوحة التحكم"
   },
   "dashboard": {
     "matchFormat": "{pct}% تطابق"
   },
   "common": {
+    "back": "رجوع",
+    "backAriaLabel": "العودة إلى الصفحة السابقة",
+    "backToHome": "العودة للرئيسية",
+    "backToProfile": "الرجوع للملف الشخصي",
+    "backToPreviousStep": "الخطوة السابقة",
     "next": "التالي",
     "previous": "السابق",
     "submit": "إرسال",

@@ -1,9 +1,10 @@
 'use client'
 
-import { Link, useRouter } from '@/i18n/routing'
+import { useRouter } from '@/i18n/routing'
 import { useLocale, useTranslations } from 'next-intl'
-import { Heart, ArrowLeft } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { BackButton } from '@/components/ui/BackButton'
 import { useSession } from 'next-auth/react'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 
@@ -25,13 +26,12 @@ export function FavoritesContent() {
   return (
     <div dir={direction} className="min-h-screen bg-cream-bg dark:!bg-surface text-brand-brown dark:text-text-primary pb-20">
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <Link
+        <BackButton
+          variant="link"
           href={status === 'authenticated' ? '/dashboard' : '/'}
-          className="flex items-center gap-2 text-brand-brown dark:text-text-primary mb-6 hover:text-brand-gold dark:hover:text-primary transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span>{status === 'authenticated' ? t('backToDashboard') : t('backToHome')}</span>
-        </Link>
+          label={status === 'authenticated' ? t('backToDashboard') : t('backToHome')}
+          className="mb-6"
+        />
 
         <div className="text-center py-16 bg-white dark:bg-surface rounded-[2.5rem] border border-dashed border-primary/20 dark:border-border-subtle">
           <div className="bg-primary/10 dark:bg-primary/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">

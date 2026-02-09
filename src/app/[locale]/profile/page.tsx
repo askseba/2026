@@ -15,6 +15,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useSession, signOut } from 'next-auth/react'
 import { Link } from '@/i18n/routing'
 import { useRouter } from '@/i18n/routing'
+import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
@@ -35,6 +36,7 @@ type TierResponse = {
 export default function ProfilePage() {
   const locale = useLocale()
   const t = useTranslations('profile')
+  const tCommon = useTranslations('common')
   const direction = locale === 'ar' ? 'rtl' : 'ltr'
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -93,6 +95,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-cream-bg dark:!bg-surface pb-20" dir={direction}>
       <div className="bg-white border-b border-primary/5 pt-12 pb-8 px-6 text-center">
         <div className="max-w-2xl mx-auto">
+          <BackButton href="/" label={tCommon('backToHome')} className="mb-6" />
           <h1 className="text-lg font-bold text-text-primary mb-4">{t('pageTitle')}</h1>
           <div className="relative inline-block group">
             <div className="w-32 h-32 rounded-[2.5rem] overflow-hidden shadow-elevation-3 border-4 border-white relative">

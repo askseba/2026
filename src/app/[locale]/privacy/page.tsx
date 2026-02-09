@@ -1,11 +1,11 @@
 'use client'
 
-import { useRouter } from '@/i18n/routing'
 import { useLocale, useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import * as Accordion from '@radix-ui/react-accordion'
-import { ChevronDown, ArrowLeft, Mail, Shield } from 'lucide-react'
+import { ChevronDown, Mail, Shield } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { BackButton } from '@/components/ui/BackButton'
 import { motion } from 'framer-motion'
 
 type PrivacySection = { id: string; title: string; content: string[] }
@@ -15,7 +15,6 @@ type PrivacyCompliance = { title: string; standards: string[]; note: string }
 export default function PrivacyPage() {
   const locale = useLocale()
   const direction = locale === 'ar' ? 'rtl' : 'ltr'
-  const router = useRouter()
   const t = useTranslations('privacy')
   const [activeSection, setActiveSection] = useState<string | null>(null)
 
@@ -24,10 +23,6 @@ export default function PrivacyPage() {
   const contact = t.raw('contact') as PrivacyContact
   const compliance = t.raw('compliance') as PrivacyCompliance
   const sectionIds = sections.map((s) => s.id)
-
-  const handleBack = () => {
-    router.back()
-  }
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -54,15 +49,12 @@ export default function PrivacyPage() {
   return (
     <div dir={direction} className="min-h-screen bg-cream-bg dark:!bg-surface text-brand-brown dark:text-text-primary">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <button
-          type="button"
-          onClick={handleBack}
-          aria-label={t('backAriaLabel')}
-          className="flex items-center gap-2 text-brand-brown dark:text-text-primary mb-6 hover:text-brand-gold dark:hover:text-accent-primary transition-colors touch-manipulation"
-        >
-          <ArrowLeft className="w-5 h-5" aria-hidden />
-          <span>{t('backButton')}</span>
-        </button>
+        <BackButton
+          variant="link"
+          label={t('backButton')}
+          ariaLabel={t('backAriaLabel')}
+          className="mb-6"
+        />
 
         <motion.section
           initial={{ opacity: 0, y: 20 }}

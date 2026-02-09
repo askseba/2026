@@ -2,9 +2,11 @@
 // FIX: Unified allergy red (#ef4444) for all levels (Level 1-3)
 'use client'
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { ChevronLeft, Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import content from '@/content'
+import { BackButton } from '@/components/ui/BackButton'
 
 interface AllergyData {
   level1: string[]
@@ -23,6 +25,7 @@ interface AllergyProps {
 export type Step3AllergyProps = AllergyProps
 
 export function Step3Allergy({ allergy, updateAllergy, onNext, onBack, isPending }: AllergyProps) {
+  const t = useTranslations('common')
   const [currentLevel, setCurrentLevel] = useState(1)
 
   // Level 1: Symptoms
@@ -232,14 +235,13 @@ export function Step3Allergy({ allergy, updateAllergy, onNext, onBack, isPending
 
       {/* Navigation */}
       <div className="flex gap-4 justify-between pt-12">
-        <button
+        <BackButton
+          variant="button"
           onClick={onBack}
-          aria-label="العودة للخطوة السابقة"
-          className="min-h-[44px] min-w-[44px] px-8 py-3 text-text-dark dark:text-text-primary border-2 border-text-dark dark:border-border-subtle rounded-2xl font-bold hover:bg-text-dark dark:hover:bg-surface-muted hover:text-white dark:hover:text-text-primary transition-all flex-1 md:flex-none flex items-center justify-center touch-manipulation"
-        >
-          <ChevronRight className="w-5 h-5 inline ms-2 rtl:rotate-180" aria-hidden="true" />
-          {content.common.goBack}
-        </button>
+          label={content.common.goBack}
+          ariaLabel={t('backToPreviousStep')}
+          className="flex-1 md:flex-none min-h-[44px] min-w-[44px] px-8 py-3 rounded-2xl font-bold"
+        />
         <button
           onClick={() => {
             if (canNext && !isPending) {
