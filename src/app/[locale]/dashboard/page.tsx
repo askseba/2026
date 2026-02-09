@@ -49,35 +49,36 @@ export default function DashboardPage() {
           <div className="max-w-6xl mx-auto flex flex-col gap-4">
             <BackButton variant="link" className="mb-6" />
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-6">
-              <div className="relative w-24 h-24 rounded-[2rem] overflow-hidden shadow-elevation-2 border-4 border-white">
-                <Image
-                  src={session?.user?.image || '/placeholder-user.png'}
-                  alt={session?.user?.name || 'User'}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div>
-                <h1 className="text-3xl font-black text-text-primary mb-1">أهلاً، {session?.user?.name?.split(' ')[0]} ✨</h1>
-                <div className="flex items-center gap-2">
-                  <span className="bg-primary/10 text-primary text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">عضو بريميوم</span>
-                  <span className="text-text-secondary text-xs flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    عضو منذ يناير 2024
-                  </span>
+              <div className="flex items-center gap-6">
+                <div className="relative w-24 h-24 rounded-[2rem] overflow-hidden shadow-elevation-2 border-4 border-white">
+                  <Image
+                    src={session?.user?.image || '/placeholder-user.png'}
+                    alt={session?.user?.name || 'User'}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-black text-text-primary mb-1">أهلاً، {session?.user?.name?.split(' ')[0]} ✨</h1>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-primary/10 text-primary text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">عضو بريميوم</span>
+                    <span className="text-text-secondary text-xs flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      عضو منذ يناير 2024
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex gap-3">
-              <Button variant="outline" size="sm" className="rounded-xl" onClick={() => router.push('/profile')}>
-                <Settings className="w-4 h-4 ml-2" />
-                الإعدادات
-              </Button>
-              <Button size="sm" className="rounded-xl shadow-button" onClick={() => router.push('/results')}>
-                <Sparkles className="w-4 h-4 ml-2" />
-                تحليل جديد
-              </Button>
+              <div className="flex gap-3">
+                <Button variant="outline" size="sm" className="rounded-xl" onClick={() => router.push('/profile')}>
+                  <Settings className="w-4 h-4 ml-2" />
+                  الإعدادات
+                </Button>
+                <Button size="sm" className="rounded-xl shadow-button" onClick={() => router.push('/results')}>
+                  <Sparkles className="w-4 h-4 ml-2" />
+                  تحليل جديد
+                </Button>
+              </div>
             </div>
           </div>
         </header>
