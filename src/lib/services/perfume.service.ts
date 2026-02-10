@@ -173,9 +173,12 @@ export async function searchPerfumes(query: string, limit = 20): Promise<SearchR
   }
 }
 
-export async function searchPerfumesWithCache<T = { results: unknown[] }>(query: string): Promise<T> {
-  const cacheKey = `search:${query.toLowerCase()}`
-  
+export async function searchPerfumesWithCache<T = { results: unknown[] }>(
+  query: string,
+  limit = 20
+): Promise<T> {
+  const cacheKey = `search:${query.toLowerCase()}:${limit}`
+
   try {
     // Check cache
     const cached = await prisma.fragellaCache.findFirst({
@@ -184,7 +187,7 @@ export async function searchPerfumesWithCache<T = { results: unknown[] }>(query:
         expiresAt: { gt: new Date() }
       }
     })
-    
+
     if (cached) {
       logger.info('✅ Cache HIT:', cacheKey)
       const data: T =
@@ -193,10 +196,10 @@ export async function searchPerfumesWithCache<T = { results: unknown[] }>(query:
           : (cached.data as T)
       return data
     }
-    
+
     // Fetch fresh
     logger.info('🔄 Cache MISS - fetching:', cacheKey)
-    const data = await searchPerfumes(query)
+    const data = await searchPerfumes(query, limit)
     
     // Cache for 24h
     try {

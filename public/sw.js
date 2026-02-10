@@ -45,7 +45,24 @@ self.addEventListener('fetch', (event) => {
         return resp;
       }).catch(() => {
         if (event.request.mode === 'navigate') {
-          return caches.match('/offline.html');
+          // Reachability check: only show offline when server is actually unreachable
+          // (avoids blocking on localhost when navigator.onLine is false [web:210])
+          const origin = new URL(event.request.url).origin;
+          const healthUrl = origin + '/api/health';
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000);
+          return fetch(healthUrl, { method: 'HEAD', cache: 'no-store', signal: controller.signal })
+            .then(function (r) {
+              clearTimeout(timeoutId);
+              if (r && r.ok) {
+                return fetch(event.request).catch(() => caches.match('/offline.html'));
+              }
+              return caches.match('/offline.html');
+            })
+            .catch(function () {
+              clearTimeout(timeoutId);
+              return caches.match('/offline.html');
+            });
         }
         return caches.match('/') || new Response('Offline');
       })

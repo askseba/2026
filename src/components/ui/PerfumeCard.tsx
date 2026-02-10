@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { ShieldCheck, ArrowRightLeft, Star, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/classnames'
 import { Button } from './button'
+import SafetyWarnings from '@/components/SafetyWarnings'
 
 interface PerfumeCardProps {
   id: string
@@ -23,6 +24,10 @@ interface PerfumeCardProps {
   stockStatus?: 'in-stock' | 'low-stock' | 'out-of-stock'
   variant?: 'on-sale' | 'just-arrived' | string | null // Backward compatibility
   priority?: boolean // ✅ prop جديد لتحسين LCP
+  ifraScore?: number
+  symptomTriggers?: string[]
+  ifraWarnings?: string[]
+  source?: string
 }
 
 export function PerfumeCard({ 
@@ -41,7 +46,11 @@ export function PerfumeCard({
   onCompare,
   rarity = 'rare',
   stockStatus = 'in-stock',
-  priority = false // ✅ القيمة الافتراضية false
+  priority = false, // ✅ القيمة الافتراضية false
+  ifraScore,
+  symptomTriggers,
+  ifraWarnings,
+  source
 }: PerfumeCardProps) {
   const displayName = name || title || 'عطر غير معروف'
   const displayScore = finalScore ?? matchPercentage ?? 0
@@ -111,6 +120,20 @@ export function PerfumeCard({
         <p className="text-text-secondary dark:text-text-muted text-sm line-clamp-2 mb-6 leading-relaxed flex-1">
           {description || "توليفة عطرية ساحرة تم اختيارها بناءً على تفضيلاتك الشخصية لتمنحك تجربة فريدة."}
         </p>
+
+        {ifraScore !== undefined && (
+          <div className="mt-2 p-2 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30 rounded-lg">
+            <SafetyWarnings
+              perfume={{ id, name: displayName, brand, symptomTriggers: symptomTriggers ?? [], source: source ?? 'local' } as any}
+              ifraScore={ifraScore}
+              warnings={ifraWarnings}
+              className="w-full"
+            />
+            <p className="text-xs text-muted-foreground dark:text-text-muted mt-1">
+              Source: {source ?? 'local'}
+            </p>
+          </div>
+        )}
 
         {stockStatus === 'low-stock' && (
           <div className="flex items-center gap-4 mb-6 py-3 border-y border-primary/5 dark:border-border-subtle">

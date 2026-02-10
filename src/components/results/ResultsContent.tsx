@@ -137,7 +137,11 @@ export function ResultsContent() {
                 transition={{ delay: index * 0.1 }}
               >
                 <PerfumeCard 
-                  {...perfume} 
+                  {...perfume}
+                  ifraScore={perfume.ifraScore}
+                  symptomTriggers={perfume.symptomTriggers}
+                  ifraWarnings={perfume.ifraWarnings}
+                  source={perfume.source}
                   showCompare={true}
                   isComparing={compareIds.includes(perfume.id)}
                   onCompare={() => toggleCompare(perfume.id)}

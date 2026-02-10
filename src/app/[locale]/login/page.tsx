@@ -176,7 +176,7 @@ function LoginContent() {
           </form>
         </div>
 
-        <p className="text-center mt-6 text-sm text-dark-brown">
+        <p className="text-center mt-2 text-sm text-dark-brown">
           لا تملك حساباً؟{' '}
           <Link href="/register" className="font-bold text-primary-dark dark:text-accent-primary hover:underline underline-offset-2">
             إنشاء حساب جديد

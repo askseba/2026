@@ -56,28 +56,21 @@ export async function searchUnified(
   } = options
 
   const results: UnifiedPerfume[] = []
-
-  // Validate query
-  if (!query || typeof query !== 'string' || !query.trim()) {
-    return results
-  }
-
-  const normalizedQuery = query.toLowerCase().trim()
+  const isEmptyQuery = !query || typeof query !== 'string' || !query.trim()
+  const normalizedQuery = isEmptyQuery ? '' : query.toLowerCase().trim()
 
   // 1. Search in local perfumes.ts (if enabled)
   if (includeLocal) {
     try {
       const perfumes = await getLocalPerfumes()
-      const localResults = perfumes
-        .filter((p: any) =>
-          p.name.toLowerCase().includes(normalizedQuery) ||
-          p.brand.toLowerCase().includes(normalizedQuery)
-        )
-        .map((p: any) => ({
-          ...p,
-          source: 'local' as const
-        }))
-      
+      const localResults = isEmptyQuery
+        ? perfumes.map((p: any) => ({ ...p, source: 'local' as const }))
+        : perfumes
+            .filter((p: any) =>
+              p.name.toLowerCase().includes(normalizedQuery) ||
+              p.brand.toLowerCase().includes(normalizedQuery)
+            )
+            .map((p: any) => ({ ...p, source: 'local' as const }))
       results.push(...localResults)
     } catch (error) {
       logger.error('Local perfume search failed:', error)
@@ -86,31 +79,40 @@ export async function searchUnified(
 
   // 2. Search in Fragella API (if enabled)
   if (includeFragella) {
+    // Empty query: avoid "عطر" (can 404); use 'perfume' or try 'popular' then fallback
+    const fragellaQuery = isEmptyQuery ? (limit > 100 ? 'popular' : 'perfume') : query.trim()
+    let fragellaData: any = null
+
     try {
-      const fragellaData = await searchPerfumesWithCache(query)
-      
-      // Validate Fragella response
-      if (!fragellaData || typeof fragellaData !== 'object') {
-        logger.warn('Invalid Fragella response')
-      } else {
-        // Parse Fragella response with proper null checks
-        let fragellaArray: any[] = []
-        
-        if (Array.isArray(fragellaData.results)) {
-          fragellaArray = fragellaData.results
-        } else if (Array.isArray(fragellaData)) {
-          fragellaArray = fragellaData
-        }
-        
-        const fragellaResults = fragellaArray
-          .map((item: any, index: number) => convertFragellaToUnified(item, undefined, index))
-          .filter((p): p is UnifiedPerfume => p !== null)
-        
-        results.push(...fragellaResults)
-      }
+      fragellaData = await searchPerfumesWithCache(fragellaQuery, limit)
     } catch (error) {
-      logger.error('Fragella search failed:', error)
-      // Continue with local results only
+      logger.warn('Fragella search failed:', error)
+      if (isEmptyQuery && fragellaQuery !== 'perfume') {
+        try {
+          fragellaData = await searchPerfumesWithCache('perfume', limit)
+          logger.info('Fragella fallback "perfume" succeeded')
+        } catch (fallbackErr) {
+          logger.error('Fragella fallback "perfume" failed:', fallbackErr)
+        }
+      }
+    }
+
+    if (fragellaData && typeof fragellaData === 'object') {
+      let fragellaArray: any[] = []
+      if (Array.isArray(fragellaData.results)) fragellaArray = fragellaData.results
+      else if (Array.isArray(fragellaData)) fragellaArray = fragellaData
+      if (isEmptyQuery && limit > 100 && fragellaArray.length === 0) {
+        try {
+          const fallback = await searchPerfumesWithCache('perfume', limit)
+          fragellaArray = Array.isArray(fallback?.results) ? fallback.results : Array.isArray(fallback) ? fallback : []
+        } catch {
+          // ignore
+        }
+      }
+      const fragellaResults = fragellaArray
+        .map((item: any, index: number) => convertFragellaToUnified(item, undefined, index))
+        .filter((p): p is UnifiedPerfume => p !== null)
+      results.push(...fragellaResults)
     }
   }
 

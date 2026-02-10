@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import { perfumes as rawPerfumes } from '@/lib/data/perfumes'
 import type { PerfumeForMatching, ScoredPerfume } from '@/lib/matching'
 import { calculateMatchScores } from '@/lib/matching'
 import { getResultsLimit, getBlurredCount, getUserTierInfo } from '@/lib/gating'
 import type { SubscriptionTier } from '@prisma/client'
+import { searchUnified, enrichWithIFRA } from '@/lib/services/perfume-bridge.service'
 
 type Tier = 'GUEST' | SubscriptionTier
 
@@ -18,6 +18,8 @@ interface MatchRequestBody {
       ingredients?: string[]
     }
   }
+  /** Optional: search term for Fragella pool (e.g. "chanel"); empty = use "perfume"/"popular" */
+  seedSearchQuery?: string
 }
 
 function toPerfumeForMatching(p: {
@@ -72,7 +74,61 @@ export async function POST(request: Request) {
       ingredients: prefs.allergyProfile?.ingredients ?? []
     }
 
-    const allPerfumes: PerfumeForMatching[] = rawPerfumes.map(toPerfumeForMatching)
+    const apiKey = process.env.FRAGELLA_API_KEY ?? ''
+    let basePerfumes: any[] = []
+    const poolQuery = (body.seedSearchQuery ?? '').trim()
+
+    if (apiKey) {
+      try {
+        basePerfumes = await searchUnified(poolQuery || '', {
+          includeFragella: true,
+          includeLocal: true,
+          limit: 2000
+        })
+        console.log(`[match] Fragella pool: ${basePerfumes.length} عطور`, poolQuery ? `(query: ${poolQuery})` : '')
+      } catch (e) {
+        console.warn('[match] Fragella failed:', e)
+      }
+    }
+
+    if (basePerfumes.length === 0) {
+      const { perfumes: fallbackPerfumes } = await import('@/lib/data/perfumes')
+      basePerfumes = (fallbackPerfumes as any[]).map((p) => ({ ...p, source: 'local' }))
+      console.log(`[match] Fallback to rawPerfumes: ${basePerfumes.length}`)
+    }
+
+    const userSymptoms = prefs.allergyProfile?.symptoms ?? []
+    const enrichedPerfumes = await Promise.all(
+      basePerfumes.slice(0, 2000).map(async (perfume: any) => {
+        try {
+          const enriched = await enrichWithIFRA(perfume, userSymptoms)
+          return {
+            ...toPerfumeForMatching(enriched),
+            ifraScore: enriched.ifraScore,
+            symptomTriggers: enriched.symptomTriggers ?? [],
+            ifraWarnings: enriched.ifraWarnings ?? [],
+            source: enriched.source ?? 'local'
+          }
+        } catch (enrichErr) {
+          console.warn(`IFRA failed for ${perfume.id}:`, enrichErr)
+          return toPerfumeForMatching(perfume)
+        }
+      })
+    )
+
+    const allPerfumes = enrichedPerfumes as (PerfumeForMatching & {
+      ifraScore?: number
+      symptomTriggers?: string[]
+      ifraWarnings?: string[]
+      source?: string
+    })[]
+    console.log(
+      '[match] Final pool:',
+      allPerfumes.length,
+      'sample ifraScore:',
+      allPerfumes[0]?.ifraScore
+    )
+
     const likedIds = prefs.likedPerfumeIds ?? []
     const likedPerfumesFamilies: string[] = []
     for (const id of likedIds) {
@@ -108,12 +164,31 @@ export async function POST(request: Request) {
       familyHint: p.families?.[0] ?? 'عطر'
     }))
 
-    return NextResponse.json({
+    const response = {
       success: true,
-      perfumes: visible,
+      perfumes: visible.map((p: any) => ({
+        ...p,
+        ifraScore: p.ifraScore,
+        symptomTriggers: p.symptomTriggers ?? [],
+        ifraWarnings: p.ifraWarnings ?? [],
+        source: p.source ?? 'local'
+      })),
       blurredItems: blurred,
       tier
+    }
+    console.log('[match] before send:', {
+      visibleCount: visible.length,
+      blurredCount: blurred.length,
+      tier,
+      poolSize: allPerfumes.length
     })
+    console.log('[match] response:', {
+      success: response.success,
+      perfumesCount: response.perfumes.length,
+      blurredItemsCount: response.blurredItems.length,
+      tier: response.tier
+    })
+    return NextResponse.json(response)
   } catch (err) {
     console.error('Match API error:', err)
     return NextResponse.json(

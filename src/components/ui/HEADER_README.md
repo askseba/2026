@@ -5,26 +5,31 @@
 
 ## 🎯 البنية
 ```
-[🔔 Notifications] [❤️ Favorites] [👤 Account Hub]
+[❤️ Favorites]  [🌙 Dark Mode] [🌐 Language] [⚙️ Settings] [👤 Account Hub]
 ```
 
 ## ✨ المميزات
 
-### 1. زر الإشعارات (🔔)
-- **للزوار**: تحويل إلى `/login?callbackUrl=/notifications`
-- **للمسجلين**: تحويل إلى `/notifications`
-- **مؤشر**: نقطة حمراء تظهر للمستخدمين المسجلين
+### 1. المفضلة (❤️)
+- رابط مباشر إلى `/favorites`
+- أيقونة Heart من lucide-react
+- بدون auth guard (صفحة المفضلة تتولى ذلك)
 
-### 2. زر المفضلة (❤️)
-- **للزوار**: تحويل إلى `/login?callbackUrl=/dashboard`
-- **للمسجلين**: تحويل إلى `/dashboard`
-- **تلوين ديناميكي**: قلب ممتلئ بالأحمر عند وجود مفضلات
-- **مؤشر**: نقطة ذهبية عند وجود مفضلات
+### 2. الوضع الداكن (🌙)
+- DarkModeToggle — تبديل فوري بين الفاتح والداكن
 
-### 3. Account Hub (👤)
+### 3. تبديل اللغة (🌐)
+- LanguageSwitcher — قائمة منسدلة (العربية / English)
+- تغيير locale بدون إعادة تحميل كامل
+
+### 4. الإعدادات (⚙️)
+- رابط مباشر إلى `/settings`
+- أيقونة SettingsIcon من AskSebaIcons
+
+### 5. Account Hub (👤)
 **للزوار:**
-- الدخول → `/login`
-- التسجيل → `/register`
+- تسجيل الدخول → `/login`
+- إنشاء حساب → `/register`
 
 **للمسجلين:**
 - الملف الشخصي → `/profile`
@@ -32,113 +37,39 @@
 
 ## 📦 التبعيات
 
-```json
-{
-  "next-auth": "^5.0.0-beta.30",
-  "@radix-ui/react-dropdown-menu": "^2.1.16",
-  "@radix-ui/react-avatar": "latest",
-  "lucide-react": "^0.562.0"
-}
-```
+| الحزمة | الاستخدام |
+|--------|-----------|
+| next-auth/react | useSession, signOut |
+| next-intl | useTranslations |
+| @/i18n/routing | Link, useRouter |
+| @/components/ui/button | Button (ghost variant) |
+| @/components/ui/dropdown-menu | DropdownMenu (Account Hub) |
+| @/components/DarkModeToggle | تبديل الثيم |
+| @/components/LanguageSwitcher | تبديل اللغة |
+| @/components/AskSebaIcons | SettingsIcon, UserAvatarIcon |
+| lucide-react | Heart |
 
 ## 🔧 الاستخدام
 
-### في app/(main)/layout.tsx:
+يُعرض عبر `ConditionalLayout.tsx` — يختفي في صفحات auth:
+- `/login`
+- `/register`
+- `/forgot-password`
 
-```tsx
-import Header from "@/components/ui/header"
+## 📱 Responsive
 
-export default function MainLayout({ children }) {
-  return (
-    <div>
-      <Header />
-      <main>{children}</main>
-    </div>
-  )
-}
-```
-
-### أو في ConditionalLayout.tsx:
-
-```tsx
-import Header from "@/components/ui/header"
-import { Footer } from "@/components/Footer"
-
-export function ConditionalLayout({ children }) {
-  const pathname = usePathname()
-  const isAuthPage = pathname === '/login' || pathname === '/register'
-
-  return (
-    <div className="flex flex-col min-h-screen">
-      {!isAuthPage && <Header />}
-      <main className={isAuthPage ? '' : 'flex-1'}>
-        {children}
-      </main>
-      {!isAuthPage && <Footer />}
-    </div>
-  )
-}
-```
-
-## 🎨 التخصيص
-
-### تغيير الألوان:
-تعديل في `tailwind.config.ts`:
-```ts
-colors: {
-  primary: "hsl(var(--primary))",
-  background: "hsl(var(--background))",
-  // ...
-}
-```
-
-### تغيير الارتفاع:
-تعديل `h-14` في السطر 51 من `header.tsx`
-
-### إضافة شعار:
-```tsx
-<div className="flex-1">
-  <Link href="/">
-    <span className="font-bold text-xl">Ask Seba</span>
-  </Link>
-</div>
-```
-
-## ⚙️ المتطلبات التقنية
-
-✅ Next.js 15.0.0+ App Router  
-✅ shadcn/ui + Tailwind CSS v3.4+  
-✅ dir="rtl" Arabic support  
-✅ useSession() من next-auth/react  
-✅ useRouter() من next/navigation  
-✅ Avatar مع fallback "👤"  
-✅ Mobile-first responsive  
-✅ Hover: scale-105 transition-all 0.2s  
-✅ Fixed height: h-14 bg-background/95 backdrop-blur  
-
-## 📱 Responsive Design
-
-- **Mobile**: أزرار مدمجة (gap-2)
-- **Desktop**: مسافات أوسع (gap-3)
-- **Touch targets**: min-h-[44px] لسهولة النقر
-
-## 🔐 حماية Auth
-
-جميع الأزرار محمية:
-- التحقق من `status === 'authenticated'`
-- تعطيل الأزرار أثناء `status === 'loading'`
-- Redirect للزوار مع `callbackUrl`
+- **Mobile**: `gap-2`
+- **Desktop**: `gap-3`
+- لا يوجد hamburger menu — جميع الأيقونات ظاهرة دائماً
 
 ## 🎯 Accessibility
 
-- `aria-label` لكل زر
-- دعم لوحة المفاتيح كامل
-- Hover states واضحة
-- Focus indicators مرئية
+- `aria-label` لكل زر ورابط (من مفاتيح `nav.*`)
+- دعم لوحة المفاتيح عبر Button و Radix DropdownMenu
+- `focus-visible:ring-2` على جميع العناصر التفاعلية
 
-## 📝 Notes
+## 📝 ملاحظات
 
-- Header مُثبّت في الأعلى (sticky top-0)
-- خلفية شفافة مع backdrop-blur
-- RTL support كامل
-- لا يحتوي على SearchBar أو Logo (حسب المواصفات)
+- `dir="rtl"` ثابت على `<header>` — مشكلة معروفة (يجب أن يتبع locale)
+- `signOut({ callbackUrl: '/' })` غير locale-aware — تحسين مستقبلي
+- لا يوجد StatusCircles أو Notifications في الهيدر (نُقلت إلى Settings)

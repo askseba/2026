@@ -3,6 +3,7 @@
 import { useSession, signOut } from "next-auth/react"
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
+import { Link } from '@/i18n/routing'
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -11,25 +12,15 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
-import { StatusCircles } from "@/components/landing/StatusCircles"
 import DarkModeToggle from "@/components/DarkModeToggle"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
-import { NotificationBellIcon, UserAvatarIcon } from "@/components/AskSebaIcons"
+import { SettingsIcon, UserAvatarIcon } from "@/components/AskSebaIcons"
+import { Heart } from "lucide-react"
 
 export default function Header() {
   const { data: session, status } = useSession()
   const t = useTranslations('nav')
   const router = useRouter()
-
-  const handleNotificationsClick = () => {
-    if (status === 'loading') return
-
-    if (status === 'authenticated') {
-      router.push('/notifications')
-    } else {
-      router.push('/login?callbackUrl=/notifications')
-    }
-  }
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' })
@@ -41,31 +32,33 @@ export default function Header() {
       className="sticky top-0 z-50 h-14 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:supports-[backdrop-filter]:bg-surface-elevated/60"
     >
       <div className="container mx-auto h-full px-4 flex items-center justify-between sm:gap-3">
-        {/* Left side: StatusCircles - لا تُلمس */}
-        <StatusCircles />
+        {/* Left side: Favorites Heart - standalone */}
+        <div className="flex items-center">
+          <Link
+            href="/favorites"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-text-primary hover:bg-cream-bg dark:hover:bg-surface-muted transition-all duration-200 hover:scale-105"
+            aria-label={t('favorites', { defaultValue: 'المفضلة' })}
+          >
+            <Heart className="h-6 w-6 fill-red-500 text-red-500 hover:fill-red-400 transition-colors" />
+          </Link>
+        </div>
         
-        {/* Right side: Controls - z-10 so toggle stays above header backdrop */}
+        {/* Right side: Controls */}
         <div className="relative z-10 flex items-center gap-2 sm:gap-3">
           {/* Theme Toggle */}
           <DarkModeToggle />
           
-          {/* Language Switcher - جديد */}
+          {/* Language Switcher */}
           <LanguageSwitcher />
 
-          {/* 🔔 Notifications Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleNotificationsClick}
-            disabled={status === 'loading'}
-            className="relative hover:scale-105 transition-all duration-200"
-            aria-label={status === 'authenticated' ? t('notifications') : t('notificationsLoginPrompt')}
+          {/* ⚙️ Settings Link */}
+          <Link
+            href="/settings"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-text-primary hover:bg-cream-bg dark:hover:bg-surface-muted transition-all duration-200 hover:scale-105"
+            aria-label={t('settings')}
           >
-            <NotificationBellIcon className="h-7 w-7" />
-            {status === 'authenticated' && (
-              <span className="absolute top-0.5 start-0.5 w-1.5 h-1.5 bg-red-500 rounded-full" />
-            )}
-          </Button>
+            <SettingsIcon className="h-7 w-7" />
+          </Link>
 
           {/* 👤 Account Hub - Dropdown Menu */}
           <DropdownMenu>

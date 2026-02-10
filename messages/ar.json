@@ -23,7 +23,32 @@
       }
     },
     "userMenuAriaLabel": "قائمة المستخدم",
-    "notificationsLoginPrompt": "تسجيل الدخول للإشعارات"
+    "notificationsLoginPrompt": "تسجيل الدخول للإشعارات",
+    "favorites": "المفضلة"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "updateName": "تحديث الاسم",
+    "namePlaceholder": "أدخل اسمك",
+    "applicationSection": "التطبيق",
+    "notifications": "الإشعارات",
+    "notificationsDescription": "تحكم في إشعارات التطبيق واختبر وصولها.",
+    "accountSection": "الحساب",
+    "signOut": "تسجيل الخروج",
+    "deleteAccount": "حذف الحساب",
+    "deleteConfirmTitle": "حذف الحساب نهائياً؟",
+    "deleteConfirmDescription": "سيتم حذف جميع بياناتك بشكل دائم. لا يمكن التراجع عن هذا الإجراء.",
+    "deleteConfirmButton": "نعم، احذف حسابي",
+    "notifSmartTitle": "الإشعارات الذكية",
+    "notifActive": "مفعّل",
+    "notifInactive": "معطّل",
+    "notifTestButton": "إرسال إشعار تجريبي",
+    "notifTestSent": "تم الإرسال ✓",
+    "notifPermissionsHint": "لا تصلك الإشعارات؟ اضغط هنا",
+    "notifPermissionsTitle": "تفعيل الإشعارات:",
+    "notifPermStep1": "افتح إعدادات المتصفح",
+    "notifPermStep2": "ابحث عن أذونات الموقع (Site permissions)",
+    "notifPermStep3": "فعّل الإشعارات لموقع askseba.com"
   },
   "profile": {
     "pageTitle": "إعدادات الملف الشخصي",

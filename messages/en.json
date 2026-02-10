@@ -23,7 +23,32 @@
       }
     },
     "userMenuAriaLabel": "User menu",
-    "notificationsLoginPrompt": "Log in for notifications"
+    "notificationsLoginPrompt": "Log in for notifications",
+    "favorites": "Favorites"
+  },
+  "settings": {
+    "title": "Settings",
+    "updateName": "Update Your Name",
+    "namePlaceholder": "Enter your name",
+    "applicationSection": "Application",
+    "notifications": "Notifications",
+    "notificationsDescription": "Manage app notifications and test delivery.",
+    "accountSection": "Account",
+    "signOut": "Sign Out",
+    "deleteAccount": "Delete Account",
+    "deleteConfirmTitle": "Delete account permanently?",
+    "deleteConfirmDescription": "All your data will be permanently deleted. This action cannot be undone.",
+    "deleteConfirmButton": "Yes, delete my account",
+    "notifSmartTitle": "Smart Notifications",
+    "notifActive": "Active",
+    "notifInactive": "Inactive",
+    "notifTestButton": "Send Test Notification",
+    "notifTestSent": "Sent ✓",
+    "notifPermissionsHint": "Not seeing notifications? Tap here",
+    "notifPermissionsTitle": "Enable notifications:",
+    "notifPermStep1": "Open your browser settings",
+    "notifPermStep2": "Find Site permissions",
+    "notifPermStep3": "Enable notifications for askseba.com"
   },
   "profile": {
     "pageTitle": "Profile Settings",
