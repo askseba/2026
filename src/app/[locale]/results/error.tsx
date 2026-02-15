@@ -11,6 +11,7 @@ export default function ResultsError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  void error // required by Next.js error boundary; intentionally unused for display
   const t = useTranslations('results')
   const locale = useLocale()
   const direction = locale === 'ar' ? 'rtl' : 'ltr'

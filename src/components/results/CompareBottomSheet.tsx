@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { Link } from '@/i18n/routing'
@@ -28,25 +28,13 @@ interface StorePrice {
   id: string
   name: string
   logo: string
-  price: number
+  price: number | null
   available: boolean
   url: string
+  searchUrl: string
+  lastUpdated: string | null
+  priceSource: 'db' | 'none'
 }
-
-const MOCKSTORES: StorePrice[] = [
-  { id: 'fragrancex', name: 'FragranceX', logo: '/stores/fragrancex.svg', price: 299, available: true, url: 'https://www.fragrancex.com' },
-  { id: 'niceone', name: 'Nice One', logo: '/stores/niceone.svg', price: 315, available: true, url: 'https://www.niceonesa.com' },
-  { id: 'goldenscent', name: 'Golden Scent', logo: '/stores/goldenscent.svg', price: 330, available: true, url: 'https://www.goldenscent.com' },
-  { id: 'noon', name: 'Noon', logo: '/stores/noon.svg', price: 345, available: true, url: 'https://www.noon.com' },
-  { id: 'amazon-sa', name: 'Amazon SA', logo: '/stores/amazon.svg', price: 355, available: true, url: 'https://www.amazon.sa' },
-  { id: 'sephora', name: 'Sephora', logo: '/stores/sephora.svg', price: 390, available: true, url: 'https://www.sephora.sa' },
-  { id: 'faces', name: 'Faces', logo: '/stores/faces.svg', price: 399, available: true, url: 'https://www.faces.com' },
-  { id: 'namshi', name: 'Namshi', logo: '/stores/namshi.svg', price: 410, available: true, url: 'https://www.namshi.com' },
-  { id: 'selfridges', name: 'Selfridges', logo: '/stores/selfridges.svg', price: 420, available: true, url: 'https://www.selfridges.com' },
-  { id: 'ounass', name: 'Ounass', logo: '/stores/ounass.svg', price: 450, available: false, url: 'https://www.ounass.sa' },
-  { id: 'beautyglam', name: 'Beauty Glam', logo: '/stores/beautyglam.svg', price: 460, available: true, url: 'https://www.beautyglam.sa' },
-  { id: 'perfumesa', name: 'Perfume SA', logo: '/stores/perfumesa.svg', price: 485, available: true, url: 'https://www.perfumesa.com' }
-]
 
 const FREE_VISIBLE_STORES = 2
 
@@ -82,14 +70,18 @@ function StoreRow ({
   t
 }: {
   store: StorePrice
-  bestPrice: number
+  bestPrice: number | null
   t: (key: string, values?: Record<string, string>) => string
 }) {
+  const href = store.price !== null ? store.url : store.searchUrl
+  const showBestBadge =
+    bestPrice != null && store.price !== null && store.price === bestPrice
+
   return (
     <div
       className={cn(
         'flex items-center gap-3 p-4 rounded-2xl border transition',
-        store.price === bestPrice
+        showBestBadge
           ? 'border-primary/30 dark:border-amber-500/30 bg-primary/5 dark:bg-amber-500/5'
           : 'border-gray-100 dark:border-border-subtle bg-white dark:bg-surface',
         !store.available && 'opacity-60'
@@ -102,35 +94,39 @@ function StoreRow ({
           {store.available ? t('available') : t('outOfStock')}
         </p>
       </div>
-      <div className="flex items-center gap-2">
-        {store.price === bestPrice && (
-          <span className="text-[10px] font-bold text-safe-green bg-safe-green/10 dark:bg-green-500/20 px-1.5 py-0.5 rounded-full">
-            {t('bestPrice')}
+      <div className="flex flex-col items-end gap-0.5">
+        {store.price !== null ? (
+          <>
+            <div className="flex items-center gap-2">
+              {showBestBadge && (
+                <span className="text-[10px] font-bold text-safe-green bg-safe-green/10 dark:bg-green-500/20 px-1.5 py-0.5 rounded-full">
+                  {t('bestPrice')}
+                </span>
+              )}
+              <span className="text-lg font-black text-text-primary dark:text-text-primary whitespace-nowrap">
+                {t('currency')} {store.price}
+              </span>
+            </div>
+            {store.lastUpdated && (
+              <span className="text-[10px] text-text-muted dark:text-text-muted">
+                {t('lastUpdated', { date: new Date(store.lastUpdated).toLocaleDateString() })}
+              </span>
+            )}
+          </>
+        ) : (
+          <span className="text-sm font-bold text-primary dark:text-amber-500 whitespace-nowrap">
+            {t('searchNow')}
           </span>
         )}
-        <span className="text-lg font-black text-text-primary dark:text-text-primary whitespace-nowrap">
-          {t('currency')} {store.price}
-        </span>
       </div>
       <a
-        href={store.available ? store.url : undefined}
+        href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className={cn(
-          'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition',
-          store.available
-            ? 'bg-text-primary dark:bg-white hover:opacity-80 cursor-pointer text-white dark:text-surface'
-            : 'bg-gray-200 dark:bg-surface-muted cursor-not-allowed text-gray-400'
-        )}
-        aria-label={store.available ? `${t('goToStore', { store: store.name })}` : t('outOfStock')}
-        onClick={store.available ? undefined : (e) => e.preventDefault()}
+        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition bg-text-primary dark:bg-white hover:opacity-80 cursor-pointer text-white dark:text-surface"
+        aria-label={t('searchInStore', { store: store.name })}
       >
-        <ChevronLeft
-          className={cn(
-            'w-4 h-4',
-            store.available ? 'text-white dark:text-surface' : 'text-gray-400'
-          )}
-        />
+        <ChevronLeft className="w-4 h-4 text-white dark:text-surface" />
       </a>
     </div>
   )
@@ -149,18 +145,47 @@ function PriceHubContent ({
   t: (key: string, values?: Record<string, string>) => string
   locale: string
 }) {
-  const sortedStores = useMemo(
-    () =>
-      [...MOCKSTORES].sort((a, b) => {
-        if (a.available && !b.available) return -1
-        if (!a.available && b.available) return 1
-        return a.price - b.price
-      }),
-    []
-  )
-  const availablePrices = sortedStores.filter((s) => s.available).map((s) => s.price)
-  const bestPrice = availablePrices.length > 0 ? Math.min(...availablePrices) : 0
+  void locale // passed by parent for future use
+  const [storesData, setStoresData] = useState<StorePrice[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [fetchError, setFetchError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!perfume?.id) return
+    setFetchError(null)
+    let cancelled = false
+    const run = async () => {
+      await Promise.resolve()
+      if (cancelled) return
+      setIsLoading(true)
+      try {
+        const params = new URLSearchParams({
+          perfumeId: perfume.id,
+          name: perfume.name ?? '',
+          brand: perfume.brand ?? '',
+        })
+        const res = await fetch(`/api/prices/compare?${params.toString()}`)
+        if (!res.ok) throw new Error('Fetch failed')
+        const data = await res.json()
+        if (!cancelled) setStoresData(data.stores ?? [])
+      } catch {
+        if (!cancelled) setFetchError(t('fetchError'))
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
+    }
+    run()
+    return () => { cancelled = true }
+  }, [perfume?.id, perfume?.name, perfume?.brand, t])
+
+  const pricesWithValue = storesData.filter((s) => s.price !== null && s.price > 0).map((s) => s.price as number)
+  const bestPrice = pricesWithValue.length > 0 ? Math.min(...pricesWithValue) : null
+  const hasAnyRealPrice = storesData.some((s) => s.price !== null && s.price > 0)
+  const hasAnyRealPriceForTitle = storesData.some((s) => s.price !== null)
+  const pricedCount = storesData.filter((s) => s.price !== null).length
   const isPremium = tier === 'PREMIUM'
+  const visibleStores = storesData.slice(0, isPremium ? storesData.length : FREE_VISIBLE_STORES)
+  const remaining = Math.max(0, storesData.length - FREE_VISIBLE_STORES)
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -197,67 +222,134 @@ function PriceHubContent ({
       {/* Title section */}
       <div className="px-6 py-3 bg-primary/5 dark:bg-amber-500/5 flex-shrink-0">
         <h3 className="text-sm font-bold text-text-primary dark:text-text-primary">
-          {t('priceHubTitle')}
+          {hasAnyRealPriceForTitle ? t('priceHubTitle') : t('priceHubSearchTitle')}
         </h3>
       </div>
 
+      {/* Price counter */}
+      {!isLoading && pricedCount > 0 && (
+        <div className="px-6 py-1">
+          <p className="text-[10px] text-text-muted dark:text-text-muted text-center">
+            {t('priceCount', { count: String(pricedCount), total: String(storesData.length) })}
+          </p>
+        </div>
+      )}
+
       {/* Store rows */}
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
-        {sortedStores.slice(0, isPremium ? sortedStores.length : FREE_VISIBLE_STORES).map((store) => (
-          <StoreRow key={store.id} store={store} bestPrice={bestPrice} t={t} />
-        ))}
-
-        {/* FREE: Blurred stores + GatingOverlay (Crown + upgrade CTA) */}
-        {!isPremium && sortedStores.length > FREE_VISIBLE_STORES && (
-          <div className="relative group">
-            {/* Blurred content */}
-            <div className="filter blur-[8px] opacity-50 pointer-events-none select-none space-y-3">
-              {MOCKSTORES.slice(FREE_VISIBLE_STORES).map((store, i) => (
-                <div
-                  key={`${store.id}-${i}`}
-                  className="flex items-center gap-3 p-4 rounded-2xl border border-gray-100 dark:border-border-subtle"
-                >
-                  <div className="w-12 h-12 rounded-full bg-gray-50 dark:bg-surface-muted" />
-                  <div className="flex-1">
-                    <div className="h-4 w-24 bg-gray-100 rounded" />
-                    <div className="h-3 w-16 bg-gray-50 rounded mt-1" />
-                  </div>
-                  <div className="h-5 w-20 bg-gray-100 rounded" />
-                  <div className="w-10 h-10 rounded-xl bg-gray-200" />
+        {isLoading && (
+          <>
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 p-4 rounded-2xl border border-gray-100 dark:border-border-subtle"
+              >
+                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-surface-muted animate-pulse" />
+                <div className="flex-1">
+                  <div className="h-4 w-24 bg-gray-100 dark:bg-surface-muted rounded animate-pulse" />
+                  <div className="h-3 w-16 bg-gray-50 dark:bg-surface-muted rounded mt-2 animate-pulse" />
                 </div>
-              ))}
-            </div>
-
-            {/* Gating overlay */}
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-white/90 to-black/10 dark:from-black/60 dark:to-black/80 backdrop-blur-md">
-              <div className="bg-white dark:bg-surface rounded-2xl shadow-elevation-2 dark:shadow-black/30 p-6 text-center max-w-xs border border-primary/10 dark:border-border-subtle">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary/10 dark:bg-amber-500/10 flex items-center justify-center">
-                  <Crown className="w-6 h-6 text-primary dark:text-amber-500" />
-                </div>
-                <p className="text-sm font-bold text-text-primary dark:text-text-primary mb-1">
-                  {t('moreStoresLocked', {
-                    remaining: String(MOCKSTORES.length - FREE_VISIBLE_STORES)
-                  })}
-                </p>
-                <p className="text-xs text-text-muted dark:text-text-muted mb-4">
-                  {t('alertHint')}
-                </p>
-                <Link
-                  href="/pricing"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-l from-amber-500 to-amber-600 text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-amber-500/30 transition-all hover:scale-[1.05] active:scale-[0.95]"
-                >
-                  <Crown className="w-4 h-4" />
-                  {t('subscribeToPrices')}
-                </Link>
+                <div className="h-5 w-20 bg-gray-100 dark:bg-surface-muted rounded animate-pulse" />
+                <div className="w-10 h-10 rounded-xl bg-gray-200 dark:bg-surface-muted animate-pulse" />
               </div>
-            </div>
+            ))}
+          </>
+        )}
+
+        {!isLoading && fetchError && (
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <p className="text-sm text-text-muted dark:text-text-muted mb-4">{fetchError}</p>
+            <button
+              type="button"
+              onClick={() => {
+                setFetchError(null)
+                setIsLoading(true)
+                const params = new URLSearchParams({
+                  perfumeId: perfume.id,
+                  name: perfume.name ?? '',
+                  brand: perfume.brand ?? '',
+                })
+                fetch(`/api/prices/compare?${params.toString()}`)
+                  .then((res) => { if (!res.ok) throw new Error(); return res.json() })
+                  .then((data) => setStoresData(data.stores ?? []))
+                  .catch(() => setFetchError(t('fetchError')))
+                  .finally(() => setIsLoading(false))
+              }}
+              className="text-sm font-bold text-primary dark:text-amber-500 hover:underline"
+            >
+              {t('retry')}
+            </button>
           </div>
+        )}
+
+        {!isLoading && !fetchError && storesData.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-8 text-center px-4">
+            <h4 className="text-sm font-bold text-text-primary dark:text-text-primary mb-2">
+              {t('noStoresTitle')}
+            </h4>
+            <p className="text-xs text-text-muted dark:text-text-muted">
+              {t('noStoresDesc')}
+            </p>
+          </div>
+        )}
+
+        {!isLoading && !fetchError && storesData.length > 0 && (
+          <>
+            <p className="text-xs text-text-muted dark:text-text-muted mb-2">
+              {hasAnyRealPrice ? t('pricesMixed') : t('pricesSearch')}
+            </p>
+            {visibleStores.map((store) => (
+              <StoreRow key={store.id} store={store} bestPrice={bestPrice} t={t} />
+            ))}
+
+            {/* FREE: Blurred stores + GatingOverlay */}
+            {!isPremium && remaining > 0 && (
+              <div className="relative group">
+                <div className="filter blur-[8px] opacity-50 pointer-events-none select-none space-y-3">
+                  {Array.from({ length: remaining }).map((_, i) => (
+                    <div
+                      key={`blur-${i}`}
+                      className="flex items-center gap-3 p-4 rounded-2xl border border-gray-100 dark:border-border-subtle"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-gray-50 dark:bg-surface-muted" />
+                      <div className="flex-1">
+                        <div className="h-4 w-24 bg-gray-100 rounded" />
+                        <div className="h-3 w-16 bg-gray-50 rounded mt-1" />
+                      </div>
+                      <div className="h-5 w-20 bg-gray-100 rounded" />
+                      <div className="w-10 h-10 rounded-xl bg-gray-200" />
+                    </div>
+                  ))}
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-white/90 to-black/10 dark:from-black/60 dark:to-black/80 backdrop-blur-md">
+                  <div className="bg-white dark:bg-surface rounded-2xl shadow-elevation-2 dark:shadow-black/30 p-6 text-center max-w-xs border border-primary/10 dark:border-border-subtle">
+                    <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary/10 dark:bg-amber-500/10 flex items-center justify-center">
+                      <Crown className="w-6 h-6 text-primary dark:text-amber-500" />
+                    </div>
+                    <p className="text-sm font-bold text-text-primary dark:text-text-primary mb-1">
+                      {t('moreStoresLocked', { remaining: String(remaining) })}
+                    </p>
+                    <p className="text-xs text-text-muted dark:text-text-muted mb-4">
+                      {t('alertHint')}
+                    </p>
+                    <Link
+                      href="/pricing"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-l from-amber-500 to-amber-600 text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-amber-500/30 transition-all hover:scale-[1.05] active:scale-[0.95]"
+                    >
+                      <Crown className="w-4 h-4" />
+                      {t('subscribeToPrices')}
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
       {/* Footer: PriceAlertButton (PREMIUM only) or Close */}
       <div className="px-6 py-4 border-t border-primary/10 dark:border-border-subtle flex-shrink-0 space-y-3">
-        {isPremium && bestPrice > 0 && tier && (
+        {isPremium && bestPrice != null && bestPrice > 0 && tier && (
           <PriceAlertButton
             perfumeId={perfume.id}
             perfumeName={perfume.name}
@@ -280,8 +372,8 @@ function ProductCompareContent({
   perfumes: ScoredPerfume[]
   locale: string
 }) {
+  void locale // passed by parent for RTL/layout if needed
   const t = useTranslations('results.compare')
-  const isRtl = locale === 'ar'
 
   if (!perfumes?.length) return null
 

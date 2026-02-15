@@ -1,21 +1,18 @@
 "use client"
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, ArrowRightLeft, Zap } from 'lucide-react'
+import { Sparkles, ArrowRightLeft } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
-import { PerfumeCard } from '@/components/ui/PerfumeCard'
 import { Button } from '@/components/ui/button'
 import { useQuiz } from '@/contexts/QuizContext'
-import { useSession } from 'next-auth/react'
 import { type ScoredPerfume } from '@/lib/matching'
 import { safeFetch } from '@/lib/utils/api-helpers'
 import { UpsellCard } from '@/components/ui/UpsellCard'
-import { BlurredTeaserCard } from '@/components/ui/BlurredTeaserCard'
 import { BackButton } from '@/components/ui/BackButton'
 import { CompareBottomSheet } from '@/components/results/CompareBottomSheet'
 import { IngredientsSheet } from '@/components/results/IngredientsSheet'
 import { MatchSheet } from '@/components/results/MatchSheet'
-import { cn } from '@/lib/classnames'
+import ResultsGrid from '@/components/results/ResultsGrid'
 import logger from '@/lib/logger'
 
 interface BlurredItem {
@@ -35,7 +32,6 @@ export function ResultsContent() {
   const locale = useLocale()
   const t = useTranslations('results')
   const { data: quizData } = useQuiz()
-  const { data: session } = useSession()
   const [scoredPerfumes, setScoredPerfumes] = useState<ScoredPerfume[]>([])
   const [blurredItems, setBlurredItems] = useState<BlurredItem[]>([])
   const [tier, setTier] = useState<'GUEST' | 'FREE' | 'PREMIUM'>('GUEST')
@@ -47,6 +43,12 @@ export function ResultsContent() {
   const [priceHubPerfume, setPriceHubPerfume] = useState<ScoredPerfume | null>(null)
   const [ingredientsPerfume, setIngredientsPerfume] = useState<ScoredPerfume | null>(null)
   const [matchPerfume, setMatchPerfume] = useState<ScoredPerfume | null>(null)
+
+  const setComparePerfume = useCallback((perfume: ScoredPerfume | null) => {
+    setPriceHubPerfume(perfume)
+    setCompareMode('price-hub')
+    if (perfume) setIsCompareOpen(true)
+  }, [])
 
   const fetchResults = useCallback(async () => {
     setIsLoading(true)
@@ -87,11 +89,6 @@ export function ResultsContent() {
   const direction = locale === 'ar' ? 'rtl' : 'ltr'
 
   const comparePerfumes = scoredPerfumes.filter((p) => compareIds.includes(p.id))
-
-  // Calculate summary statistics for Hero
-  const lockedCount = blurredItems.length
-  const totalCount = scoredPerfumes.length + (lockedCount || 0)
-  const topScore = scoredPerfumes.length > 0 ? Math.round(scoredPerfumes[0].finalScore) : 0
 
   if (isLoading) {
     return (
@@ -283,100 +280,22 @@ export function ResultsContent() {
       </AnimatePresence>
 
       {/* Results Grid */}
-      <main className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {scoredPerfumes.map((perfume, index) => {
-            const items = [];
-            
-            // Perfume Card
-            items.push(
-              <motion.div
-                key={perfume.id}
-                className={cn("relative transition-opacity", perfume.finalScore < 40 && "opacity-60")}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  delay: Math.min(index * 0.08, 0.5),
-                  duration: 0.3
-                }}
-              >
-                {/* Label تطابق ضعيف فوق البطاقة */}
-                {perfume.finalScore < 40 && (
-                  <div className="absolute top-2 inset-x-0 z-20 flex justify-center pointer-events-none">
-                    <span className="text-[10px] font-bold text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded-full shadow-sm">
-                      {t('poorMatch')}
-                    </span>
-                  </div>
-                )}
-                <PerfumeCard
-                  {...perfume}
-                  ifraScore={perfume.ifraScore}
-                  symptomTriggers={perfume.symptomTriggers}
-                  ifraWarnings={perfume.ifraWarnings}
-                  source={perfume.source}
-                  showCompare={true}
-                  isComparing={compareIds.includes(perfume.id)}
-                  onCompare={() => toggleCompare(perfume.id)}
-                  priority={index < 2}
-                  isFirst={index === 0}
-                  onShowIngredients={() => setIngredientsPerfume(perfume)}
-                  onShowMatch={() => setMatchPerfume(perfume)}
-                  onPriceCompare={(p) => {
-                    setPriceHubPerfume(p)
-                    setCompareMode('price-hub')
-                    setIsCompareOpen(true)
-                  }}
-                  perfumeData={perfume}
-                />
-              </motion.div>
-            );
+      <ResultsGrid
+        perfumes={scoredPerfumes.map((perfume) => ({
+          ...perfume,
+          displayName: perfume.name,
+          onShowIngredients: () => setIngredientsPerfume(perfume),
+          onShowMatch: () => setMatchPerfume(perfume),
+          onPriceCompare: () => setComparePerfume(perfume),
+        }))}
+        tier={tier}
+        compareIds={compareIds}
+        toggleCompare={toggleCompare}
+        blurredItems={blurredItems}
+        t={t}
+      />
 
-            // Mid-grid UpsellCard (After 4th result for Free users)
-            if (index === 3 && tier === 'FREE') {
-              items.push(
-                <motion.div
-                  key="upsell-mid"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <UpsellCard 
-                    position="mid-grid"
-                    remainingCount={blurredItems.length + (scoredPerfumes.length - index - 1)}
-                    averageMatch={Math.round(blurredItems.reduce((acc, item) => acc + item.matchScore, 0) / (blurredItems.length || 1))}
-                  />
-                </motion.div>
-              );
-            }
-
-            return items;
-          })}
-
-          {/* Blurred Teaser Cards */}
-          {tier !== 'PREMIUM' && blurredItems.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{
-                delay: Math.min(scoredPerfumes.length * 0.08, 0.6),
-                duration: 0.4
-              }}
-              className="col-span-1"
-            >
-              <BlurredTeaserCard 
-                items={blurredItems.map(item => ({
-                  name: t('blurred.hiddenPerfume'),
-                  brand: item.familyHint,
-                  matchScore: item.matchScore
-                }))}
-                tier={tier}
-                matchRange={`${Math.min(...blurredItems.map(i => i.matchScore))}-${Math.max(...blurredItems.map(i => i.matchScore))}%`}
-              />
-            </motion.div>
-          )}
-        </div>
-
-        <CompareBottomSheet
+      <CompareBottomSheet
           isOpen={isCompareOpen}
           onClose={() => {
             setIsCompareOpen(false)
@@ -409,23 +328,25 @@ export function ResultsContent() {
           )}
         </AnimatePresence>
 
-        {/* Upsell zone with divider */}
-        {tier !== 'PREMIUM' && (
-          <div className="border-t border-primary/10 dark:border-border-subtle mt-12 pt-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-            >
-              <UpsellCard 
-                position="bottom"
-                remainingCount={blurredItems.length}
-                averageMatch={Math.round(blurredItems.reduce((acc, item) => acc + item.matchScore, 0) / (blurredItems.length || 1))}
-              />
-            </motion.div>
-          </div>
-        )}
-      </main>
+      {/* Upsell zone with divider */}
+      {tier !== 'PREMIUM' && (
+        <div className="border-t border-primary/10 dark:border-border-subtle mt-12 pt-8 container mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+          >
+            <UpsellCard
+              position="bottom"
+              remainingCount={blurredItems.length}
+              averageMatch={Math.round(
+                blurredItems.reduce((acc, item) => acc + item.matchScore, 0) /
+                  (blurredItems.length || 1)
+              )}
+            />
+          </motion.div>
+        </div>
+      )}
     </div>
   )
 }
