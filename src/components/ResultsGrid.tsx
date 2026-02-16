@@ -327,7 +327,10 @@ export default function ResultsPage() {
                       transition={{ delay: index * 0.05 }}
                       className="relative group"
                     >
-                      <PerfumeCard {...perfume} />
+                      <PerfumeCard 
+                        {...perfume} 
+                        displayName={perfume.name}
+                      />
                       
                       {/* ✅ NEW: Price Comparison for Premium */}
                       {tier === 'PREMIUM' && priceComparison?.[perfume.id] && (
