@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
-import { Link } from '@/i18n/routing'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ShieldCheck, AlertCircle, X, Crown, ChevronLeft } from 'lucide-react'
+import { ShieldCheck, AlertCircle, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { PriceAlertButton } from '@/components/ui/PriceAlertButton'
+import { SafetyBlocker } from '@/components/SafetyBlocker'
 import { cn } from '@/lib/classnames'
 import type { ScoredPerfume } from '@/lib/matching'
+import { canShowPurchaseLinks } from '@/utils/safetyProtocol'
+import { fetchPrices, type PriceApiResponse, type StorePriceData } from '@/types/api'
 
 export type CompareMode = 'compare' | 'price-hub'
 
@@ -23,111 +24,88 @@ export interface CompareBottomSheetProps {
   locale: string
 }
 
-// --- Mode B: Price Hub ---
-interface StorePrice {
-  id: string
-  name: string
-  logo: string
-  price: number | null
-  available: boolean
-  url: string
-  searchUrl: string
-  lastUpdated: string | null
-  priceSource: 'db' | 'none'
+// --- Mode B: Price Hub (Gold1 Store Cards) ---
+interface StoreCardProps {
+  store: StorePriceData
+  t: (key: string, values?: Record<string, string>) => string
 }
 
-const FREE_VISIBLE_STORES = 2
-
-function StoreLogo ({ name, logo }: { name: string; logo: string }) {
-  const [imgError, setImgError] = useState(false)
-  if (imgError || !logo) {
-    return (
-      <div className="w-12 h-12 rounded-full bg-primary/10 dark:bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-        <span className="text-lg font-bold text-primary dark:text-amber-500">
-          {name.charAt(0).toUpperCase()}
-        </span>
-      </div>
-    )
-  }
+function StoreCard ({ store, t }: StoreCardProps) {
   return (
-    <div className="w-12 h-12 rounded-full bg-gray-50 dark:bg-surface-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
-      <Image
-        src={logo}
-        alt={name}
-        width={32}
-        height={32}
-        className="w-8 h-8 object-contain"
-        loading="lazy"
-        onError={() => setImgError(true)}
-      />
+    <div className="bg-white dark:bg-surface border border-gray-200 dark:border-border-subtle rounded-xl p-4 hover:shadow-md transition">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">{store.name}</h3>
+        {store.verified && (
+          <span className="text-xs bg-green-50 dark:bg-green-500/20 text-green-700 dark:text-green-400 px-2 py-1 rounded-full border border-green-200 dark:border-green-500/30">
+            {t('verifiedPrice')}
+          </span>
+        )}
+      </div>
+      {store.price != null && store.price > 0 ? (
+        <div className="flex items-end justify-between">
+          <div>
+            <p className="text-3xl font-bold text-orange-600 dark:text-amber-500">
+              {store.price}
+              <span className="text-lg ml-1">{store.currency}</span>
+            </p>
+            {store.verified && store.lastUpdated && (
+              <p className="text-xs text-muted-foreground dark:text-text-muted mt-1">
+                {new Date(store.lastUpdated).toLocaleDateString('ar-SA')}
+              </p>
+            )}
+          </div>
+          <a
+            href={store.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-orange-500 hover:bg-orange-600 dark:bg-amber-500 dark:hover:bg-amber-600 text-white px-6 py-2 rounded-lg transition"
+          >
+            Shop Now
+          </a>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground dark:text-text-muted">{t('checkAvailability')}</p>
+          <a
+            href={store.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-orange-600 dark:text-amber-500 font-semibold flex items-center gap-1 hover:underline"
+          >
+            {t('exploreIn', { store: store.name })} →
+          </a>
+        </div>
+      )}
     </div>
   )
 }
 
-function StoreRow ({
-  store,
-  bestPrice,
-  t
-}: {
-  store: StorePrice
-  bestPrice: number | null
-  t: (key: string, values?: Record<string, string>) => string
-}) {
-  const href = store.price !== null ? store.url : store.searchUrl
-  const showBestBadge =
-    bestPrice != null && store.price !== null && store.price === bestPrice
-
+const PremiumGate = ({ hiddenStoresCount }: { hiddenStoresCount: number }) => {
+  const t = useTranslations('results.compare')
   return (
-    <div
-      className={cn(
-        'flex items-center gap-3 p-4 rounded-2xl border transition',
-        showBestBadge
-          ? 'border-primary/30 dark:border-amber-500/30 bg-primary/5 dark:bg-amber-500/5'
-          : 'border-gray-100 dark:border-border-subtle bg-white dark:bg-surface',
-        !store.available && 'opacity-60'
-      )}
-    >
-      <StoreLogo name={store.name} logo={store.logo} />
-      <div className="flex-1 min-w-0 text-start">
-        <p className="text-sm font-bold text-text-primary dark:text-text-primary">{store.name}</p>
-        <p className={cn('text-xs', store.available ? 'text-safe-green' : 'text-red-400')}>
-          {store.available ? t('available') : t('outOfStock')}
-        </p>
+    <div className="relative mt-6">
+      {/* Blurred hidden stores */}
+      <div className="blur-sm pointer-events-none opacity-50 space-y-3">
+        {Array(hiddenStoresCount).fill(0).map((_, idx) => (
+          <div key={idx} className="bg-gray-100 dark:bg-surface-muted rounded-xl p-4 h-24 animate-pulse">
+            <div className="h-4 bg-gray-300 dark:bg-border-subtle rounded w-3/4 mb-2" />
+          </div>
+        ))}
       </div>
-      <div className="flex flex-col items-end gap-0.5">
-        {store.price !== null ? (
-          <>
-            <div className="flex items-center gap-2">
-              {showBestBadge && (
-                <span className="text-[10px] font-bold text-safe-green bg-safe-green/10 dark:bg-green-500/20 px-1.5 py-0.5 rounded-full">
-                  {t('bestPrice')}
-                </span>
-              )}
-              <span className="text-lg font-black text-text-primary dark:text-text-primary whitespace-nowrap">
-                {t('currency')} {store.price}
-              </span>
-            </div>
-            {store.lastUpdated && (
-              <span className="text-[10px] text-text-muted dark:text-text-muted">
-                {t('lastUpdated', { date: new Date(store.lastUpdated).toLocaleDateString() })}
-              </span>
-            )}
-          </>
-        ) : (
-          <span className="text-sm font-bold text-primary dark:text-amber-500 whitespace-nowrap">
-            {t('searchNow')}
-          </span>
-        )}
+      {/* CTA overlay */}
+      <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div className="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 dark:from-amber-950/80 dark:via-amber-900/90 dark:to-amber-950/80 border-2 border-amber-400 dark:border-amber-500 rounded-2xl p-8 shadow-2xl backdrop-blur-sm max-w-md text-center transform hover:scale-105 transition-transform">
+          <div className="text-5xl mb-4">👑</div>
+          <h3 className="text-2xl font-bold text-amber-900 dark:text-amber-100 mb-2">{t('premiumGateTitle')}</h3>
+          <p className="text-amber-800 dark:text-amber-200 mb-6 leading-relaxed">{t('premiumGateDesc')}</p>
+          <button
+            type="button"
+            className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-8 py-3 rounded-full font-bold hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+          >
+            {t('premiumGateButton')}
+          </button>
+        </div>
       </div>
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition bg-text-primary dark:bg-white hover:opacity-80 cursor-pointer text-white dark:text-surface"
-        aria-label={t('searchInStore', { store: store.name })}
-      >
-        <ChevronLeft className="w-4 h-4 text-white dark:text-surface" />
-      </a>
     </div>
   )
 }
@@ -145,47 +123,34 @@ function PriceHubContent ({
   t: (key: string, values?: Record<string, string>) => string
   locale: string
 }) {
-  void locale // passed by parent for future use
-  const [storesData, setStoresData] = useState<StorePrice[]>([])
+  void locale
+  const [priceData, setPriceData] = useState<PriceApiResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [fetchError, setFetchError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!perfume?.id) return
-    setFetchError(null)
     let cancelled = false
-    const run = async () => {
-      await Promise.resolve()
-      if (cancelled) return
+    async function run() {
+      setError(null)
       setIsLoading(true)
       try {
-        const params = new URLSearchParams({
-          perfumeId: perfume.id,
-          name: perfume.name ?? '',
-          brand: perfume.brand ?? '',
-        })
-        const res = await fetch(`/api/prices/compare?${params.toString()}`)
-        if (!res.ok) throw new Error('Fetch failed')
-        const data = await res.json()
-        if (!cancelled) setStoresData(data.stores ?? [])
+        const res = await fetchPrices(perfume.id)
+        if (cancelled) return
+        if (res.success && res.data) setPriceData(res)
+        else setError(t('tempError'))
       } catch {
-        if (!cancelled) setFetchError(t('fetchError'))
+        if (!cancelled) setError(t('tempError'))
       } finally {
         if (!cancelled) setIsLoading(false)
       }
     }
     run()
     return () => { cancelled = true }
-  }, [perfume?.id, perfume?.name, perfume?.brand, t])
+  }, [perfume?.id, t])
 
-  const pricesWithValue = storesData.filter((s) => s.price !== null && s.price > 0).map((s) => s.price as number)
-  const bestPrice = pricesWithValue.length > 0 ? Math.min(...pricesWithValue) : null
-  const hasAnyRealPrice = storesData.some((s) => s.price !== null && s.price > 0)
-  const hasAnyRealPriceForTitle = storesData.some((s) => s.price !== null)
-  const pricedCount = storesData.filter((s) => s.price !== null).length
-  const isPremium = tier === 'PREMIUM'
-  const visibleStores = storesData.slice(0, isPremium ? storesData.length : FREE_VISIBLE_STORES)
-  const remaining = Math.max(0, storesData.length - FREE_VISIBLE_STORES)
+  const stores = priceData?.data?.stores ?? []
+  const hasStores = stores.length > 0
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -219,144 +184,61 @@ function PriceHubContent ({
         </div>
       )}
 
-      {/* Title section */}
-      <div className="px-6 py-3 bg-primary/5 dark:bg-amber-500/5 flex-shrink-0">
-        <h3 className="text-sm font-bold text-text-primary dark:text-text-primary">
-          {hasAnyRealPriceForTitle ? t('priceHubTitle') : t('priceHubSearchTitle')}
-        </h3>
-      </div>
-
-      {/* Price counter */}
-      {!isLoading && pricedCount > 0 && (
-        <div className="px-6 py-1">
-          <p className="text-[10px] text-text-muted dark:text-text-muted text-center">
-            {t('priceCount', { count: String(pricedCount), total: String(storesData.length) })}
-          </p>
-        </div>
-      )}
-
-      {/* Store rows */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+      {/* Gold1: Loading / Error / No stores / Store cards */}
+      <div className="flex-1 overflow-y-auto px-6 py-4">
         {isLoading && (
-          <>
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="flex items-center gap-3 p-4 rounded-2xl border border-gray-100 dark:border-border-subtle"
-              >
-                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-surface-muted animate-pulse" />
-                <div className="flex-1">
-                  <div className="h-4 w-24 bg-gray-100 dark:bg-surface-muted rounded animate-pulse" />
-                  <div className="h-3 w-16 bg-gray-50 dark:bg-surface-muted rounded mt-2 animate-pulse" />
-                </div>
-                <div className="h-5 w-20 bg-gray-100 dark:bg-surface-muted rounded animate-pulse" />
-                <div className="w-10 h-10 rounded-xl bg-gray-200 dark:bg-surface-muted animate-pulse" />
-              </div>
-            ))}
-          </>
+          <div className="flex flex-col items-center justify-center h-64">
+            <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+            <p className="mt-4 text-muted-foreground dark:text-text-muted">{t('loading')}</p>
+          </div>
         )}
 
-        {!isLoading && fetchError && (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <p className="text-sm text-text-muted dark:text-text-muted mb-4">{fetchError}</p>
+        {!isLoading && error && (
+          <div className="flex flex-col items-center justify-center h-64 space-y-4">
+            <span className="text-5xl">⚠️</span>
+            <p className="text-lg font-semibold text-center text-text-primary dark:text-text-primary">{t('tempError')}</p>
             <button
               type="button"
               onClick={() => {
-                setFetchError(null)
+                setError(null)
                 setIsLoading(true)
-                const params = new URLSearchParams({
-                  perfumeId: perfume.id,
-                  name: perfume.name ?? '',
-                  brand: perfume.brand ?? '',
-                })
-                fetch(`/api/prices/compare?${params.toString()}`)
-                  .then((res) => { if (!res.ok) throw new Error(); return res.json() })
-                  .then((data) => setStoresData(data.stores ?? []))
-                  .catch(() => setFetchError(t('fetchError')))
+                fetchPrices(perfume.id)
+                  .then((res) => {
+                    if (res.success && res.data) {
+                      setPriceData(res)
+                      setError(null)
+                    } else setError(t('tempError'))
+                  })
+                  .catch(() => setError(t('tempError')))
                   .finally(() => setIsLoading(false))
               }}
-              className="text-sm font-bold text-primary dark:text-amber-500 hover:underline"
+              className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 dark:bg-amber-500 dark:hover:bg-amber-600 transition"
             >
-              {t('retry')}
+              {t('retryButton')}
             </button>
           </div>
         )}
 
-        {!isLoading && !fetchError && storesData.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-8 text-center px-4">
-            <h4 className="text-sm font-bold text-text-primary dark:text-text-primary mb-2">
-              {t('noStoresTitle')}
-            </h4>
-            <p className="text-xs text-text-muted dark:text-text-muted">
-              {t('noStoresDesc')}
-            </p>
+        {!isLoading && !error && !hasStores && (
+          <div className="space-y-3">
+            <p className="text-text-primary dark:text-text-primary">{t('noStores')}</p>
           </div>
         )}
 
-        {!isLoading && !fetchError && storesData.length > 0 && (
-          <>
-            <p className="text-xs text-text-muted dark:text-text-muted mb-2">
-              {hasAnyRealPrice ? t('pricesMixed') : t('pricesSearch')}
-            </p>
-            {visibleStores.map((store) => (
-              <StoreRow key={store.id} store={store} bestPrice={bestPrice} t={t} />
+        {!isLoading && !error && hasStores && (
+          <div className="space-y-3">
+            {stores.slice(0, 2).map((store) => (
+              <StoreCard key={store.id} store={store} t={t} />
             ))}
-
-            {/* FREE: Blurred stores + GatingOverlay */}
-            {!isPremium && remaining > 0 && (
-              <div className="relative group">
-                <div className="filter blur-[8px] opacity-50 pointer-events-none select-none space-y-3">
-                  {Array.from({ length: remaining }).map((_, i) => (
-                    <div
-                      key={`blur-${i}`}
-                      className="flex items-center gap-3 p-4 rounded-2xl border border-gray-100 dark:border-border-subtle"
-                    >
-                      <div className="w-12 h-12 rounded-full bg-gray-50 dark:bg-surface-muted" />
-                      <div className="flex-1">
-                        <div className="h-4 w-24 bg-gray-100 rounded" />
-                        <div className="h-3 w-16 bg-gray-50 rounded mt-1" />
-                      </div>
-                      <div className="h-5 w-20 bg-gray-100 rounded" />
-                      <div className="w-10 h-10 rounded-xl bg-gray-200" />
-                    </div>
-                  ))}
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-white/90 to-black/10 dark:from-black/60 dark:to-black/80 backdrop-blur-md">
-                  <div className="bg-white dark:bg-surface rounded-2xl shadow-elevation-2 dark:shadow-black/30 p-6 text-center max-w-xs border border-primary/10 dark:border-border-subtle">
-                    <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary/10 dark:bg-amber-500/10 flex items-center justify-center">
-                      <Crown className="w-6 h-6 text-primary dark:text-amber-500" />
-                    </div>
-                    <p className="text-sm font-bold text-text-primary dark:text-text-primary mb-1">
-                      {t('moreStoresLocked', { remaining: String(remaining) })}
-                    </p>
-                    <p className="text-xs text-text-muted dark:text-text-muted mb-4">
-                      {t('alertHint')}
-                    </p>
-                    <Link
-                      href="/pricing"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-l from-amber-500 to-amber-600 text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-amber-500/30 transition-all hover:scale-[1.05] active:scale-[0.95]"
-                    >
-                      <Crown className="w-4 h-4" />
-                      {t('subscribeToPrices')}
-                    </Link>
-                  </div>
-                </div>
-              </div>
+            {stores.length > 2 && (
+              <PremiumGate hiddenStoresCount={stores.length - 2} />
             )}
-          </>
+          </div>
         )}
       </div>
 
-      {/* Footer: PriceAlertButton (PREMIUM only) or Close */}
-      <div className="px-6 py-4 border-t border-primary/10 dark:border-border-subtle flex-shrink-0 space-y-3">
-        {isPremium && bestPrice != null && bestPrice > 0 && tier && (
-          <PriceAlertButton
-            perfumeId={perfume.id}
-            perfumeName={perfume.name}
-            currentPrice={bestPrice}
-            tier={tier}
-          />
-        )}
+      {/* Footer: Close */}
+      <div className="px-6 py-4 border-t border-primary/10 dark:border-border-subtle flex-shrink-0">
         <Button variant="outline" className="w-full" onClick={onClose}>
           {t('close')}
         </Button>
@@ -566,21 +448,35 @@ export function CompareBottomSheet({
                 </div>
               </>
             )}
-            {/* Mode B: PriceHubContent (own sticky header + body + footer) */}
-            {showPriceHubContent && perfume && (
-              <>
-                <div className="w-10 h-1 bg-border-subtle rounded-full mx-auto mt-3 sm:hidden flex-shrink-0" />
-                <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-                  <PriceHubContent
-                    perfume={perfume}
-                    tier={tier}
-                    onClose={onClose}
-                    t={t}
-                    locale={locale}
-                  />
-                </div>
-              </>
-            )}
+            {/* Mode B: Gold1 header + Safety Check + PriceHubContent */}
+            {showPriceHubContent && perfume && (() => {
+              const safetyCheck = canShowPurchaseLinks(perfume)
+              return (
+                <>
+                  <div className="w-10 h-1 bg-border-subtle rounded-full mx-auto mt-3 mb-4 sm:hidden flex-shrink-0" />
+                  <div className="px-6 pb-4 flex-shrink-0">
+                    <h3 className="text-lg font-bold text-text-primary dark:text-text-primary">
+                      {t('sheetTitle')}
+                    </h3>
+                  </div>
+                  <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                    {!safetyCheck.canPurchase ? (
+                      <SafetyBlocker perfume={perfume} safetyCheck={safetyCheck} />
+                    ) : (
+                      <div className="mt-6 overflow-y-auto flex-1 min-h-0 flex flex-col">
+                        <PriceHubContent
+                          perfume={perfume}
+                          tier={tier}
+                          onClose={onClose}
+                          t={t}
+                          locale={locale}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </>
+              )
+            })()}
           </motion.div>
         </div>
       )}

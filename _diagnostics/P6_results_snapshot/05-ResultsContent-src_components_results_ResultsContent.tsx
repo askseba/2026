@@ -1,21 +1,21 @@
 "use client"
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, ArrowRightLeft } from 'lucide-react'
+import { Sparkles, ArrowRightLeft, Zap } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { useQuiz } from '@/contexts/QuizContext'
+import { useSession } from 'next-auth/react'
 import { type ScoredPerfume } from '@/lib/matching'
 import { safeFetch } from '@/lib/utils/api-helpers'
 import { UpsellCard } from '@/components/ui/UpsellCard'
+import { BlurredTeaserCard } from '@/components/ui/BlurredTeaserCard'
 import { BackButton } from '@/components/ui/BackButton'
 import { CompareBottomSheet } from '@/components/results/CompareBottomSheet'
 import { IngredientsSheet } from '@/components/results/IngredientsSheet'
 import { MatchSheet } from '@/components/results/MatchSheet'
 import ResultsGrid from '@/components/results/ResultsGrid'
 import logger from '@/lib/logger'
-
-type ActiveSheet = 'ingredients' | 'match' | 'price' | null
 
 interface BlurredItem {
   id: string
@@ -34,23 +34,23 @@ export function ResultsContent() {
   const locale = useLocale()
   const t = useTranslations('results')
   const { data: quizData } = useQuiz()
+  const { data: session } = useSession()
   const [scoredPerfumes, setScoredPerfumes] = useState<ScoredPerfume[]>([])
   const [blurredItems, setBlurredItems] = useState<BlurredItem[]>([])
   const [tier, setTier] = useState<'GUEST' | 'FREE' | 'PREMIUM'>('GUEST')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [compareIds, setCompareIds] = useState<string[]>([])
-  const [activeSheet, setActiveSheet] = useState<ActiveSheet>(null)
-  const [selectedPerfume, setSelectedPerfume] = useState<ScoredPerfume | null>(null)
+  const [isCompareOpen, setIsCompareOpen] = useState(false)
+  const [compareMode, setCompareMode] = useState<'compare' | 'price-hub'>('compare')
+  const [priceHubPerfume, setPriceHubPerfume] = useState<ScoredPerfume | null>(null)
+  const [ingredientsPerfume, setIngredientsPerfume] = useState<ScoredPerfume | null>(null)
+  const [matchPerfume, setMatchPerfume] = useState<ScoredPerfume | null>(null)
 
-  const openSheet = useCallback((sheetType: ActiveSheet, perfume: ScoredPerfume) => {
-    setSelectedPerfume(perfume)
-    setActiveSheet(sheetType)
-  }, [])
-
-  const closeSheet = useCallback(() => {
-    setActiveSheet(null)
-    setTimeout(() => setSelectedPerfume(null), 300)
+  const setComparePerfume = useCallback((perfume: ScoredPerfume | null) => {
+    setPriceHubPerfume(perfume)
+    setCompareMode('price-hub')
+    if (perfume) setIsCompareOpen(true)
   }, [])
 
   const fetchResults = useCallback(async () => {
@@ -90,6 +90,13 @@ export function ResultsContent() {
   }
 
   const direction = locale === 'ar' ? 'rtl' : 'ltr'
+
+  const comparePerfumes = scoredPerfumes.filter((p) => compareIds.includes(p.id))
+
+  // Calculate summary statistics for Hero
+  const lockedCount = blurredItems.length
+  const totalCount = scoredPerfumes.length + (lockedCount || 0)
+  const topScore = scoredPerfumes.length > 0 ? Math.round(scoredPerfumes[0].finalScore) : 0
 
   if (isLoading) {
     return (
@@ -266,7 +273,12 @@ export function ResultsContent() {
               <Button
                 size="sm"
                 disabled={compareIds.length < 2}
-                onClick={() => {}}
+                onClick={() => {
+                  if (compareIds.length >= 2) {
+                    setCompareMode('compare')
+                    setIsCompareOpen(true)
+                  }
+                }}
               >
                 {t('compare.action')}
               </Button>
@@ -279,10 +291,10 @@ export function ResultsContent() {
       <ResultsGrid
         perfumes={scoredPerfumes.map((perfume) => ({
           ...perfume,
-          displayName: (perfume as ScoredPerfume & { displayName?: string }).displayName ?? perfume.name,
-          onShowIngredients: () => openSheet('ingredients', perfume),
-          onShowMatch: () => openSheet('match', perfume),
-          onPriceCompare: ((perfumeData: ScoredPerfume) => openSheet('price', perfumeData)) as () => void,
+          displayName: perfume.name,
+          onShowIngredients: () => setIngredientsPerfume(perfume),
+          onShowMatch: () => setMatchPerfume(perfume),
+          onPriceCompare: () => setComparePerfume(perfume),
         }))}
         tier={tier}
         compareIds={compareIds}
@@ -291,32 +303,38 @@ export function ResultsContent() {
         t={t}
       />
 
-      {selectedPerfume && (
-        <>
-          {activeSheet === 'ingredients' && (
-            <IngredientsSheet
-              perfume={selectedPerfume}
-              onClose={closeSheet}
-              locale={locale}
+      <CompareBottomSheet
+          isOpen={isCompareOpen}
+          onClose={() => {
+            setIsCompareOpen(false)
+            setPriceHubPerfume(null)
+          }}
+          mode={compareMode}
+          perfumes={compareMode === 'compare' ? comparePerfumes : undefined}
+          perfume={compareMode === 'price-hub' ? priceHubPerfume ?? undefined : undefined}
+          tier={tier}
+          locale={locale}
+        />
+
+        {/* Ingredients and Match Sheets */}
+        <AnimatePresence mode="wait">
+          {ingredientsPerfume && (
+            <IngredientsSheet 
+              key="ingredients" 
+              perfume={ingredientsPerfume} 
+              onClose={() => setIngredientsPerfume(null)} 
+              locale={locale} 
             />
           )}
-          {activeSheet === 'match' && (
-            <MatchSheet
-              perfume={selectedPerfume}
-              onClose={closeSheet}
-              locale={locale}
+          {matchPerfume && (
+            <MatchSheet 
+              key="match" 
+              perfume={matchPerfume} 
+              onClose={() => setMatchPerfume(null)} 
+              locale={locale} 
             />
           )}
-          <CompareBottomSheet
-            isOpen={activeSheet === 'price'}
-            onClose={closeSheet}
-            mode="price-hub"
-            perfume={selectedPerfume}
-            tier={tier}
-            locale={locale}
-          />
-        </>
-      )}
+        </AnimatePresence>
 
       {/* Upsell zone with divider */}
       {tier !== 'PREMIUM' && (

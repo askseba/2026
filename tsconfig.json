@@ -47,6 +47,8 @@
     "deployment-ready",
     "docs/archive",
     "docs/ui-snapshot",
-    ".dev-tools-output"
+    ".dev-tools-output",
+    "fragella+cache",
+    "scripts"
   ]
 }

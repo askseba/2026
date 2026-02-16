@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
@@ -7,52 +6,6 @@ import { X } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { cn } from "@/lib/classnames"
 import type { ScoredPerfume } from "@/lib/matching"
-import { getGradientForFamilies, generateGradientStyle } from "@/utils/scentGradients"
-
-const PYRAMID_CHIP_CLASSES = {
-  amber: "bg-amber-50/90 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30",
-  rose: "bg-rose-50/90 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-500/30",
-  stone: "bg-stone-100/90 dark:bg-stone-500/20 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-500/30",
-} as const
-
-type PyramidColorClass = keyof typeof PYRAMID_CHIP_CLASSES
-
-interface PyramidSectionProps {
-  title: string
-  hint: string
-  notes: string[]
-  icon: React.ReactNode
-  colorClass: PyramidColorClass
-}
-
-function PyramidSection({ title, hint, notes, icon, colorClass }: PyramidSectionProps) {
-  if (notes.length === 0) return null
-  const chipClass = PYRAMID_CHIP_CLASSES[colorClass]
-  
-  return (
-    <div className="mb-4 rounded-xl border border-white/60 dark:border-white/20 bg-white/60 dark:bg-black/30 backdrop-blur-xl p-4 shadow-sm">
-      <p className="text-xs font-bold text-text-muted dark:text-text-muted mb-1 flex items-center gap-1.5">
-        {icon}
-        {title}
-      </p>
-      <p className="text-xs text-text-muted dark:text-text-muted mb-2 opacity-90">{hint}</p>
-      <div className="flex flex-wrap gap-1.5">
-        {notes.map((note, i) => (
-          <span
-            key={i}
-            className={cn(
-              "text-xs px-3 py-1.5 rounded-full border backdrop-blur-xl shadow-sm font-medium",
-              "transition-all hover:scale-105 hover:shadow-md",
-              chipClass
-            )}
-          >
-            {note}
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-}
 
 interface IngredientsSheetProps {
   perfume: ScoredPerfume
@@ -90,89 +43,103 @@ export function IngredientsSheet({ perfume, onClose, locale = "ar" }: Ingredient
             <div className="w-12 h-1.5 bg-border dark:bg-border-subtle rounded-full" />
           </div>
 
-          {/* Header: mesh gradient + glassmorphism */}
-          <div className="relative border-b border-primary/10 dark:border-border-subtle overflow-hidden sticky top-0 z-10 flex-shrink-0">
-            {/* Animated mesh gradient background - NO OVERLAY! */}
-            <div
-              className="absolute inset-0"
-              style={generateGradientStyle(getGradientForFamilies(perfume.families ?? []))}
-              aria-hidden="true"
-            />
-            
-            {/* Content */}
-            <div className="relative z-10 px-6 pb-4 pt-1">
-              <p className="text-xs font-bold uppercase tracking-wider text-white/90 dark:text-white/90 mb-3 drop-shadow-sm">
-                {t("sheetTitle")}
-              </p>
-              <div className="flex items-center gap-4">
-                <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/80 dark:bg-black/40 border border-white/60 dark:border-white/20 flex-shrink-0 shadow-lg">
-                  <Image
-                    src={imageError || !perfume.image ? "/placeholder-perfume.svg" : perfume.image}
-                    alt={perfume.name}
-                    fill
-                    className="object-contain p-2"
-                    sizes="64px"
-                    onError={() => setImageError(true)}
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-lg font-bold text-white drop-shadow-md line-clamp-1">
-                    {perfume.name}
-                  </h2>
-                  <p className="text-xs text-white/80 drop-shadow-sm">{perfume.brand}</p>
-                </div>
-                <button
-                  onClick={onClose}
-                  className="p-2 hover:bg-white/20 rounded-full transition-colors flex-shrink-0"
-                  aria-label="إغلاق"
-                >
-                  <X className="w-6 h-6 text-white drop-shadow-md" />
-                </button>
-              </div>
+          {/* Header */}
+          <div className="px-6 pb-4 border-b border-primary/5 dark:border-border-subtle flex items-center gap-4 bg-cream-bg dark:bg-surface sticky top-0 z-10">
+            {/* Image */}
+            <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-cream-bg dark:bg-background border border-primary/10 dark:border-border-subtle flex-shrink-0">
+              <Image
+                src={imageError || !perfume.image ? "/placeholder-perfume.svg" : perfume.image}
+                alt={perfume.name}
+                fill
+                className="object-contain p-2"
+                sizes="64px"
+                onError={() => setImageError(true)}
+              />
             </div>
+
+            {/* Name */}
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-bold text-text-primary dark:text-text-primary line-clamp-1">
+                {perfume.name}
+              </h2>
+              <p className="text-xs text-text-muted dark:text-text-muted">{perfume.brand}</p>
+            </div>
+
+            {/* Close button */}
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-primary/5 dark:hover:bg-surface-muted rounded-full transition-colors flex-shrink-0"
+              aria-label="إغلاق"
+            >
+              <X className="w-6 h-6 text-text-primary dark:text-text-primary" />
+            </button>
           </div>
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto">
-            {/* Scent Pyramid section */}
-            {perfume.scentPyramid && (
+            {/* القسم 1: هرم النوتات أو المكونات */}
+            {perfume.scentPyramid ? (
               <div className="px-6 py-4">
                 <h3 className="text-sm font-bold text-text-secondary dark:text-text-muted mb-3">
                   {t("pyramid.title")}
                 </h3>
-                {perfume.scentPyramid.top?.length > 0 && (
-                  <PyramidSection
-                    title={t("pyramid.top")}
-                    hint={t("pyramid.topHint")}
-                    notes={perfume.scentPyramid.top}
-                    icon={<span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />}
-                    colorClass="amber"
-                  />
-                )}
-                {perfume.scentPyramid.heart?.length > 0 && (
-                  <PyramidSection
-                    title={t("pyramid.heart")}
-                    hint={t("pyramid.heartHint")}
-                    notes={perfume.scentPyramid.heart}
-                    icon={<span className="w-2 h-2 rounded-full bg-rose-400 flex-shrink-0" />}
-                    colorClass="rose"
-                  />
-                )}
-                {perfume.scentPyramid.base?.length > 0 && (
-                  <PyramidSection
-                    title={t("pyramid.base")}
-                    hint={t("pyramid.baseHint")}
-                    notes={perfume.scentPyramid.base}
-                    icon={<span className="w-2 h-2 rounded-full bg-stone-500 flex-shrink-0" />}
-                    colorClass="stone"
-                  />
-                )}
-              </div>
-            )}
 
-            {/* Ingredients chips section */}
-            {perfume.ingredients && perfume.ingredients.length > 0 && (
-              <div className={cn("px-6 py-4", perfume.scentPyramid && "border-t border-primary/5 dark:border-border-subtle")}>
+                {/* Top Notes - أصفر */}
+                <div className="mb-4">
+                  <p className="text-xs font-bold text-text-muted dark:text-text-muted mb-2 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400" />
+                    {t("pyramid.top")}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {perfume.scentPyramid.top.map((note, i) => (
+                      <span
+                        key={i}
+                        className="text-xs bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 px-2.5 py-1 rounded-full border border-amber-200 dark:border-amber-500/20"
+                      >
+                        {note}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Heart Notes - وردي */}
+                <div className="mb-4">
+                  <p className="text-xs font-bold text-text-muted dark:text-text-muted mb-2 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-rose-400" />
+                    {t("pyramid.heart")}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {perfume.scentPyramid.heart.map((note, i) => (
+                      <span
+                        key={i}
+                        className="text-xs bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 px-2.5 py-1 rounded-full border border-rose-200 dark:border-rose-500/20"
+                      >
+                        {note}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Base Notes - بني */}
+                <div>
+                  <p className="text-xs font-bold text-text-muted dark:text-text-muted mb-2 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-stone-500" />
+                    {t("pyramid.base")}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {perfume.scentPyramid.base.map((note, i) => (
+                      <span
+                        key={i}
+                        className="text-xs bg-stone-100 dark:bg-stone-500/10 text-stone-700 dark:text-stone-400 px-2.5 py-1 rounded-full border border-stone-200 dark:border-stone-500/20"
+                      >
+                        {note}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="px-6 py-4">
                 <h3 className="text-sm font-bold text-text-secondary dark:text-text-muted mb-3">
                   {t("ingredientsTitle")}
                 </h3>
@@ -180,7 +147,7 @@ export function IngredientsSheet({ perfume, onClose, locale = "ar" }: Ingredient
                   {perfume.ingredients.map((ing, i) => (
                     <span
                       key={i}
-                      className="text-xs bg-white/80 dark:bg-surface-muted/80 text-text-secondary dark:text-text-muted px-2.5 py-1 rounded-full border border-white/60 dark:border-white/10 backdrop-blur-sm"
+                      className="text-xs bg-cream-bg dark:bg-surface-muted text-text-secondary dark:text-text-muted px-2.5 py-1 rounded-full"
                     >
                       {ing}
                     </span>
@@ -189,7 +156,7 @@ export function IngredientsSheet({ perfume, onClose, locale = "ar" }: Ingredient
               </div>
             )}
 
-            {/* العائلات العطرية */}
+            {/* القسم 2: العائلات العطرية */}
             {perfume.families.length > 0 && (
               <div className="px-6 py-4 border-t border-primary/5 dark:border-border-subtle">
                 <h3 className="text-sm font-bold text-text-secondary dark:text-text-muted mb-3">
@@ -208,7 +175,7 @@ export function IngredientsSheet({ perfume, onClose, locale = "ar" }: Ingredient
               </div>
             )}
 
-            {/* حالة الأمان */}
+            {/* القسم 3: حالة الأمان */}
             <div className="px-6 py-4 border-t border-primary/5 dark:border-border-subtle">
               <h3 className="text-sm font-bold text-text-secondary dark:text-text-muted mb-3">
                 {t("safetyTitle")}

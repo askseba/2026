@@ -2,35 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { Wind, Activity, Tag } from 'lucide-react'
 import { RadarGauge } from './RadarGauge'
 import { useTranslations } from 'next-intl'
-import type { ScoredPerfume } from '@/lib/matching'
 
 const PLACEHOLDER_IMAGE = '/placeholder-perfume.svg'
-
-interface PerfumeCardProps {
-  id: string
-  brand: string
-  displayName: string
-  image: string
-  finalScore: number
-  tasteScore: number
-  safetyScore: number
-  ifraScore?: number
-  symptomTriggers: string[]
-  ifraWarnings?: string[]
-  source?: string
-  showCompare?: boolean
-  isComparing?: boolean
-  onCompare?: () => void
-  priority?: boolean
-  isFirst?: boolean
-  onShowIngredients?: () => void
-  onShowMatch?: () => void
-  onPriceCompare?: (perfume: ScoredPerfume) => void
-  perfumeData?: ScoredPerfume
-}
 
 /**
  * تنظيف رابط الصورة من Unsplash parameters
@@ -53,6 +28,29 @@ function cleanImageUrl(url: string): string {
   }
 }
 
+interface PerfumeCardProps {
+  id: string
+  brand: string
+  displayName: string
+  image: string
+  finalScore: number
+  tasteScore: number
+  safetyScore: number
+  ifraScore?: number
+  symptomTriggers: string[]
+  ifraWarnings?: string[]
+  source?: string
+  showCompare?: boolean
+  isComparing?: boolean
+  onCompare?: () => void
+  priority?: boolean
+  isFirst?: boolean
+  onShowIngredients?: () => void
+  onShowMatch?: () => void
+  onPriceCompare?: (perfume: any) => void
+  perfumeData?: any
+}
+
 export function PerfumeCard({
   id,
   brand,
@@ -70,7 +68,6 @@ export function PerfumeCard({
   onShowIngredients,
   onShowMatch,
   onPriceCompare,
-  perfumeData,
 }: PerfumeCardProps) {
   const t = useTranslations('results.card')
   
@@ -80,13 +77,25 @@ export function PerfumeCard({
   const [imageError, setImageError] = useState(false)
 
   useEffect(() => {
-    async function run() {
-      const cleaned = cleanImageUrl(image)
-      setImgSrc(cleaned)
-      setImageError(false)
-    }
-    run()
+    const cleaned = cleanImageUrl(image)
+    setImgSrc(cleaned)
+    setImageError(false)
   }, [image])
+
+  // بناء كائل بيانات العطر الكامل للتمرير إلى onPriceCompare
+  const perfumeData = {
+    id,
+    brand,
+    displayName,
+    image,
+    finalScore,
+    tasteScore,
+    safetyScore,
+    ifraScore,
+    symptomTriggers,
+    ifraWarnings,
+    source
+  }
 
   const handleImageError = () => {
     console.error('Failed to load image:', imgSrc)
@@ -128,40 +137,49 @@ export function PerfumeCard({
       </div>
 
       {/* Content - اسم العطر */}
-      <div className="p-4 flex-1 flex flex-col min-h-[80px] min-w-0">
+      <div className="p-4 flex-1 flex flex-col min-h-[80px]">
         <p className="text-xs text-text-muted dark:text-text-muted mb-1">{brand}</p>
         <h3 className="text-base font-bold text-text-primary dark:text-text-primary line-clamp-2">
           {displayName}
         </h3>
       </div>
 
-      {/* Triple Action Buttons footer */}
-      <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100 px-4 pb-4 shrink-0">
+      {/* الأزرار الثلاثة - محسّنة للـ Accessibility و Dark Mode */}
+      <div className="px-4 pb-4 flex gap-2 shrink-0">
+        {/* Secondary Action: Ingredients */}
         <button
-          onClick={(e) => { e.stopPropagation(); onShowIngredients?.(); }}
-          className="flex-1 flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-orange-50 transition-colors group"
-          aria-label={t('ingredientsBtn') || 'Ingredients'}
+          onClick={(e) => { 
+            e.stopPropagation()
+            onShowIngredients?.()
+          }}
+          className="flex-1 py-2.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-[0.98] transition-all duration-200 text-center border border-slate-200 dark:border-slate-700 shadow-sm"
+          aria-label="عرض المكونات"
         >
-          <Wind className="w-5 h-5 text-orange-600 group-hover:scale-110 transition-transform" />
-          <span className="text-xs font-medium text-gray-700">{t('ingredientsBtn') || 'Ingredients'}</span>
+          {t('ingredientsBtn') || 'المكونات'}
         </button>
-
+        
+        {/* Secondary Action: Match */}
         <button
-          onClick={(e) => { e.stopPropagation(); onShowMatch?.(); }}
-          className="flex-1 flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-blue-50 transition-colors group"
-          aria-label={t('matchBtn') || 'Match'}
+          onClick={(e) => { 
+            e.stopPropagation()
+            onShowMatch?.()
+          }}
+          className="flex-1 py-2.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-[0.98] transition-all duration-200 text-center border border-slate-200 dark:border-slate-700 shadow-sm"
+          aria-label="عرض التوافق"
         >
-          <Activity className="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform" />
-          <span className="text-xs font-medium text-gray-700">{t('matchBtn') || 'Match'}</span>
+          {t('matchBtn') || 'التوافق'}
         </button>
-
+        
+        {/* Primary CTA: Price Compare */}
         <button
-          onClick={(e) => { e.stopPropagation(); if (perfumeData) onPriceCompare?.(perfumeData); }}
-          className="flex-1 flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-green-50 transition-colors group"
-          aria-label={t('pricesBtn') || 'Price'}
+          onClick={(e) => { 
+            e.stopPropagation()
+            onPriceCompare?.(perfumeData)
+          }}
+          className="flex-1 py-2.5 text-xs font-medium text-white bg-primary dark:bg-amber-600 rounded-xl hover:bg-primary/90 dark:hover:bg-amber-500 active:scale-[0.98] transition-all duration-200 text-center shadow-sm"
+          aria-label="مقارنة الأسعار"
         >
-          <Tag className="w-5 h-5 text-green-600 group-hover:scale-110 transition-transform" />
-          <span className="text-xs font-medium text-gray-700">{t('pricesBtn') || 'Price'}</span>
+          {t('pricesBtn') || 'الأسعار'}
         </button>
       </div>
     </div>

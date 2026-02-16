@@ -1,5 +1,12 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
+import { validateFragellaOnStartup } from '@/lib/startup-checks'
+
+// Run Fragella validation once when module loads
+let fragellaValidated = false
+validateFragellaOnStartup().then((valid) => {
+  fragellaValidated = valid
+})
 import type { PerfumeForMatching, ScoredPerfume } from '@/lib/matching'
 import { calculateMatchScores } from '@/lib/matching'
 import { getResultsLimit, getBlurredCount, getUserTierInfo } from '@/lib/gating'
@@ -56,10 +63,29 @@ function toPerfumeForMatching(p: {
   }
 }
 
+const LOG = '[api/match]'
+
+/** GET /api/match - Not supported; log and return 405 */
+export async function GET() {
+  try {
+    console.log(`${LOG} GET request received (method not supported)`)
+    return NextResponse.json(
+      { success: false, error: 'Method not allowed. Use POST.' },
+      { status: 405 }
+    )
+  } catch (error) {
+    console.error(`${LOG} GET ERROR:`, error)
+    const message = error instanceof Error ? error.message : String(error)
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
+  }
+}
+
 /** POST /api/match - Score perfumes by quiz preferences and return gated results */
 export async function POST(request: Request) {
   try {
+    console.log(`${LOG} POST request received`)
     const body = (await request.json()) as MatchRequestBody
+    console.log(`${LOG} body:`, JSON.stringify({ hasPreferences: !!body?.preferences, seedSearchQuery: body?.seedSearchQuery }))
     const prefs = body?.preferences
     if (!prefs) {
       return NextResponse.json(
@@ -85,16 +111,25 @@ export async function POST(request: Request) {
           includeLocal: true,
           limit: 2000
         })
-        console.log(`[match] Fragella pool: ${basePerfumes.length} عطور`, poolQuery ? `(query: ${poolQuery})` : '')
+        console.log(`${LOG} Fragella pool: ${basePerfumes.length} عطور`, poolQuery ? `(query: ${poolQuery})` : '')
+
+        // Alert when stuck on fallback (19 local perfumes)
+        if (basePerfumes.length === 19) {
+          console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+          console.error('⚠️  WARNING: USING 19 LOCAL PERFUMES')
+          console.error('⚠️  Fragella connection may be broken!')
+          console.error('⚠️  Check FragellaCache table and API key')
+          console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+        }
       } catch (e) {
-        console.warn('[match] Fragella failed:', e)
+        console.warn(`${LOG} Fragella failed:`, e)
       }
     }
 
     if (basePerfumes.length === 0) {
       const { perfumes: fallbackPerfumes } = await import('@/lib/data/perfumes')
       basePerfumes = (fallbackPerfumes as any[]).map((p) => ({ ...p, source: 'local' }))
-      console.log(`[match] Fallback to rawPerfumes: ${basePerfumes.length}`)
+      console.log(`${LOG} Fallback to rawPerfumes: ${basePerfumes.length}`)
     }
 
     const userSymptoms = prefs.allergyProfile?.symptoms ?? []
@@ -130,7 +165,7 @@ export async function POST(request: Request) {
       fragellaId?: string
     })[]
     console.log(
-      '[match] Final pool:',
+      `${LOG} Final pool:`,
       allPerfumes.length,
       'sample ifraScore:',
       allPerfumes[0]?.ifraScore
@@ -184,13 +219,13 @@ export async function POST(request: Request) {
       blurredItems: blurred,
       tier
     }
-    console.log('[match] before send:', {
+    console.log(`${LOG} before send:`, {
       visibleCount: visible.length,
       blurredCount: blurred.length,
       tier,
       poolSize: allPerfumes.length
     })
-    console.log('[match] response:', {
+    console.log(`${LOG} response:`, {
       success: response.success,
       perfumesCount: response.perfumes.length,
       blurredItemsCount: response.blurredItems.length,
@@ -198,10 +233,8 @@ export async function POST(request: Request) {
     })
     return NextResponse.json(response)
   } catch (err) {
-    console.error('Match API error:', err)
-    return NextResponse.json(
-      { success: false, error: 'حدث خطأ في الخادم' },
-      { status: 500 }
-    )
+    console.error(`${LOG} ERROR:`, err)
+    const message = err instanceof Error ? err.message : String(err)
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
   }
 }

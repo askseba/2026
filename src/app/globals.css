@@ -204,3 +204,31 @@ Landing CTA "ابدأ الرحلة" / quiz – visible in light + dark, contrast
     font-size: 36px !important;
   }
 }
+
+/* ============================================
+   Mesh Gradient Animation for IngredientsSheet
+   ============================================ */
+@keyframes mesh-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Glassmorphism base utilities */
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Fallback for older browsers */
+@supports not (backdrop-filter: blur(10px)) {
+  .glassmorphism {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: none;
+  }
+}
