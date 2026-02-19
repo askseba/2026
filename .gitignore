@@ -37,3 +37,6 @@ pids
 .DS_Store
 Thumbs.db
 .vercel
+
+# Secrets
+nextauth_secret.txt
