@@ -23,6 +23,7 @@ interface ResultsGridProps {
     }
   >
   tier: 'GUEST' | 'FREE' | 'PREMIUM'
+  // Kept for future Compare feature activation
   compareIds: string[]
   toggleCompare: (id: string) => void
   blurredItems: BlurredItem[]
@@ -61,16 +62,13 @@ export default function ResultsGrid({
             </span>
           </div>
         )}
+        {/* P2 #50: Removed 7 dead explicit props (ifraScore, symptomTriggers,
+            ifraWarnings, source, showCompare, isComparing, onCompare).
+            ScoredPerfume fields are passed via {...perfume} spread.
+            perfumeData={perfume} remains for PerfumeCard's onPriceCompare callback. */}
         <PerfumeCard
           {...perfume}
           displayName={perfume.displayName ?? perfume.name}
-          ifraScore={perfume.ifraScore}
-          symptomTriggers={perfume.symptomTriggers ?? []}
-          ifraWarnings={perfume.ifraWarnings}
-          source={perfume.source}
-          showCompare={true}
-          isComparing={compareIds.includes(perfume.id)}
-          onCompare={() => toggleCompare(perfume.id)}
           priority={index < 2}
           isFirst={index === 0}
           perfumeData={perfume}

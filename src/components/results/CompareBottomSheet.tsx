@@ -54,13 +54,14 @@ function StoreCard ({ store, t }: StoreCardProps) {
               </p>
             )}
           </div>
+          {/* P0 #1.8: "Shop Now" was hardcoded English — now uses i18n */}
           <a
             href={store.url}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-orange-500 hover:bg-orange-600 dark:bg-amber-500 dark:hover:bg-amber-600 text-white px-6 py-2 rounded-lg transition"
           >
-            Shop Now
+            {t('shopNow')}
           </a>
         </div>
       ) : (
@@ -92,9 +93,9 @@ const PremiumGate = ({ hiddenStoresCount }: { hiddenStoresCount: number }) => {
           </div>
         ))}
       </div>
-      {/* CTA overlay */}
+      {/* CTA overlay — P1 #29: removed backdrop-blur to avoid double GPU load */}
       <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div className="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 dark:from-amber-950/80 dark:via-amber-900/90 dark:to-amber-950/80 border-2 border-amber-400 dark:border-amber-500 rounded-2xl p-8 shadow-2xl backdrop-blur-sm max-w-md text-center transform hover:scale-105 transition-transform">
+        <div className="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 dark:from-amber-950/80 dark:via-amber-900/90 dark:to-amber-950/80 border-2 border-amber-400 dark:border-amber-500 rounded-2xl p-8 shadow-2xl max-w-md text-center transform hover:scale-105 transition-transform">
           <div className="text-5xl mb-4">👑</div>
           <h3 className="text-2xl font-bold text-amber-900 dark:text-amber-100 mb-2">{t('premiumGateTitle')}</h3>
           <p className="text-amber-800 dark:text-amber-200 mb-6 leading-relaxed">{t('premiumGateDesc')}</p>
@@ -137,10 +138,18 @@ function PriceHubContent ({
       try {
         const res = await fetchPrices(perfume.id)
         if (cancelled) return
-        if (res.success && res.data) setPriceData(res)
-        else setError(t('tempError'))
+        if (res.success && res.data) {
+          setPriceData(res)
+        } else {
+          // P2 #5: Distinguish "no stores" from "service unavailable"
+          if (res.error?.code === 'FETCH_ERROR') {
+            setError(t('priceUnavailable'))
+          } else {
+            setError(t('tempError'))
+          }
+        }
       } catch {
-        if (!cancelled) setError(t('tempError'))
+        if (!cancelled) setError(t('priceUnavailable'))
       } finally {
         if (!cancelled) setIsLoading(false)
       }
@@ -196,7 +205,7 @@ function PriceHubContent ({
         {!isLoading && error && (
           <div className="flex flex-col items-center justify-center h-64 space-y-4">
             <span className="text-5xl">⚠️</span>
-            <p className="text-lg font-semibold text-center text-text-primary dark:text-text-primary">{t('tempError')}</p>
+            <p className="text-lg font-semibold text-center text-text-primary dark:text-text-primary">{error}</p>
             <button
               type="button"
               onClick={() => {
@@ -207,9 +216,13 @@ function PriceHubContent ({
                     if (res.success && res.data) {
                       setPriceData(res)
                       setError(null)
-                    } else setError(t('tempError'))
+                    } else if (res.error?.code === 'FETCH_ERROR') {
+                      setError(t('priceUnavailable'))
+                    } else {
+                      setError(t('tempError'))
+                    }
                   })
-                  .catch(() => setError(t('tempError')))
+                  .catch(() => setError(t('priceUnavailable')))
                   .finally(() => setIsLoading(false))
               }}
               className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 dark:bg-amber-500 dark:hover:bg-amber-600 transition"
@@ -404,7 +417,7 @@ export function CompareBottomSheet({
           className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center"
           dir={isRtl ? 'rtl' : 'ltr'}
         >
-          {/* Backdrop */}
+          {/* Backdrop — P1 #29: single backdrop-blur only (removed from PremiumGate) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { X } from "lucide-react"
@@ -9,20 +9,51 @@ import { getMatchStatusWithSafety } from "@/utils/safetyProtocol"
 import { cn } from "@/lib/classnames"
 import type { ScoredPerfume } from "@/lib/matching"
 
+// P1 #30: Dark mode variants for each status
 const getStatusConfig = (status: string) => {
   switch (status) {
     case "excellent":
-      return { emoji: "⭐", bgColor: "bg-green-50", borderColor: "border-green-500", textColor: "text-green-900" }
+      return {
+        emoji: "⭐",
+        bgColor: "bg-green-50 dark:bg-green-950/30",
+        borderColor: "border-green-500 dark:border-green-400",
+        textColor: "text-green-900 dark:text-green-100",
+      }
     case "good":
-      return { emoji: "✅", bgColor: "bg-blue-50", borderColor: "border-blue-500", textColor: "text-blue-900" }
+      return {
+        emoji: "✅",
+        bgColor: "bg-blue-50 dark:bg-blue-950/30",
+        borderColor: "border-blue-500 dark:border-blue-400",
+        textColor: "text-blue-900 dark:text-blue-100",
+      }
     case "fair":
-      return { emoji: "⚠️", bgColor: "bg-amber-50", borderColor: "border-amber-500", textColor: "text-amber-900" }
+      return {
+        emoji: "⚠️",
+        bgColor: "bg-amber-50 dark:bg-amber-950/30",
+        borderColor: "border-amber-500 dark:border-amber-400",
+        textColor: "text-amber-900 dark:text-amber-100",
+      }
     case "poor":
-      return { emoji: "❌", bgColor: "bg-purple-50", borderColor: "border-purple-500", textColor: "text-purple-900" }
+      return {
+        emoji: "❌",
+        bgColor: "bg-purple-50 dark:bg-purple-950/30",
+        borderColor: "border-purple-500 dark:border-purple-400",
+        textColor: "text-purple-900 dark:text-purple-100",
+      }
     case "unsafe":
-      return { emoji: "🚫", bgColor: "bg-red-50", borderColor: "border-red-500", textColor: "text-red-900" }
+      return {
+        emoji: "🚫",
+        bgColor: "bg-red-50 dark:bg-red-950/30",
+        borderColor: "border-red-500 dark:border-red-400",
+        textColor: "text-red-900 dark:text-red-100",
+      }
     default:
-      return { emoji: "➖", bgColor: "bg-gray-50", borderColor: "border-gray-500", textColor: "text-gray-900" }
+      return {
+        emoji: "➖",
+        bgColor: "bg-gray-50 dark:bg-gray-900/30",
+        borderColor: "border-gray-500 dark:border-gray-400",
+        textColor: "text-gray-900 dark:text-gray-100",
+      }
   }
 }
 
@@ -36,13 +67,90 @@ export function MatchSheet({ perfume, onClose, locale = "ar" }: MatchSheetProps)
   const t = useTranslations("results.match")
   const [imageError, setImageError] = useState(false)
   const isRtl = locale === "ar"
+  const sheetRef = useRef<HTMLDivElement>(null)
 
   const displayStatus = getMatchStatusWithSafety(perfume)
   const statusConfig = getStatusConfig(displayStatus ?? "fair")
 
+  // P1 #35: Escape key handler
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") onClose()
+  }, [onClose])
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+  }, [handleKeyDown])
+
+  // P1 #34: Focus trap
+  useEffect(() => {
+    const sheet = sheetRef.current
+    if (!sheet) return
+
+    const focusableElements = sheet.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    const firstEl = focusableElements[0]
+    const lastEl = focusableElements[focusableElements.length - 1]
+
+    function trapFocus(e: KeyboardEvent) {
+      if (e.key !== "Tab") return
+      if (e.shiftKey) {
+        if (document.activeElement === firstEl) {
+          e.preventDefault()
+          lastEl?.focus()
+        }
+      } else {
+        if (document.activeElement === lastEl) {
+          e.preventDefault()
+          firstEl?.focus()
+        }
+      }
+    }
+
+    sheet.addEventListener("keydown", trapFocus)
+    firstEl?.focus()
+    return () => sheet.removeEventListener("keydown", trapFocus)
+  }, [])
+
+  /**
+   * P0 update: Render exclusionReason — handles backward-compatible union type
+   * string | { key: string; params?: Record<string, string> } | null
+   */
+  const renderExclusionReason = () => {
+    const reason = perfume.exclusionReason
+    if (!reason) return null
+
+    let text: string
+    if (typeof reason === "string") {
+      // Legacy string format — display directly
+      text = reason
+    } else {
+      // New i18n format — translate
+      try {
+        text = t(reason.key, reason.params)
+      } catch {
+        // Fallback: show the key if translation missing
+        text = reason.key
+      }
+    }
+
+    return (
+      <div className="mx-6 mt-4 mb-6 p-4 bg-red-50 dark:bg-red-500/5 rounded-2xl border border-red-200 dark:border-red-500/20">
+        <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+          {text}
+        </p>
+      </div>
+    )
+  }
+
+  // P1 #31: RTL-aware gradient direction
+  const gradientDirection = isRtl ? "bg-gradient-to-l" : "bg-gradient-to-r"
+
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 lg:hidden" dir={isRtl ? "rtl" : "ltr"}>
+      {/* P1 #1.10: Removed lg:hidden — Sheet is available on all viewports */}
+      <div className="fixed inset-0 z-50" dir={isRtl ? "rtl" : "ltr"}>
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -54,11 +162,14 @@ export function MatchSheet({ perfume, onClose, locale = "ar" }: MatchSheetProps)
 
         {/* Sheet */}
         <motion.div
+          ref={sheetRef}
           initial={{ y: "100%" }}
           animate={{ y: 0 }}
           exit={{ y: "100%" }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
           className="absolute inset-x-0 bottom-0 top-auto max-h-[65vh] bg-white dark:bg-surface-elevated rounded-t-3xl shadow-2xl flex flex-col overflow-hidden"
+          role="dialog"
+          aria-modal="true"
         >
           {/* Handle bar */}
           <div className="flex justify-center pt-3 pb-2">
@@ -89,10 +200,11 @@ export function MatchSheet({ perfume, onClose, locale = "ar" }: MatchSheetProps)
                   </h2>
                 </div>
               </div>
+              {/* P1 #36: i18n aria-label */}
               <button
                 onClick={onClose}
                 className="p-2 -m-2 rounded-xl hover:bg-surface-muted dark:hover:bg-surface-muted transition flex-shrink-0"
-                aria-label="إغلاق"
+                aria-label={t("close")}
               >
                 <X className="w-5 h-5 text-text-muted dark:text-text-muted" />
               </button>
@@ -101,7 +213,7 @@ export function MatchSheet({ perfume, onClose, locale = "ar" }: MatchSheetProps)
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto">
-            {/* RadarGauge كبير (وسط) */}
+            {/* RadarGauge large (center) */}
             <div className="flex justify-center py-8">
               <RadarGauge
                 finalScore={perfume.finalScore}
@@ -113,7 +225,7 @@ export function MatchSheet({ perfume, onClose, locale = "ar" }: MatchSheetProps)
               />
             </div>
 
-            {/* Status badge (Gold1: emoji + unsafe) */}
+            {/* Status badge */}
             <div
               className={cn(
                 "mx-6 mb-6 p-4 rounded-2xl border-2",
@@ -128,9 +240,9 @@ export function MatchSheet({ perfume, onClose, locale = "ar" }: MatchSheetProps)
               </p>
             </div>
 
-            {/* Score Breakdown (Gold1) */}
+            {/* Score Breakdown */}
             <div className="px-6 space-y-6 mb-6">
-              {/* Taste Score */}
+              {/* Taste Score — P1 #31: RTL-aware gradient */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -155,13 +267,16 @@ export function MatchSheet({ perfume, onClose, locale = "ar" }: MatchSheetProps)
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-surface-muted rounded-full h-3 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-orange-400 to-orange-600 rounded-full transition-all"
+                    className={cn(
+                      "h-full from-orange-400 to-orange-600 rounded-full transition-all",
+                      gradientDirection
+                    )}
                     style={{ width: `${perfume.tasteScore}%` }}
                   />
                 </div>
               </div>
 
-              {/* Safety Score */}
+              {/* Safety Score — P1 #31: RTL-aware gradient */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -186,7 +301,10 @@ export function MatchSheet({ perfume, onClose, locale = "ar" }: MatchSheetProps)
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-surface-muted rounded-full h-3 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all"
+                    className={cn(
+                      "h-full from-green-400 to-green-600 rounded-full transition-all",
+                      gradientDirection
+                    )}
                     style={{ width: `${perfume.safetyScore}%` }}
                   />
                 </div>
@@ -214,8 +332,8 @@ export function MatchSheet({ perfume, onClose, locale = "ar" }: MatchSheetProps)
               </div>
             </div>
 
-            {/* العائلات العطرية */}
-            {perfume.families.length > 0 && (
+            {/* Families — P0 #1.4: Optional chaining */}
+            {(perfume.families?.length ?? 0) > 0 && (
               <div className="px-6 py-4 border-t border-primary/5 dark:border-border-subtle">
                 <p className="text-xs text-text-muted dark:text-text-muted mb-3">
                   {t("perfumeFamilies")}
@@ -233,14 +351,8 @@ export function MatchSheet({ perfume, onClose, locale = "ar" }: MatchSheetProps)
               </div>
             )}
 
-            {/* سبب الاستبعاد */}
-            {perfume.exclusionReason && (
-              <div className="mx-6 mt-4 mb-6 p-4 bg-red-50 dark:bg-red-500/5 rounded-2xl border border-red-200 dark:border-red-500/20">
-                <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-                  {perfume.exclusionReason}
-                </p>
-              </div>
-            )}
+            {/* Exclusion reason — P0 update: handles union type */}
+            {renderExclusionReason()}
           </div>
         </motion.div>
       </div>

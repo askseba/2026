@@ -93,7 +93,8 @@ export function ResultsContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-cream-bg dark:!bg-surface pb-20" dir={direction}>
+      // P1 #57: Removed !bg-surface (important modifier) — using normal dark:bg-surface
+      <div className="min-h-screen bg-cream-bg dark:bg-surface pb-20" dir={direction}>
         {/* Hero skeleton */}
         <div className="container mx-auto px-6 pt-6">
           <div className="h-5 w-40 bg-primary/10 dark:bg-surface-elevated rounded-full animate-pulse mb-6" />
@@ -147,7 +148,7 @@ export function ResultsContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-cream-bg dark:!bg-surface gap-4" dir={direction}>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-cream-bg dark:bg-surface gap-4" dir={direction}>
         <div className="text-center max-w-md px-4">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
             <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -169,7 +170,7 @@ export function ResultsContent() {
     )
   }
   return (
-    <div className="min-h-screen bg-cream-bg dark:!bg-surface pb-20" dir={direction}>
+    <div className="min-h-screen bg-cream-bg dark:bg-surface pb-20" dir={direction}>
       <div className="container mx-auto px-6 pt-6">
         <BackButton
           href={`/${locale}/dashboard`}
@@ -192,7 +193,7 @@ export function ResultsContent() {
             {t('hero.title')}
           </h1>
 
-          {/* Summary Strip - تصنيف ديناميكي */}
+          {/* Summary Strip */}
           {scoredPerfumes.length > 0 && (() => {
             const excellent = scoredPerfumes.filter(p => p.finalScore >= 80).length
             const good = scoredPerfumes.filter(p => p.finalScore >= 60 && p.finalScore < 80).length
@@ -225,8 +226,8 @@ export function ResultsContent() {
             )
           })()}
 
-          {/* Source Indicator */}
-          {scoredPerfumes.length > 0 && (() => {
+          {/* P1 #16: Source Indicator hidden from end users — dev only */}
+          {process.env.NODE_ENV === 'development' && scoredPerfumes.length > 0 && (() => {
             const fragellaCount = scoredPerfumes.filter(p => p.source === 'fragella').length
             const isFragellaMode = fragellaCount > 0 || scoredPerfumes.length > 19
             

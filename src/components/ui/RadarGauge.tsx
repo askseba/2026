@@ -1,25 +1,25 @@
 "use client"
 import { cn } from "@/lib/utils"
+import { useTranslations } from "next-intl"
 
 interface RadarGaugeProps {
   finalScore: number // 0-100
   tasteScore: number // 0-100
-  safetyScore: number // 0 أو 100
-  size?: "sm" | "lg" // sm=48px (بطاقة), lg=120px (sheet)
-  showBreakdown?: boolean // true في Sheet فقط
+  safetyScore: number // 0 or 100
+  size?: "sm" | "lg" // sm=48px (card), lg=120px (sheet)
+  showBreakdown?: boolean // true in Sheet only
   locale?: string
 }
 
-// ZONES (ديناميكية — سهلة التعديل)
+// ZONES (dynamic — easy to tweak)
 const ZONES = {
   red: { from: 0, to: 39 }, // 180° → 109.8°
   orange: { from: 40, to: 69 }, // 108° → 55.8°
   green: { from: 70, to: 100 }, // 54° → 0°
 }
 
-// الدوال المطلوبة
 function percentToAngle(percent: number): number {
-  return 180 - (percent / 100) * 180 // 0%=180°(يسار), 100%=0°(يمين)
+  return 180 - (percent / 100) * 180 // 0%=180°(left), 100%=0°(right)
 }
 
 function polarToCartesian(
@@ -53,6 +53,7 @@ export function RadarGauge({
   showBreakdown = false,
   locale = "ar",
 }: RadarGaugeProps) {
+  const t = useTranslations("results.card")
   const isSmall = size === "sm"
   const w = isSmall ? 48 : 120
   const h = isSmall ? 28 : 70
@@ -61,15 +62,15 @@ export function RadarGauge({
   const r = isSmall ? 20 : 50
   const sw = isSmall ? 4 : 8
 
-  // زوايا المناطق (ديناميكية)
-  const redStart = percentToAngle(ZONES.red.from) // 180°
-  const redEnd = percentToAngle(ZONES.red.to) // 109.8°
-  const orangeStart = percentToAngle(ZONES.orange.from) // 108°
-  const orangeEnd = percentToAngle(ZONES.orange.to) // 55.8°
-  const greenStart = percentToAngle(ZONES.green.from) // 54°
-  const greenEnd = percentToAngle(ZONES.green.to) // 0°
+  // Zone angles (dynamic)
+  const redStart = percentToAngle(ZONES.red.from)
+  const redEnd = percentToAngle(ZONES.red.to)
+  const orangeStart = percentToAngle(ZONES.orange.from)
+  const orangeEnd = percentToAngle(ZONES.orange.to)
+  const greenStart = percentToAngle(ZONES.green.from)
+  const greenEnd = percentToAngle(ZONES.green.to)
 
-  // المؤشر
+  // Needle
   const needleAngle = percentToAngle(finalScore)
   const needleEnd = polarToCartesian(cx, cy, r - 4, needleAngle)
   const color =
@@ -79,7 +80,7 @@ export function RadarGauge({
         ? "#F59E0B"
         : "#EF4444"
 
-  // i18n (جاهز لـ P6-2)
+  // i18n labels for breakdown
   const labels =
     locale === "ar"
       ? {
@@ -93,6 +94,17 @@ export function RadarGauge({
           overall: "Overall",
         }
 
+  // P1 #37: Descriptive aria-label via i18n
+  let gaugeAriaLabel: string
+  try {
+    gaugeAriaLabel = t("gaugeLabel", { score: String(finalScore) })
+  } catch {
+    // Fallback if i18n key not yet added
+    gaugeAriaLabel = locale === "ar"
+      ? `درجة التطابق: ${finalScore} من 100`
+      : `Match score: ${finalScore} out of 100`
+  }
+
   return (
     <div className="flex flex-col items-center" dir="rtl">
       <svg
@@ -100,9 +112,9 @@ export function RadarGauge({
         height={h + 4}
         viewBox={`0 0 ${w} ${h + 4}`}
         role="img"
-        aria-label={`مقياس الأداء: ${finalScore}%`}
+        aria-label={gaugeAriaLabel}
       >
-        {/* المناطق */}
+        {/* Zones */}
         <path
           d={describeArc(cx, cy, r, redStart, redEnd)}
           stroke="#FEE2E2"
@@ -149,7 +161,7 @@ export function RadarGauge({
         />
       </svg>
 
-      {/* النسبة المئوية */}
+      {/* Percentage */}
       <span
         className={cn(
           "font-black",
@@ -164,10 +176,10 @@ export function RadarGauge({
         {finalScore}%
       </span>
 
-      {/* Breakdown (للحجم الكبير فقط) */}
+      {/* Breakdown (lg only) */}
       {showBreakdown && !isSmall && (
         <div className="mt-4 w-full space-y-2">
-          {/* الذوق */}
+          {/* Taste */}
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs text-text-secondary dark:text-text-muted">
               {labels.taste}:
@@ -185,7 +197,7 @@ export function RadarGauge({
             </div>
           </div>
 
-          {/* الأمان */}
+          {/* Safety */}
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs text-text-secondary dark:text-text-muted">
               {labels.safety}:
@@ -215,7 +227,7 @@ export function RadarGauge({
             </div>
           </div>
 
-          {/* الإجمالي */}
+          {/* Overall */}
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs text-text-secondary dark:text-text-muted">
               {labels.overall}:

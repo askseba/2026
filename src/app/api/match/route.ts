@@ -1,12 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import { validateFragellaOnStartup } from '@/lib/startup-checks'
-
-// Run Fragella validation once when module loads
-let fragellaValidated = false
-validateFragellaOnStartup().then((valid) => {
-  fragellaValidated = valid
-})
+// P2 #51: Removed dead code — validateFragellaOnStartup / fragellaValidated
 import type { PerfumeForMatching, ScoredPerfume } from '@/lib/matching'
 import { calculateMatchScores } from '@/lib/matching'
 import { getResultsLimit, getBlurredCount, getUserTierInfo } from '@/lib/gating'
@@ -29,7 +23,11 @@ interface MatchRequestBody {
   seedSearchQuery?: string
 }
 
-function toPerfumeForMatching(p: {
+/**
+ * P2 #48: Typed interface for raw Fragella / local perfume data
+ * before it is converted to PerfumeForMatching.
+ */
+interface RawPerfumeData {
   id: string
   name: string
   brand: string
@@ -42,7 +40,19 @@ function toPerfumeForMatching(p: {
   isSafe?: boolean
   status?: string
   variant?: string
-}): PerfumeForMatching {
+  source?: string
+  fragellaId?: string
+  ifraScore?: number
+  ifraWarnings?: string[]
+  scentPyramid?: { top: string[]; heart: string[]; base: string[] } | null
+}
+
+/**
+ * P0 #1.1: isSafe defaults to undefined (not true) when enrichment data
+ * is missing. This ensures safetyProtocol treats unknown-safety perfumes
+ * as unsafe rather than safe.
+ */
+function toPerfumeForMatching(p: RawPerfumeData): PerfumeForMatching {
   const families = p.families ?? []
   const ingredients = p.ingredients ?? []
   const symptomTriggers = p.symptomTriggers ?? []
@@ -56,10 +66,10 @@ function toPerfumeForMatching(p: {
     families,
     ingredients,
     symptomTriggers,
-    isSafe: p.isSafe ?? true,
+    isSafe: p.isSafe ?? undefined, // P0 #1.1: was `true`, now `undefined`
     status: p.status ?? 'safe',
     variant: p.variant ?? null,
-    scentPyramid: null
+    scentPyramid: p.scentPyramid ?? null
   }
 }
 
@@ -101,7 +111,7 @@ export async function POST(request: Request) {
     }
 
     const apiKey = process.env.FRAGELLA_API_KEY ?? ''
-    let basePerfumes: any[] = []
+    let basePerfumes: RawPerfumeData[] = [] // P2 #48: typed instead of any[]
     const poolQuery = (body.seedSearchQuery ?? '').trim()
 
     if (apiKey) {
@@ -110,7 +120,7 @@ export async function POST(request: Request) {
           includeFragella: true,
           includeLocal: true,
           limit: 2000
-        })
+        }) as RawPerfumeData[]
         console.log(`${LOG} Fragella pool: ${basePerfumes.length} عطور`, poolQuery ? `(query: ${poolQuery})` : '')
 
         // Alert when stuck on fallback (19 local perfumes)
@@ -128,30 +138,36 @@ export async function POST(request: Request) {
 
     if (basePerfumes.length === 0) {
       const { perfumes: fallbackPerfumes } = await import('@/lib/data/perfumes')
-      basePerfumes = (fallbackPerfumes as any[]).map((p) => ({ ...p, source: 'local' }))
+      basePerfumes = (fallbackPerfumes as RawPerfumeData[]).map((p) => ({ ...p, source: 'local' }))
       console.log(`${LOG} Fallback to rawPerfumes: ${basePerfumes.length}`)
     }
 
     const userSymptoms = prefs.allergyProfile?.symptoms ?? []
     const enrichedPerfumes = await Promise.all(
-      basePerfumes.slice(0, 2000).map(async (perfume: any) => {
+      basePerfumes.slice(0, 2000).map(async (perfume) => {
         try {
-          const enriched = await enrichWithIFRA(perfume, userSymptoms)
+          // RawPerfumeData.source is string|undefined; enrichWithIFRA expects UnifiedPerfume.
+          // At this point basePerfumes always have source set ('fragella' or 'local'),
+          // so the cast is safe.
+          const enriched = await enrichWithIFRA(perfume as any, userSymptoms)
           return {
-            ...toPerfumeForMatching(enriched),
-            ifraScore: enriched.ifraScore,
-            symptomTriggers: enriched.symptomTriggers ?? [],
-            ifraWarnings: enriched.ifraWarnings ?? [],
-            source: enriched.source ?? 'local',
-            fragellaId: enriched.fragellaId
+            ...toPerfumeForMatching(enriched as RawPerfumeData),
+            ifraScore: (enriched as RawPerfumeData).ifraScore,
+            symptomTriggers: (enriched as RawPerfumeData).symptomTriggers ?? [],
+            ifraWarnings: (enriched as RawPerfumeData).ifraWarnings ?? [],
+            source: (enriched as RawPerfumeData).source ?? 'local',
+            fragellaId: (enriched as RawPerfumeData).fragellaId,
+            enrichmentFailed: false // P0 #1.1: enrichment succeeded
           }
         } catch (enrichErr) {
           console.warn(`IFRA failed for ${perfume.id}:`, enrichErr)
           const fallback = toPerfumeForMatching(perfume)
           return {
             ...fallback,
+            isSafe: undefined as boolean | undefined, // P0 #1.1: unknown safety
             fragellaId: perfume.fragellaId,
-            source: perfume.source ?? 'local'
+            source: perfume.source ?? 'local',
+            enrichmentFailed: true // P0 #1.1: flag for safetyProtocol
           }
         }
       })
@@ -163,6 +179,7 @@ export async function POST(request: Request) {
       ifraWarnings?: string[]
       source?: string
       fragellaId?: string
+      enrichmentFailed?: boolean
     })[]
     console.log(
       `${LOG} Final pool:`,
@@ -208,13 +225,15 @@ export async function POST(request: Request) {
 
     const response = {
       success: true,
-      perfumes: visible.map((p: any) => ({
+      perfumes: visible.map((p) => ({
         ...p,
         ifraScore: p.ifraScore,
         symptomTriggers: p.symptomTriggers ?? [],
         ifraWarnings: p.ifraWarnings ?? [],
         source: p.source ?? 'local',
-        fragellaId: p.fragellaId
+        fragellaId: p.fragellaId,
+        matchStatus: p.matchStatus, // P0 #1.3: now computed
+        enrichmentFailed: p.enrichmentFailed ?? false // P0 #1.1
       })),
       blurredItems: blurred,
       tier
