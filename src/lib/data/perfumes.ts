@@ -19,6 +19,7 @@ export interface Perfume {
   // NEW: For allergy filtering
   families?: string[] // e.g., ['floral', 'woody', 'citrus']
   ingredients?: string[] // e.g., ['jasmine', 'rose', 'oud']
+  scentPyramid?: { top: string[]; heart: string[]; base: string[] }
   symptomTriggers?: string[] // e.g., ['sneeze', 'headache'] - symptoms this perfume may cause
   stages?: TimelineStage[] // Timeline stages for perfume (top, middle, base notes)
 }
@@ -52,23 +53,33 @@ export const perfumes: Perfume[] = [
     description: 'عطر فاخر يجمع بين الحمضيات والأخشاب',
     families: ['citrus', 'woody'],
     ingredients: ['bergamot', 'sandalwood', 'lavender'],
+    scentPyramid: {
+      top: ['bergamot', 'lemon'],
+      heart: ['lavender', 'geranium'],
+      base: ['sandalwood', 'vetiver', 'cedarwood']
+    },
     symptomTriggers: []
   },
   {
-    id: '2',
-    name: 'Aventus',
-    brand: 'Creed',
-    image: 'https://images.unsplash.com/photo-1594035910387-f4d5fb3a8a1a?w=300&h=400&fit=crop&crop=center',
-    score: 88,
-    matchPercentage: 88,
-    status: 'safe',
-    price: 550,
-    isSafe: true,
-    description: 'عطر ملكي بلمسات من الأناناس والبرغموت',
-    families: ['citrus', 'woody'],
-    ingredients: ['bergamot', 'patchouli', 'musk'],
-    symptomTriggers: []
+  id: "2",
+  name: "Aventus",
+  brand: "Creed",
+  image: "https://images.unsplash.com/photo-1594035910387-f4d5fb3a8a1a?w=300&h=400&fit=crop&crop=center",
+  score: 88,
+  matchPercentage: 88,
+  status: "safe",
+  price: 550,
+  isSafe: true,
+  description: "عطر ملكي بلمسات من الأناناس والبرغموت",
+  scentPyramid: {
+    top: ["pineapple", "bergamot", "blackcurrant", "apple"],
+    heart: ["birch", "patchouli", "jasmine", "rose"],
+    base: ["musk", "oakmoss", "ambergris", "vanilla"]
   },
+  families: ["citrus", "woody"],
+  ingredients: ["bergamot", "patchouli", "musk"],
+  symptomTriggers: []
+},
   {
     id: '3',
     name: 'Oud Wood',
@@ -82,6 +93,11 @@ export const perfumes: Perfume[] = [
     description: 'مزيج فاخر من العود والورد',
     families: ['woody', 'floral'],
     ingredients: ['oud', 'rose', 'sandalwood'],
+    scentPyramid: {
+      top: ['bergamot', 'cardamom'],
+      heart: ['rose', 'oud'],
+      base: ['sandalwood', 'vetiver', 'oud']
+    },
     symptomTriggers: ['headache'] // Strong oud can cause headaches
   },
   {
@@ -97,6 +113,11 @@ export const perfumes: Perfume[] = [
     description: 'عطر قوي بلمسات من الفلفل والبرغموت',
     families: ['spicy', 'citrus'],
     ingredients: ['pepper', 'bergamot', 'amber'],
+    scentPyramid: {
+      top: ['bergamot', 'lavender'],
+      heart: ['pepper', 'geranium'],
+      base: ['amber', 'vetiver', 'musk']
+    },
     symptomTriggers: ['sneeze'] // Spicy notes can trigger sneezing
   },
   {
@@ -112,6 +133,11 @@ export const perfumes: Perfume[] = [
     description: 'عطر ترابي بلمسات من البرتقال والفلين',
     families: ['citrus', 'woody'],
     ingredients: ['bergamot', 'sandalwood', 'patchouli'],
+    scentPyramid: {
+      top: ['bergamot', 'grapefruit'],
+      heart: ['patchouli', 'geranium'],
+      base: ['sandalwood', 'vetiver', 'cedarwood']
+    },
     symptomTriggers: []
   },
   
@@ -129,13 +155,18 @@ export const perfumes: Perfume[] = [
     description: 'عطر زهري قوي قد لا يناسب الجميع',
     families: ['floral', 'gourmand'],
     ingredients: ['jasmine', 'rose', 'vanilla'],
+    scentPyramid: {
+      top: ['bergamot', 'tea'],
+      heart: ['jasmine', 'rose'],
+      base: ['vanilla', 'patchouli', 'musk']
+    },
     symptomTriggers: ['sneeze', 'headache', 'nausea'] // Very strong floral
   },
   {
     id: '7',
     name: 'Black Opium',
     brand: 'YSL',
-    image: 'https://images.unsplash.com/photo-1612817159949-195b6eb9e3ab?w=300&h=400&fit=crop&crop=center',
+    image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=300&h=400&fit=crop&crop=center',
     score: 38,
     matchPercentage: 38,
     status: 'danger',
@@ -144,6 +175,11 @@ export const perfumes: Perfume[] = [
     description: 'عطر حلو قوي بلمسات من الفانيليا والقهوة',
     families: ['gourmand', 'floral'],
     ingredients: ['vanilla', 'jasmine', 'amber'],
+    scentPyramid: {
+      top: ['bergamot', 'pink pepper'],
+      heart: ['jasmine', 'coffee'],
+      base: ['vanilla', 'amber', 'musk']
+    },
     symptomTriggers: ['headache', 'nausea'] // Very sweet and heavy
   },
   
@@ -162,6 +198,11 @@ export const perfumes: Perfume[] = [
     description: 'عطر ليلي فاخر بلمسات من التوابل',
     families: ['spicy', 'leather'],
     ingredients: ['pepper', 'leather', 'vanilla'],
+    scentPyramid: {
+      top: ['bergamot', 'pepper'],
+      heart: ['iris', 'leather'],
+      base: ['vanilla', 'sandalwood', 'tonka bean']
+    },
     symptomTriggers: ['sneeze']
   },
   {
@@ -178,13 +219,18 @@ export const perfumes: Perfume[] = [
     description: 'عطر فاخر بلمسات من الزعفران والعنبر',
     families: ['floral', 'woody'],
     ingredients: ['jasmine', 'amber', 'sandalwood'],
+    scentPyramid: {
+      top: ['saffron', 'jasmine'],
+      heart: ['jasmine', 'amber'],
+      base: ['sandalwood', 'cedar', 'ambergris']
+    },
     symptomTriggers: []
   },
   {
     id: '10',
     name: 'Santal 33',
     brand: 'Le Labo',
-    image: 'https://images.unsplash.com/photo-1594035910387-f4d5fb3a8a1a?w=300&h=400&fit=crop&crop=center',
+    image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=300&h=400&fit=crop&crop=center',
     score: 88,
     matchPercentage: 88,
     status: 'safe',
@@ -193,6 +239,11 @@ export const perfumes: Perfume[] = [
     description: 'عطر خشبي بلمسات من الصندل والفانيليا',
     families: ['woody', 'gourmand'],
     ingredients: ['sandalwood', 'vanilla', 'leather'],
+    scentPyramid: {
+      top: ['cardamom', 'iris'],
+      heart: ['sandalwood', 'violet'],
+      base: ['vanilla', 'leather', 'musk']
+    },
     symptomTriggers: []
   },
   {
@@ -208,13 +259,18 @@ export const perfumes: Perfume[] = [
     description: 'نسخة محدودة من Aventus الكلاسيكي',
     families: ['citrus', 'woody'],
     ingredients: ['bergamot', 'patchouli', 'musk'],
+    scentPyramid: {
+      top: ['bergamot', 'pineapple'],
+      heart: ['patchouli', 'jasmine'],
+      base: ['musk', 'oakmoss', 'ambergris']
+    },
     symptomTriggers: []
   },
   {
     id: '12',
     name: 'Amouage',
     brand: 'Amouage',
-    image: 'https://images.unsplash.com/photo-1612817159949-195b6eb9e3ab?w=300&h=400&fit=crop&crop=center',
+    image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=300&h=400&fit=crop&crop=center',
     score: 85,
     matchPercentage: 85,
     status: 'safe',
@@ -223,6 +279,11 @@ export const perfumes: Perfume[] = [
     description: 'عطر عماني فاخر بلمسات من اللبان والورد',
     families: ['floral', 'woody'],
     ingredients: ['rose', 'oud', 'amber'],
+    scentPyramid: {
+      top: ['frankincense', 'cardamom'],
+      heart: ['rose', 'oud'],
+      base: ['amber', 'oud', 'musk']
+    },
     symptomTriggers: ['headache'] // Heavy oriental
   },
   {
@@ -239,6 +300,11 @@ export const perfumes: Perfume[] = [
     description: 'عطر سويدي معاصر بلمسات من الفانيليا',
     families: ['gourmand', 'woody'],
     ingredients: ['vanilla', 'sandalwood', 'musk'],
+    scentPyramid: {
+      top: ['bergamot', 'black pepper'],
+      heart: ['vanilla', 'sandalwood'],
+      base: ['musk', 'tonka bean', 'cedarwood']
+    },
     symptomTriggers: []
   },
   {
@@ -255,6 +321,11 @@ export const perfumes: Perfume[] = [
     description: 'عطر فرنسي بلمسات من الورد والمسك',
     families: ['floral'],
     ingredients: ['rose', 'musk', 'jasmine'],
+    scentPyramid: {
+      top: ['bergamot', 'blackcurrant'],
+      heart: ['rose', 'jasmine'],
+      base: ['musk', 'vetiver', 'cedarwood']
+    },
     symptomTriggers: ['sneeze', 'rash'] // Floral can cause skin reactions
   },
   {
@@ -270,6 +341,11 @@ export const perfumes: Perfume[] = [
     description: 'عطر بريطاني كلاسيكي بلمسات من الخزامى',
     families: ['floral', 'citrus'],
     ingredients: ['lavender', 'bergamot', 'musk'],
+    scentPyramid: {
+      top: ['bergamot', 'lavender'],
+      heart: ['geranium', 'ylang-ylang'],
+      base: ['musk', 'vetiver', 'sandalwood']
+    },
     symptomTriggers: []
   },
   {
@@ -286,13 +362,18 @@ export const perfumes: Perfume[] = [
     description: 'عطر معاصر بلمسات من الجلد والتبغ',
     families: ['leather', 'spicy'],
     ingredients: ['leather', 'pepper', 'patchouli'],
+    scentPyramid: {
+      top: ['bergamot', 'pepper'],
+      heart: ['leather', 'tobacco'],
+      base: ['patchouli', 'vetiver', 'cedarwood']
+    },
     symptomTriggers: ['sneeze', 'nausea'] // Leather can be heavy
   },
   {
     id: '17',
     name: 'Kilian',
     brand: 'Kilian',
-    image: 'https://images.unsplash.com/photo-1594035910387-f4d5fb3a8a1a?w=300&h=400&fit=crop&crop=center',
+    image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=300&h=400&fit=crop&crop=center',
     score: 81,
     matchPercentage: 81,
     status: 'safe',
@@ -301,13 +382,18 @@ export const perfumes: Perfume[] = [
     description: 'عطر فاخر بلمسات من الفانيليا والكاكاو',
     families: ['gourmand'],
     ingredients: ['vanilla', 'amber', 'musk'],
+    scentPyramid: {
+      top: ['bergamot', 'lemon'],
+      heart: ['vanilla', 'cacao'],
+      base: ['amber', 'musk', 'tonka bean']
+    },
     symptomTriggers: []
   },
   {
     id: '18',
     name: 'Roja',
     brand: 'Roja',
-    image: 'https://images.unsplash.com/photo-1612817159949-195b6eb9e3ab?w=300&h=400&fit=crop&crop=center',
+    image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=300&h=400&fit=crop&crop=center',
     score: 79,
     matchPercentage: 79,
     status: 'warning',
@@ -317,6 +403,11 @@ export const perfumes: Perfume[] = [
     description: 'عطر فاخر بلمسات من العود والورد',
     families: ['woody', 'floral'],
     ingredients: ['oud', 'rose', 'amber'],
+    scentPyramid: {
+      top: ['bergamot', 'saffron'],
+      heart: ['oud', 'rose'],
+      base: ['amber', 'sandalwood', 'musk']
+    },
     symptomTriggers: ['headache']
   },
   {
@@ -332,6 +423,11 @@ export const perfumes: Perfume[] = [
     description: 'عطر إيطالي فاخر بلمسات من العود والمسك',
     families: ['woody'],
     ingredients: ['oud', 'musk', 'sandalwood'],
+    scentPyramid: {
+      top: ['bergamot', 'lemon'],
+      heart: ['oud', 'jasmine'],
+      base: ['sandalwood', 'musk', 'vetiver']
+    },
     symptomTriggers: []
   }
 ]

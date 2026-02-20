@@ -7,6 +7,8 @@ const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
 /** Search API / local fallback response shape */
 export interface SearchResultsResponse {
   results: unknown[]
+  /** Distinguishes Fragella API data (safe to cache) from local fallback (never cache) */
+  source?: 'fragella' | 'local'
 }
 
 /** Minimal shape for Fragella fragrance API response (used for cache upsert) */
@@ -115,11 +117,12 @@ async function searchLocalPerfumes(query: string, limit: number): Promise<Search
       results: results.map(p => ({
         ...p,
         source: 'local'
-      }))
+      })),
+      source: 'local'
     }
   } catch (error) {
     logger.error('Local search fallback failed:', error)
-    return { results: [] }
+    return { results: [], source: 'local' }
   }
 }
 
@@ -158,22 +161,22 @@ export async function searchPerfumes(query: string, limit = 20): Promise<SearchR
     if (raw !== null && typeof raw === 'object' && 'results' in raw && Array.isArray((raw as SearchResultsResponse).results)) {
       const count = (raw as SearchResultsResponse).results.length
       logger.info(`Fragella API: Found ${count} results`)
-      return raw as SearchResultsResponse
+      return { ...(raw as SearchResultsResponse), source: 'fragella' }
     }
     // Fragella may return array directly: [{...}, {...}]
     if (Array.isArray(raw)) {
       const count = raw.length
       logger.info(`Fragella API: Found ${count} results (array format)`)
-      return { results: raw } as SearchResultsResponse
+      return { results: raw, source: 'fragella' }
     }
-    return { results: [] }
+    return { results: [], source: 'local' }
   } catch (error) {
     logger.warn('⚠️ Fragella search error, falling back to local search', error)
     return searchLocalPerfumes(query, limit)
   }
 }
 
-export async function searchPerfumesWithCache<T = { results: unknown[] }>(
+export async function searchPerfumesWithCache<T = SearchResultsResponse>(
   query: string,
   limit = 20
 ): Promise<T> {
@@ -200,31 +203,39 @@ export async function searchPerfumesWithCache<T = { results: unknown[] }>(
     // Fetch fresh
     logger.info('🔄 Cache MISS - fetching:', cacheKey)
     const data = await searchPerfumes(query, limit)
-    
-    // Cache for 24h
-    try {
-      await prisma.fragellaCache.upsert({
-        where: { key: cacheKey },
-        create: {
-          key: cacheKey,
-          data: JSON.stringify(data),
-          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
-        },
-        update: {
-          data: JSON.stringify(data),
-          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
-        }
-      })
-      logger.info('Cache updated')
-    } catch (cacheError) {
-      logger.warn('Failed to cache search results:', cacheError)
-      // Continue anyway - cache failure should not break search
+
+    // CRITICAL: Only cache Fragella responses - never cache local fallback
+    const isFromFragella = data.source === 'fragella'
+    const hasResults = data.results && data.results.length > 0
+
+    if (isFromFragella && hasResults) {
+      try {
+        await prisma.fragellaCache.upsert({
+          where: { key: cacheKey },
+          create: {
+            key: cacheKey,
+            data: JSON.stringify(data),
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
+          },
+          update: {
+            data: JSON.stringify(data),
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
+          }
+        })
+        logger.info(`💾 Cache STORED: ${cacheKey} (${data.results.length} results from Fragella)`)
+      } catch (cacheError) {
+        logger.warn('Failed to cache search results:', cacheError)
+      }
+    } else {
+      logger.warn(
+        `🚫 NOT CACHING: ${cacheKey} (source: ${data.source ?? 'unknown'}, count: ${data.results?.length ?? 0})`
+      )
     }
 
     return data as T
   } catch (error) {
     logger.error('Search with cache failed:', error)
     // Last resort: return empty results instead of crashing
-    return { results: [] } as T
+    return { results: [], source: 'local' } as T
   }
 }

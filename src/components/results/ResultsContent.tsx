@@ -1,20 +1,21 @@
 "use client"
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, ArrowRightLeft, Zap } from 'lucide-react'
+import { Sparkles, ArrowRightLeft } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
-import { PerfumeCard } from '@/components/ui/PerfumeCard'
 import { Button } from '@/components/ui/button'
 import { useQuiz } from '@/contexts/QuizContext'
-import { useSession } from 'next-auth/react'
 import { type ScoredPerfume } from '@/lib/matching'
 import { safeFetch } from '@/lib/utils/api-helpers'
 import { UpsellCard } from '@/components/ui/UpsellCard'
-import { BlurredTeaserCard } from '@/components/ui/BlurredTeaserCard'
 import { BackButton } from '@/components/ui/BackButton'
 import { CompareBottomSheet } from '@/components/results/CompareBottomSheet'
-import { cn } from '@/lib/classnames'
+import { IngredientsSheet } from '@/components/results/IngredientsSheet'
+import { MatchSheet } from '@/components/results/MatchSheet'
+import ResultsGrid from '@/components/results/ResultsGrid'
 import logger from '@/lib/logger'
+
+type ActiveSheet = 'ingredients' | 'match' | 'price' | null
 
 interface BlurredItem {
   id: string
@@ -33,16 +34,24 @@ export function ResultsContent() {
   const locale = useLocale()
   const t = useTranslations('results')
   const { data: quizData } = useQuiz()
-  const { data: session } = useSession()
   const [scoredPerfumes, setScoredPerfumes] = useState<ScoredPerfume[]>([])
   const [blurredItems, setBlurredItems] = useState<BlurredItem[]>([])
   const [tier, setTier] = useState<'GUEST' | 'FREE' | 'PREMIUM'>('GUEST')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [compareIds, setCompareIds] = useState<string[]>([])
-  const [isCompareOpen, setIsCompareOpen] = useState(false)
-  const [compareMode, setCompareMode] = useState<'compare' | 'price-hub'>('compare')
-  const [priceHubPerfume, setPriceHubPerfume] = useState<ScoredPerfume | null>(null)
+  const [activeSheet, setActiveSheet] = useState<ActiveSheet>(null)
+  const [selectedPerfume, setSelectedPerfume] = useState<ScoredPerfume | null>(null)
+
+  const openSheet = useCallback((sheetType: ActiveSheet, perfume: ScoredPerfume) => {
+    setSelectedPerfume(perfume)
+    setActiveSheet(sheetType)
+  }, [])
+
+  const closeSheet = useCallback(() => {
+    setActiveSheet(null)
+    setTimeout(() => setSelectedPerfume(null), 300)
+  }, [])
 
   const fetchResults = useCallback(async () => {
     setIsLoading(true)
@@ -82,16 +91,10 @@ export function ResultsContent() {
 
   const direction = locale === 'ar' ? 'rtl' : 'ltr'
 
-  const comparePerfumes = scoredPerfumes.filter((p) => compareIds.includes(p.id))
-
-  // Calculate summary statistics for Hero
-  const lockedCount = blurredItems.length
-  const totalCount = scoredPerfumes.length + (lockedCount || 0)
-  const topScore = scoredPerfumes.length > 0 ? Math.round(scoredPerfumes[0].finalScore) : 0
-
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-cream-bg dark:!bg-surface pb-20" dir={direction}>
+      // P1 #57: Removed !bg-surface (important modifier) — using normal dark:bg-surface
+      <div className="min-h-screen bg-cream-bg dark:bg-surface pb-20" dir={direction}>
         {/* Hero skeleton */}
         <div className="container mx-auto px-6 pt-6">
           <div className="h-5 w-40 bg-primary/10 dark:bg-surface-elevated rounded-full animate-pulse mb-6" />
@@ -145,7 +148,7 @@ export function ResultsContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-cream-bg dark:!bg-surface gap-4" dir={direction}>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-cream-bg dark:bg-surface gap-4" dir={direction}>
         <div className="text-center max-w-md px-4">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
             <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -167,7 +170,7 @@ export function ResultsContent() {
     )
   }
   return (
-    <div className="min-h-screen bg-cream-bg dark:!bg-surface pb-20" dir={direction}>
+    <div className="min-h-screen bg-cream-bg dark:bg-surface pb-20" dir={direction}>
       <div className="container mx-auto px-6 pt-6">
         <BackButton
           href={`/${locale}/dashboard`}
@@ -191,32 +194,52 @@ export function ResultsContent() {
           </h1>
 
           {/* Summary Strip */}
-          <div className="max-w-lg mx-auto mb-6 px-6 py-4 bg-white/60 dark:bg-surface-elevated/60 backdrop-blur-sm rounded-2xl border border-primary/10 dark:border-border-subtle shadow-sm">
-            <div className="flex items-center justify-between gap-4 text-sm md:text-base">
-              {/* Left: Total count */}
-              <div className="flex items-center gap-2">
-                <span className="text-2xl md:text-3xl font-black text-text-primary dark:text-text-primary">
-                  {totalCount}
-                </span>
-                <span className="text-text-secondary dark:text-text-muted">
-                  {t('summary', { count: totalCount }).split(' ').slice(1).join(' ')}
-                </span>
+          {scoredPerfumes.length > 0 && (() => {
+            const excellent = scoredPerfumes.filter(p => p.finalScore >= 80).length
+            const good = scoredPerfumes.filter(p => p.finalScore >= 60 && p.finalScore < 80).length
+            const fair = scoredPerfumes.filter(p => p.finalScore >= 40 && p.finalScore < 60).length
+            
+            return (
+              <div className="flex items-center gap-3 flex-wrap justify-center mb-8 px-4">
+                {excellent > 0 && (
+                  <span className="text-sm font-bold text-safe-green dark:text-green-400">
+                    {excellent} {t('heroExcellent')}
+                  </span>
+                )}
+                {good > 0 && (
+                  <>
+                    <span className="text-text-muted dark:text-text-muted">·</span>
+                    <span className="text-sm font-bold text-primary dark:text-amber-500">
+                      {good} {t('heroGood')}
+                    </span>
+                  </>
+                )}
+                {fair > 0 && (
+                  <>
+                    <span className="text-text-muted dark:text-text-muted">·</span>
+                    <span className="text-sm font-medium text-amber-500 dark:text-amber-400">
+                      {fair} {t('heroFair')}
+                    </span>
+                  </>
+                )}
               </div>
+            )
+          })()}
 
-              {/* Divider */}
-              <div className="h-8 w-px bg-primary/20 dark:bg-border-subtle" />
-
-              {/* Right: Top match score */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-text-secondary dark:text-text-muted whitespace-nowrap">
-                  {t('summaryHighMatch', { score: '' }).replace('%', '')}
-                </span>
-                <span className="text-2xl md:text-3xl font-black text-primary dark:text-amber-500">
-                  {topScore > 0 ? `${topScore}%` : '—'}
-                </span>
+          {/* P1 #16: Source Indicator hidden from end users — dev only */}
+          {process.env.NODE_ENV === 'development' && scoredPerfumes.length > 0 && (() => {
+            const fragellaCount = scoredPerfumes.filter(p => p.source === 'fragella').length
+            const isFragellaMode = fragellaCount > 0 || scoredPerfumes.length > 19
+            
+            return (
+              <div className="text-xs text-text-muted dark:text-text-muted mt-2 mb-4">
+                {isFragellaMode 
+                  ? '🟢 Fragella + IFRA (5K+ عطور)' 
+                  : '🟡 Demo Mode (19 عطر)'
+                }
               </div>
-            </div>
-          </div>
+            )
+          })()}
 
           {/* Description */}
           <p className="text-text-secondary dark:text-text-muted max-w-2xl mx-auto text-lg">
@@ -244,12 +267,7 @@ export function ResultsContent() {
               <Button
                 size="sm"
                 disabled={compareIds.length < 2}
-                onClick={() => {
-                  if (compareIds.length >= 2) {
-                    setCompareMode('compare')
-                    setIsCompareOpen(true)
-                  }
-                }}
+                onClick={() => {}}
               >
                 {t('compare.action')}
               </Button>
@@ -259,119 +277,67 @@ export function ResultsContent() {
       </AnimatePresence>
 
       {/* Results Grid */}
-      <main className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {scoredPerfumes.map((perfume, index) => {
-            const items = [];
-            
-            // Perfume Card
-            items.push(
-              <motion.div
-                key={perfume.id}
-                className={cn(index === 0 && 'lg:col-span-2')}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{
-                  delay: Math.min(index * 0.08, 0.5),
-                  duration: 0.4
-                }}
-              >
-                <PerfumeCard
-                  {...perfume}
-                  ifraScore={perfume.ifraScore}
-                  symptomTriggers={perfume.symptomTriggers}
-                  ifraWarnings={perfume.ifraWarnings}
-                  source={perfume.source}
-                  showCompare={true}
-                  isComparing={compareIds.includes(perfume.id)}
-                  onCompare={() => toggleCompare(perfume.id)}
-                  priority={index < 2}
-                  isTopMatch={index === 0}
-                  onPriceCompare={(p) => {
-                    setPriceHubPerfume(p)
-                    setCompareMode('price-hub')
-                    setIsCompareOpen(true)
-                  }}
-                  perfumeData={perfume}
-                />
-              </motion.div>
-            );
+      <ResultsGrid
+        perfumes={scoredPerfumes.map((perfume) => ({
+          ...perfume,
+          displayName: (perfume as ScoredPerfume & { displayName?: string }).displayName ?? perfume.name,
+          onShowIngredients: () => openSheet('ingredients', perfume),
+          onShowMatch: () => openSheet('match', perfume),
+          onPriceCompare: ((perfumeData: ScoredPerfume) => openSheet('price', perfumeData)) as () => void,
+        }))}
+        tier={tier}
+        compareIds={compareIds}
+        toggleCompare={toggleCompare}
+        blurredItems={blurredItems}
+        t={t}
+      />
 
-            // Mid-grid UpsellCard (After 4th result for Free users)
-            if (index === 3 && tier === 'FREE') {
-              items.push(
-                <motion.div
-                  key="upsell-mid"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <UpsellCard 
-                    position="mid-grid"
-                    remainingCount={blurredItems.length + (scoredPerfumes.length - index - 1)}
-                    averageMatch={Math.round(blurredItems.reduce((acc, item) => acc + item.matchScore, 0) / (blurredItems.length || 1))}
-                  />
-                </motion.div>
-              );
-            }
-
-            return items;
-          })}
-
-          {/* Blurred Teaser Cards */}
-          {tier !== 'PREMIUM' && blurredItems.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{
-                delay: Math.min(scoredPerfumes.length * 0.08, 0.6),
-                duration: 0.4
-              }}
-              className="col-span-1"
-            >
-              <BlurredTeaserCard 
-                items={blurredItems.map(item => ({
-                  name: t('blurred.hiddenPerfume'),
-                  brand: item.familyHint,
-                  matchScore: item.matchScore
-                }))}
-                tier={tier}
-                matchRange={`${Math.min(...blurredItems.map(i => i.matchScore))}-${Math.max(...blurredItems.map(i => i.matchScore))}%`}
-              />
-            </motion.div>
+      {selectedPerfume && (
+        <>
+          {activeSheet === 'ingredients' && (
+            <IngredientsSheet
+              perfume={selectedPerfume}
+              onClose={closeSheet}
+              locale={locale}
+            />
           )}
+          {activeSheet === 'match' && (
+            <MatchSheet
+              perfume={selectedPerfume}
+              onClose={closeSheet}
+              locale={locale}
+            />
+          )}
+          <CompareBottomSheet
+            isOpen={activeSheet === 'price'}
+            onClose={closeSheet}
+            mode="price-hub"
+            perfume={selectedPerfume}
+            tier={tier}
+            locale={locale}
+          />
+        </>
+      )}
+
+      {/* Upsell zone with divider */}
+      {tier !== 'PREMIUM' && (
+        <div className="border-t border-primary/10 dark:border-border-subtle mt-12 pt-8 container mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+          >
+            <UpsellCard
+              position="bottom"
+              remainingCount={blurredItems.length}
+              averageMatch={Math.round(
+                blurredItems.reduce((acc, item) => acc + item.matchScore, 0) /
+                  (blurredItems.length || 1)
+              )}
+            />
+          </motion.div>
         </div>
-
-        <CompareBottomSheet
-          isOpen={isCompareOpen}
-          onClose={() => {
-            setIsCompareOpen(false)
-            setPriceHubPerfume(null)
-          }}
-          mode={compareMode}
-          perfumes={compareMode === 'compare' ? comparePerfumes : undefined}
-          perfume={compareMode === 'price-hub' ? priceHubPerfume ?? undefined : undefined}
-          tier={tier}
-          locale={locale}
-        />
-
-        {/* Upsell zone with divider */}
-        {tier !== 'PREMIUM' && (
-          <div className="border-t border-primary/10 dark:border-border-subtle mt-12 pt-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-            >
-              <UpsellCard 
-                position="bottom"
-                remainingCount={blurredItems.length}
-                averageMatch={Math.round(blurredItems.reduce((acc, item) => acc + item.matchScore, 0) / (blurredItems.length || 1))}
-              />
-            </motion.div>
-          </div>
-        )}
-      </main>
+      )}
     </div>
   )
 }

@@ -1,15 +1,16 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
-import { Link } from '@/i18n/routing'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ShieldCheck, AlertCircle, X, Crown, ChevronRight } from 'lucide-react'
+import { ShieldCheck, AlertCircle, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { PriceAlertButton } from '@/components/ui/PriceAlertButton'
+import { SafetyBlocker } from '@/components/SafetyBlocker'
 import { cn } from '@/lib/classnames'
 import type { ScoredPerfume } from '@/lib/matching'
+import { canShowPurchaseLinks } from '@/utils/safetyProtocol'
+import { fetchPrices, type PriceApiResponse, type StorePriceData } from '@/types/api'
 
 export type CompareMode = 'compare' | 'price-hub'
 
@@ -23,113 +24,89 @@ export interface CompareBottomSheetProps {
   locale: string
 }
 
-// --- Mode B: Price Hub ---
-interface StorePrice {
-  id: string
-  name: string
-  logo: string
-  price: number
-  available: boolean
-  url: string
+// --- Mode B: Price Hub (Gold1 Store Cards) ---
+interface StoreCardProps {
+  store: StorePriceData
+  t: (key: string, values?: Record<string, string>) => string
 }
 
-const MOCKSTORES: StorePrice[] = [
-  { id: 'fragrancex', name: 'FragranceX', logo: '/stores/fragrancex.svg', price: 299, available: true, url: 'https://www.fragrancex.com' },
-  { id: 'niceone', name: 'Nice One', logo: '/stores/niceone.svg', price: 315, available: true, url: 'https://www.niceonesa.com' },
-  { id: 'goldenscent', name: 'Golden Scent', logo: '/stores/goldenscent.svg', price: 330, available: true, url: 'https://www.goldenscent.com' },
-  { id: 'noon', name: 'Noon', logo: '/stores/noon.svg', price: 345, available: true, url: 'https://www.noon.com' },
-  { id: 'amazon-sa', name: 'Amazon SA', logo: '/stores/amazon.svg', price: 355, available: true, url: 'https://www.amazon.sa' },
-  { id: 'sephora', name: 'Sephora', logo: '/stores/sephora.svg', price: 390, available: true, url: 'https://www.sephora.sa' },
-  { id: 'faces', name: 'Faces', logo: '/stores/faces.svg', price: 399, available: true, url: 'https://www.faces.com' },
-  { id: 'namshi', name: 'Namshi', logo: '/stores/namshi.svg', price: 410, available: true, url: 'https://www.namshi.com' },
-  { id: 'selfridges', name: 'Selfridges', logo: '/stores/selfridges.svg', price: 420, available: true, url: 'https://www.selfridges.com' },
-  { id: 'ounass', name: 'Ounass', logo: '/stores/ounass.svg', price: 450, available: false, url: 'https://www.ounass.sa' },
-  { id: 'beautyglam', name: 'Beauty Glam', logo: '/stores/beautyglam.svg', price: 460, available: true, url: 'https://www.beautyglam.sa' },
-  { id: 'perfumesa', name: 'Perfume SA', logo: '/stores/perfumesa.svg', price: 485, available: true, url: 'https://www.perfumesa.com' }
-]
-
-const FREE_VISIBLE_STORES = 2
-
-function StoreLogo ({ name, logo }: { name: string; logo: string }) {
-  const [imgError, setImgError] = useState(false)
-  if (imgError || !logo) {
-    return (
-      <div className="w-12 h-12 rounded-full bg-primary/10 dark:bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-        <span className="text-lg font-bold text-primary dark:text-amber-500">
-          {name.charAt(0).toUpperCase()}
-        </span>
-      </div>
-    )
-  }
+function StoreCard ({ store, t }: StoreCardProps) {
   return (
-    <div className="w-12 h-12 rounded-full bg-gray-50 dark:bg-surface-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
-      <Image
-        src={logo}
-        alt={name}
-        width={32}
-        height={32}
-        className="w-8 h-8 object-contain"
-        loading="lazy"
-        onError={() => setImgError(true)}
-      />
+    <div className="bg-white dark:bg-surface border border-gray-200 dark:border-border-subtle rounded-xl p-4 hover:shadow-md transition">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">{store.name}</h3>
+        {store.verified && (
+          <span className="text-xs bg-green-50 dark:bg-green-500/20 text-green-700 dark:text-green-400 px-2 py-1 rounded-full border border-green-200 dark:border-green-500/30">
+            {t('verifiedPrice')}
+          </span>
+        )}
+      </div>
+      {store.price != null && store.price > 0 ? (
+        <div className="flex items-end justify-between">
+          <div>
+            <p className="text-3xl font-bold text-orange-600 dark:text-amber-500">
+              {store.price}
+              <span className="text-lg ml-1">{store.currency}</span>
+            </p>
+            {store.verified && store.lastUpdated && (
+              <p className="text-xs text-muted-foreground dark:text-text-muted mt-1">
+                {new Date(store.lastUpdated).toLocaleDateString('ar-SA')}
+              </p>
+            )}
+          </div>
+          {/* P0 #1.8: "Shop Now" was hardcoded English — now uses i18n */}
+          <a
+            href={store.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-orange-500 hover:bg-orange-600 dark:bg-amber-500 dark:hover:bg-amber-600 text-white px-6 py-2 rounded-lg transition"
+          >
+            {t('shopNow')}
+          </a>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground dark:text-text-muted">{t('checkAvailability')}</p>
+          <a
+            href={store.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-orange-600 dark:text-amber-500 font-semibold flex items-center gap-1 hover:underline"
+          >
+            {t('exploreIn', { store: store.name })} →
+          </a>
+        </div>
+      )}
     </div>
   )
 }
 
-function StoreRow ({
-  store,
-  bestPrice,
-  t
-}: {
-  store: StorePrice
-  bestPrice: number
-  t: (key: string, values?: Record<string, string>) => string
-}) {
+const PremiumGate = ({ hiddenStoresCount }: { hiddenStoresCount: number }) => {
+  const t = useTranslations('results.compare')
   return (
-    <div
-      className={cn(
-        'flex items-center gap-3 p-4 rounded-2xl border transition',
-        store.price === bestPrice
-          ? 'border-primary/30 dark:border-amber-500/30 bg-primary/5 dark:bg-amber-500/5'
-          : 'border-gray-100 dark:border-border-subtle bg-white dark:bg-surface',
-        !store.available && 'opacity-60'
-      )}
-    >
-      <StoreLogo name={store.name} logo={store.logo} />
-      <div className="flex-1 min-w-0 text-start">
-        <p className="text-sm font-bold text-text-primary dark:text-text-primary">{store.name}</p>
-        <p className={cn('text-xs', store.available ? 'text-safe-green' : 'text-red-400')}>
-          {store.available ? t('available') : t('outOfStock')}
-        </p>
+    <div className="relative mt-6">
+      {/* Blurred hidden stores */}
+      <div className="blur-sm pointer-events-none opacity-50 space-y-3">
+        {Array(hiddenStoresCount).fill(0).map((_, idx) => (
+          <div key={idx} className="bg-gray-100 dark:bg-surface-muted rounded-xl p-4 h-24 animate-pulse">
+            <div className="h-4 bg-gray-300 dark:bg-border-subtle rounded w-3/4 mb-2" />
+          </div>
+        ))}
       </div>
-      <div className="flex items-center gap-2">
-        {store.price === bestPrice && (
-          <span className="text-[10px] font-bold text-safe-green bg-safe-green/10 dark:bg-green-500/20 px-1.5 py-0.5 rounded-full">
-            {t('bestPrice')}
-          </span>
-        )}
-        <span className="text-lg font-black text-text-primary dark:text-text-primary whitespace-nowrap">
-          {t('currency')} {store.price}
-        </span>
+      {/* CTA overlay — P1 #29: removed backdrop-blur to avoid double GPU load */}
+      <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div className="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 dark:from-amber-950/80 dark:via-amber-900/90 dark:to-amber-950/80 border-2 border-amber-400 dark:border-amber-500 rounded-2xl p-8 shadow-2xl max-w-md text-center transform hover:scale-105 transition-transform">
+          <div className="text-5xl mb-4">👑</div>
+          <h3 className="text-2xl font-bold text-amber-900 dark:text-amber-100 mb-2">{t('premiumGateTitle')}</h3>
+          <p className="text-amber-800 dark:text-amber-200 mb-6 leading-relaxed">{t('premiumGateDesc')}</p>
+          <button
+            type="button"
+            className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-8 py-3 rounded-full font-bold hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+          >
+            {t('premiumGateButton')}
+          </button>
+        </div>
       </div>
-      <a
-        href={store.available ? store.url : undefined}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={cn(
-          'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition',
-          store.available
-            ? 'bg-text-primary dark:bg-white hover:opacity-80 text-white dark:text-surface'
-            : 'bg-gray-200 dark:bg-surface-muted cursor-not-allowed text-gray-400'
-        )}
-        aria-label={t('goToStore', { store: store.name })}
-      >
-        {store.available ? (
-          <ChevronRight className="w-4 h-4" />
-        ) : (
-          <ChevronRight className="w-4 h-4 opacity-50" />
-        )}
-      </a>
     </div>
   )
 }
@@ -147,18 +124,42 @@ function PriceHubContent ({
   t: (key: string, values?: Record<string, string>) => string
   locale: string
 }) {
-  const sortedStores = useMemo(
-    () =>
-      [...MOCKSTORES].sort((a, b) => {
-        if (a.available && !b.available) return -1
-        if (!a.available && b.available) return 1
-        return a.price - b.price
-      }),
-    []
-  )
-  const availablePrices = sortedStores.filter((s) => s.available).map((s) => s.price)
-  const bestPrice = availablePrices.length > 0 ? Math.min(...availablePrices) : 0
-  const isPremium = tier === 'PREMIUM'
+  void locale
+  const [priceData, setPriceData] = useState<PriceApiResponse | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!perfume?.id) return
+    let cancelled = false
+    async function run() {
+      setError(null)
+      setIsLoading(true)
+      try {
+        const res = await fetchPrices(perfume.id)
+        if (cancelled) return
+        if (res.success && res.data) {
+          setPriceData(res)
+        } else {
+          // P2 #5: Distinguish "no stores" from "service unavailable"
+          if (res.error?.code === 'FETCH_ERROR') {
+            setError(t('priceUnavailable'))
+          } else {
+            setError(t('tempError'))
+          }
+        }
+      } catch {
+        if (!cancelled) setError(t('priceUnavailable'))
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
+    }
+    run()
+    return () => { cancelled = true }
+  }, [perfume?.id, t])
+
+  const stores = priceData?.data?.stores ?? []
+  const hasStores = stores.length > 0
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -192,77 +193,65 @@ function PriceHubContent ({
         </div>
       )}
 
-      {/* Title section */}
-      <div className="px-6 py-3 bg-primary/5 dark:bg-amber-500/5 flex-shrink-0">
-        <h3 className="text-sm font-bold text-text-primary dark:text-text-primary">
-          {t('priceHubTitle')}
-        </h3>
-      </div>
+      {/* Gold1: Loading / Error / No stores / Store cards */}
+      <div className="flex-1 overflow-y-auto px-6 py-4">
+        {isLoading && (
+          <div className="flex flex-col items-center justify-center h-64">
+            <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+            <p className="mt-4 text-muted-foreground dark:text-text-muted">{t('loading')}</p>
+          </div>
+        )}
 
-      {/* Store rows */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
-        {sortedStores.slice(0, isPremium ? sortedStores.length : FREE_VISIBLE_STORES).map((store) => (
-          <StoreRow key={store.id} store={store} bestPrice={bestPrice} t={t} />
-        ))}
+        {!isLoading && error && (
+          <div className="flex flex-col items-center justify-center h-64 space-y-4">
+            <span className="text-5xl">⚠️</span>
+            <p className="text-lg font-semibold text-center text-text-primary dark:text-text-primary">{error}</p>
+            <button
+              type="button"
+              onClick={() => {
+                setError(null)
+                setIsLoading(true)
+                fetchPrices(perfume.id)
+                  .then((res) => {
+                    if (res.success && res.data) {
+                      setPriceData(res)
+                      setError(null)
+                    } else if (res.error?.code === 'FETCH_ERROR') {
+                      setError(t('priceUnavailable'))
+                    } else {
+                      setError(t('tempError'))
+                    }
+                  })
+                  .catch(() => setError(t('priceUnavailable')))
+                  .finally(() => setIsLoading(false))
+              }}
+              className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 dark:bg-amber-500 dark:hover:bg-amber-600 transition"
+            >
+              {t('retryButton')}
+            </button>
+          </div>
+        )}
 
-        {/* FREE: Blurred stores + GatingOverlay (Crown + upgrade CTA) */}
-        {!isPremium && sortedStores.length > FREE_VISIBLE_STORES && (
-          <div className="relative group">
-            {/* Blurred content */}
-            <div className="filter blur-[8px] opacity-50 pointer-events-none select-none space-y-3">
-              {MOCKSTORES.slice(FREE_VISIBLE_STORES).map((store, i) => (
-                <div
-                  key={`${store.id}-${i}`}
-                  className="flex items-center gap-3 p-4 rounded-2xl border border-gray-100 dark:border-border-subtle"
-                >
-                  <div className="w-12 h-12 rounded-full bg-gray-50 dark:bg-surface-muted" />
-                  <div className="flex-1">
-                    <div className="h-4 w-24 bg-gray-100 rounded" />
-                    <div className="h-3 w-16 bg-gray-50 rounded mt-1" />
-                  </div>
-                  <div className="h-5 w-20 bg-gray-100 rounded" />
-                  <div className="w-10 h-10 rounded-xl bg-gray-200" />
-                </div>
-              ))}
-            </div>
+        {!isLoading && !error && !hasStores && (
+          <div className="space-y-3">
+            <p className="text-text-primary dark:text-text-primary">{t('noStores')}</p>
+          </div>
+        )}
 
-            {/* Gating overlay */}
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-white/90 to-black/10 dark:from-black/60 dark:to-black/80 backdrop-blur-md">
-              <div className="bg-white dark:bg-surface rounded-2xl shadow-elevation-2 dark:shadow-black/30 p-6 text-center max-w-xs border border-primary/10 dark:border-border-subtle">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary/10 dark:bg-amber-500/10 flex items-center justify-center">
-                  <Crown className="w-6 h-6 text-primary dark:text-amber-500" />
-                </div>
-                <p className="text-sm font-bold text-text-primary dark:text-text-primary mb-1">
-                  {t('moreStoresLocked', {
-                    remaining: String(MOCKSTORES.length - FREE_VISIBLE_STORES)
-                  })}
-                </p>
-                <p className="text-xs text-text-muted dark:text-text-muted mb-4">
-                  {t('alertHint')}
-                </p>
-                <Link
-                  href="/pricing"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-l from-amber-500 to-amber-600 text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-amber-500/30 transition-all hover:scale-[1.05] active:scale-[0.95]"
-                >
-                  <Crown className="w-4 h-4" />
-                  {t('subscribeToPrices')}
-                </Link>
-              </div>
-            </div>
+        {!isLoading && !error && hasStores && (
+          <div className="space-y-3">
+            {stores.slice(0, 2).map((store) => (
+              <StoreCard key={store.id} store={store} t={t} />
+            ))}
+            {stores.length > 2 && (
+              <PremiumGate hiddenStoresCount={stores.length - 2} />
+            )}
           </div>
         )}
       </div>
 
-      {/* Footer: PriceAlertButton (PREMIUM only) or Close */}
-      <div className="px-6 py-4 border-t border-primary/10 dark:border-border-subtle flex-shrink-0 space-y-3">
-        {isPremium && bestPrice > 0 && tier && (
-          <PriceAlertButton
-            perfumeId={perfume.id}
-            perfumeName={perfume.name}
-            currentPrice={bestPrice}
-            tier={tier}
-          />
-        )}
+      {/* Footer: Close */}
+      <div className="px-6 py-4 border-t border-primary/10 dark:border-border-subtle flex-shrink-0">
         <Button variant="outline" className="w-full" onClick={onClose}>
           {t('close')}
         </Button>
@@ -278,8 +267,8 @@ function ProductCompareContent({
   perfumes: ScoredPerfume[]
   locale: string
 }) {
+  void locale // passed by parent for RTL/layout if needed
   const t = useTranslations('results.compare')
-  const isRtl = locale === 'ar'
 
   if (!perfumes?.length) return null
 
@@ -428,7 +417,7 @@ export function CompareBottomSheet({
           className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center"
           dir={isRtl ? 'rtl' : 'ltr'}
         >
-          {/* Backdrop */}
+          {/* Backdrop — P1 #29: single backdrop-blur only (removed from PremiumGate) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -472,21 +461,35 @@ export function CompareBottomSheet({
                 </div>
               </>
             )}
-            {/* Mode B: PriceHubContent (own sticky header + body + footer) */}
-            {showPriceHubContent && perfume && (
-              <>
-                <div className="w-10 h-1 bg-border-subtle rounded-full mx-auto mt-3 sm:hidden flex-shrink-0" />
-                <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-                  <PriceHubContent
-                    perfume={perfume}
-                    tier={tier}
-                    onClose={onClose}
-                    t={t}
-                    locale={locale}
-                  />
-                </div>
-              </>
-            )}
+            {/* Mode B: Gold1 header + Safety Check + PriceHubContent */}
+            {showPriceHubContent && perfume && (() => {
+              const safetyCheck = canShowPurchaseLinks(perfume)
+              return (
+                <>
+                  <div className="w-10 h-1 bg-border-subtle rounded-full mx-auto mt-3 mb-4 sm:hidden flex-shrink-0" />
+                  <div className="px-6 pb-4 flex-shrink-0">
+                    <h3 className="text-lg font-bold text-text-primary dark:text-text-primary">
+                      {t('sheetTitle')}
+                    </h3>
+                  </div>
+                  <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                    {!safetyCheck.canPurchase ? (
+                      <SafetyBlocker perfume={perfume} safetyCheck={safetyCheck} />
+                    ) : (
+                      <div className="mt-6 overflow-y-auto flex-1 min-h-0 flex flex-col">
+                        <PriceHubContent
+                          perfume={perfume}
+                          tier={tier}
+                          onClose={onClose}
+                          t={t}
+                          locale={locale}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </>
+              )
+            })()}
           </motion.div>
         </div>
       )}

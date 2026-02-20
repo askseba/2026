@@ -37,3 +37,12 @@ pids
 .DS_Store
 Thumbs.db
 .vercel
+
+# Secrets
+nextauth_secret.txt
+
+# Build artifacts
+tsconfig.tsbuildinfo
+
+# Claude Code local settings
+.claude/

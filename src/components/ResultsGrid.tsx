@@ -6,8 +6,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
+import { useLocale } from 'next-intl'
 import { Search, Filter, ChevronLeft, ChevronRight, Sparkles, DollarSign, Heart } from 'lucide-react'
 import { PerfumeCard } from '@/components/ui/PerfumeCard'
+import { CompareBottomSheet } from '@/components/results/CompareBottomSheet'
+import { IngredientsSheet } from '@/components/results/IngredientsSheet'
+import { MatchSheet } from '@/components/results/MatchSheet'
 import { CTAButton } from '@/components/ui/CTAButton'
 import { ShareButton } from '@/components/ui/ShareButton'
 import { BlurredTeaserCard } from '@/components/ui/BlurredTeaserCard'
@@ -97,6 +101,12 @@ export default function ResultsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const itemsPerPage = 12
+  const locale = useLocale()
+  const [ingredientsPerfume, setIngredientsPerfume] = useState<ScoredPerfume | null>(null)
+  const [matchPerfume, setMatchPerfume] = useState<ScoredPerfume | null>(null)
+  const [priceHubPerfume, setPriceHubPerfume] = useState<ScoredPerfume | null>(null)
+  const [isCompareOpen, setIsCompareOpen] = useState(false)
+  const [compareMode, setCompareMode] = useState<'compare' | 'price-hub'>('compare')
 
   // Load favorites
   useEffect(() => {
@@ -318,12 +328,8 @@ export default function ResultsPage() {
                       className="relative group"
                     >
                       <PerfumeCard 
-                        id={perfume.id}
-                        title={perfume.name}
-                        brand={perfume.brand}
-                        matchPercentage={perfume.finalScore}
-                        imageUrl={perfume.image}
-                        isSafe={(perfume.safetyScore ?? perfume.finalScore ?? 0) >= 70}
+                        {...perfume} 
+                        displayName={perfume.name}
                       />
                       
                       {/* ✅ NEW: Price Comparison for Premium */}
@@ -406,6 +412,33 @@ export default function ResultsPage() {
             )}
           </div>
         </div>
+
+        <CompareBottomSheet
+          isOpen={isCompareOpen}
+          onClose={() => {
+            setIsCompareOpen(false)
+            setPriceHubPerfume(null)
+          }}
+          mode={compareMode}
+          perfumes={undefined}
+          perfume={priceHubPerfume ?? undefined}
+          tier={tier}
+          locale={locale}
+        />
+        {ingredientsPerfume && (
+          <IngredientsSheet
+            perfume={ingredientsPerfume}
+            onClose={() => setIngredientsPerfume(null)}
+            locale={locale}
+          />
+        )}
+        {matchPerfume && (
+          <MatchSheet
+            perfume={matchPerfume}
+            onClose={() => setMatchPerfume(null)}
+            locale={locale}
+          />
+        )}
       </div>
     </div>
   )

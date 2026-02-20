@@ -127,10 +127,22 @@
       ]
     },
     "stats": [
-      { "number": "80,000+", "label": "Global fragrance" },
-      { "number": "98%", "label": "User satisfaction" },
-      { "number": "3 minutes", "label": "Test duration" },
-      { "number": "10,000+", "label": "User" }
+      {
+        "number": "80,000+",
+        "label": "Global fragrance"
+      },
+      {
+        "number": "98%",
+        "label": "User satisfaction"
+      },
+      {
+        "number": "3 minutes",
+        "label": "Test duration"
+      },
+      {
+        "number": "10,000+",
+        "label": "User"
+      }
     ],
     "benefits": {
       "title": "We help you",
@@ -569,7 +581,10 @@
     },
     "compliance": {
       "title": "Fully compliant with",
-      "standards": ["GDPR (European)", "Saudi PDPL (Saudi)"],
+      "standards": [
+        "GDPR (European)",
+        "Saudi PDPL (Saudi)"
+      ],
       "note": "This policy protects you and us legally. Your privacy is never for sale."
     }
   },
@@ -613,6 +628,47 @@
       "title": "Your Ideal Fragrances",
       "description": "Based on your preferences, we've selected these fragrances that match your personality and avoid your allergens."
     },
+    "ingredients": {
+      "sheetTitle": "Scent Gradient",
+      "pyramid": {
+        "title": "Fragrance Composition",
+        "top": "First Impression",
+        "topHint": "The first scent that greets you",
+        "heart": "The Heart",
+        "heartHint": "The true character",
+        "base": "Lasting Trail",
+        "baseHint": "The memory that lingers"
+      },
+      "safetyTitle": "Global Safety Index",
+      "safeLabel": "✓ Safe for Your Daily Use",
+      "warningLabel": "⚠️ Caution (Review Details)",
+      "ifraScore": "IFRA Index",
+      "warningsTitle": "IFRA Notes",
+      "triggersTitle": "Potential Symptoms for You",
+      "ingredientsTitle": "Ingredients",
+      "familiesTitle": "Scent Families",
+      "triggersHint": "Based on your personal sensitivities",
+      "close": "Close",
+      "emptyState": "Ingredient data is not available for this perfume"
+    },
+    "match": {
+      "sheetTitle": "Your Scent Fingerprint",
+      "tasteLabel": "👃 Personal Taste Match",
+      "tasteHint": "Based on your favorite families",
+      "tastePercentage": "(70%)",
+      "safetyLabel": "🛡️ Health Compatibility",
+      "safetyHint": "Based on your sensitivities",
+      "safetyPercentage": "(30%)",
+      "overallLabel": "Total Match Score",
+      "statusDesc": {
+        "excellent": "💎 Perfect! Combines your taste with safety.",
+        "good": "⭐ Excellent choice for your preferences.",
+        "fair": "✓ Good option - contains your elements.",
+        "poor": "⚡ New exploration outside your pattern.",
+        "unsafe": "🚨 Unsafe - conflicts with your health"
+      },
+      "close": "Close"
+    },
     "compare": {
       "title": "Compare Perfumes",
       "subtitle": "Compare ingredients, price, and performance",
@@ -620,7 +676,7 @@
       "action": "Compare Now",
       "count": "({count}/3)",
       "comingSoon": "Coming soon",
-      "sheetTitle": "Compare Selected Perfumes",
+      "sheetTitle": "Value Availability Hub",
       "matchLabel": "Match Score",
       "safeLabel": "Health Safe",
       "warningLabel": "Sensitivity Warning",
@@ -643,7 +699,32 @@
       "priceAlertSetting": "Setting...",
       "priceAlertSuccess": "Price alert set for {perfumeName}",
       "priceAlertError": "Failed to set price alert",
-      "priceAlertSubscribe": "Subscribe for price alerts (1 free)"
+      "priceAlertSubscribe": "Subscribe for price alerts (1 free)",
+      "searchNow": "Search now",
+      "searchInStore": "Search in {store}",
+      "lastUpdated": "Updated: {date}",
+      "pricesMixed": "Some prices are up to date — search other stores to compare",
+      "pricesSearch": "Search for the perfume directly in trusted stores",
+      "fetchError": "Failed to load prices",
+      "retry": "Try again",
+      "realPrice": "Real price",
+      "searchPrice": "Search for price",
+      "noStoresTitle": "No stores available right now",
+      "noStoresDesc": "We couldn't load stores. Please try again later.",
+      "priceHubSearchTitle": "Search for the best price",
+      "priceCount": "Prices updated for {count} of {total} stores",
+      "verifiedPrice": "✅ Verified & Updated Price",
+      "checkAvailability": "Check Availability Now",
+      "exploreIn": "Explore at",
+      "tempError": "⚠️ Temporary loading issue",
+      "retryButton": "Try Again",
+      "premiumGateTitle": "Join the Elite",
+      "premiumGateDesc": "Compare prices at 12 trusted stores and save up to 40%",
+      "premiumGateButton": "Upgrade Now",
+      "safetyBlockerTitle": "Important Health Warning",
+      "safetyBlockerNote": "We know this perfume matches your taste, but your health is more important.",
+      "safetyBlockerActions": "What can you do?",
+      "shopNow": "Shop Now"
     },
     "errorMessage": "Failed to load results. Please try again.",
     "retry": "Retry",
@@ -668,7 +749,11 @@
       "matchScore": "Match score",
       "safeBadge": "Safe to use",
       "topMatch": "Top Match ✨",
-      "comparePricesAction": "Compare Prices"
+      "comparePricesAction": "Compare Prices",
+      "ingredientsBtn": "Ingredients",
+      "matchBtn": "Match",
+      "pricesBtn": "Prices",
+      "gaugeLabel": "Match score: {score} out of 100"
     },
     "upsell": {
       "badge": "Premium Upgrade",
@@ -700,6 +785,27 @@
       "hiddenPerfume": "Hidden perfume",
       "locked": "🔒 Blurred",
       "subscribeCta": "Subscribe to see result"
+    },
+    "safetyBlocker": {
+      "title": "Important Health Warning",
+      "highTasteNote": "This perfume scored {score}% on your taste match.",
+      "healthOverMatch": "But your health matters more than a match.",
+      "purchaseBlocked": "Purchase blocked for your safety.",
+      "whatToDo": "What can you do?",
+      "consultDoctor": "Consult your doctor before using",
+      "findAlternatives": "Try safe alternatives with similar taste",
+      "requestSample": "Request a small sample first",
+      "possibleSymptoms": "Possible symptoms based on your sensitivities:"
+    },
+    "safety": {
+      "message": {
+        "safe": "Safe for use based on your health profile",
+        "caution": "Use with caution — contains ingredients that may cause mild sensitivity",
+        "symptomTrigger": "Contains ingredients that may trigger symptoms based on your sensitivities",
+        "ifraUnsafe": "One or more ingredients exceed safe concentration limits per IFRA standards",
+        "critical": "High risk — contains multiple ingredients that conflict with your health profile",
+        "enrichmentFailed": "Could not verify this perfume's safety — we do not recommend purchasing until confirmed"
+      }
     }
   },
   "dashboard": {
