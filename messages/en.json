@@ -127,10 +127,22 @@
       ]
     },
     "stats": [
-      { "number": "80,000+", "label": "Global fragrance" },
-      { "number": "98%", "label": "User satisfaction" },
-      { "number": "3 minutes", "label": "Test duration" },
-      { "number": "10,000+", "label": "User" }
+      {
+        "number": "80,000+",
+        "label": "Global fragrance"
+      },
+      {
+        "number": "98%",
+        "label": "User satisfaction"
+      },
+      {
+        "number": "3 minutes",
+        "label": "Test duration"
+      },
+      {
+        "number": "10,000+",
+        "label": "User"
+      }
     ],
     "benefits": {
       "title": "We help you",
@@ -569,7 +581,10 @@
     },
     "compliance": {
       "title": "Fully compliant with",
-      "standards": ["GDPR (European)", "Saudi PDPL (Saudi)"],
+      "standards": [
+        "GDPR (European)",
+        "Saudi PDPL (Saudi)"
+      ],
       "note": "This policy protects you and us legally. Your privacy is never for sale."
     }
   },
@@ -630,7 +645,11 @@
       "ifraScore": "IFRA Index",
       "warningsTitle": "IFRA Notes",
       "triggersTitle": "Potential Symptoms for You",
-      "triggersHint": "Based on your personal sensitivities"
+      "ingredientsTitle": "Ingredients",
+      "familiesTitle": "Scent Families",
+      "triggersHint": "Based on your personal sensitivities",
+      "close": "Close",
+      "emptyState": "Ingredient data is not available for this perfume"
     },
     "match": {
       "sheetTitle": "Your Scent Fingerprint",
@@ -647,7 +666,8 @@
         "fair": "✓ Good option - contains your elements.",
         "poor": "⚡ New exploration outside your pattern.",
         "unsafe": "🚨 Unsafe - conflicts with your health"
-      }
+      },
+      "close": "Close"
     },
     "compare": {
       "title": "Compare Perfumes",
@@ -703,7 +723,8 @@
       "premiumGateButton": "Upgrade Now",
       "safetyBlockerTitle": "Important Health Warning",
       "safetyBlockerNote": "We know this perfume matches your taste, but your health is more important.",
-      "safetyBlockerActions": "What can you do?"
+      "safetyBlockerActions": "What can you do?",
+      "shopNow": "Shop Now"
     },
     "errorMessage": "Failed to load results. Please try again.",
     "retry": "Retry",
@@ -728,7 +749,11 @@
       "matchScore": "Match score",
       "safeBadge": "Safe to use",
       "topMatch": "Top Match ✨",
-      "comparePricesAction": "Compare Prices"
+      "comparePricesAction": "Compare Prices",
+      "ingredientsBtn": "Ingredients",
+      "matchBtn": "Match",
+      "pricesBtn": "Prices",
+      "gaugeLabel": "Match score: {score} out of 100"
     },
     "upsell": {
       "badge": "Premium Upgrade",
@@ -760,6 +785,27 @@
       "hiddenPerfume": "Hidden perfume",
       "locked": "🔒 Blurred",
       "subscribeCta": "Subscribe to see result"
+    },
+    "safetyBlocker": {
+      "title": "Important Health Warning",
+      "highTasteNote": "This perfume scored {score}% on your taste match.",
+      "healthOverMatch": "But your health matters more than a match.",
+      "purchaseBlocked": "Purchase blocked for your safety.",
+      "whatToDo": "What can you do?",
+      "consultDoctor": "Consult your doctor before using",
+      "findAlternatives": "Try safe alternatives with similar taste",
+      "requestSample": "Request a small sample first",
+      "possibleSymptoms": "Possible symptoms based on your sensitivities:"
+    },
+    "safety": {
+      "message": {
+        "safe": "Safe for use based on your health profile",
+        "caution": "Use with caution — contains ingredients that may cause mild sensitivity",
+        "symptomTrigger": "Contains ingredients that may trigger symptoms based on your sensitivities",
+        "ifraUnsafe": "One or more ingredients exceed safe concentration limits per IFRA standards",
+        "critical": "High risk — contains multiple ingredients that conflict with your health profile",
+        "enrichmentFailed": "Could not verify this perfume's safety — we do not recommend purchasing until confirmed"
+      }
     }
   },
   "dashboard": {
