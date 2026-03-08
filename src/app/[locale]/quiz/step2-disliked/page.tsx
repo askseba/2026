@@ -166,10 +166,10 @@ export default function Step2DislikedPage() {
                 placeholder={t('step2.placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="ps-4 pe-14 py-6 text-lg"
+                className="ps-14 pe-4 py-6 text-lg"
               />
               {isSearching && (
-                <Loader2 className="absolute inset-inline-end-4 top-1/2 -translate-y-1/2 animate-spin text-primary w-5 h-5" />
+                <Loader2 className="absolute inset-inline-start-4 top-1/2 -translate-y-1/2 animate-spin text-primary w-5 h-5" />
               )}
             </div>
 
@@ -217,7 +217,7 @@ export default function Step2DislikedPage() {
             <div className="flex gap-4">
               <BackButton
                 variant="button"
-                onClick={() => startTransition(() => router.push(`/${locale}/quiz/step1-favorites`))}
+                onClick={() => startTransition(() => router.push('/quiz/step1-favorites'))}
                 label={t('step2.backButton')}
                 className="flex-1 py-6 min-h-[44px]"
               />

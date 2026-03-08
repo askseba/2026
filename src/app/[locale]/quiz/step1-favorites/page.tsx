@@ -145,7 +145,7 @@ export default function Step1FavoritesPage() {
     <ErrorBoundary>
       <div className="min-h-screen bg-cream-bg dark:!bg-surface p-6" dir={direction}>
         <div className="max-w-2xl mx-auto">
-          <BackButton href="/quiz" label={t('backToQuizIntro')} variant="link" className="mb-6" />
+          <BackButton href="/" label={t('backToQuizIntro')} variant="link" className="mb-6" />
           <div className="flex justify-center gap-2 mb-8">
             <div className="w-3 h-3 rounded-full bg-primary dark:bg-amber-500" />
             <div className="w-3 h-3 rounded-full bg-text-primary/20 dark:bg-surface-muted" />
@@ -166,14 +166,14 @@ export default function Step1FavoritesPage() {
                 placeholder={t('step1.placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="ps-4 pe-14 py-6 text-lg"
+                className="ps-14 pe-4 py-6 text-lg"
               />
               {isSearching ? (
-                <Loader2 className="absolute inset-inline-end-4 top-1/2 -translate-y-1/2 animate-spin text-primary w-5 h-5" />
+                <Loader2 className="absolute inset-inline-start-4 top-1/2 -translate-y-1/2 animate-spin text-primary w-5 h-5" />
               ) : (
                 voiceSearchEnabled && isSupported && (
                   <VoiceMicButton
-                    className="absolute inset-inline-end-4 top-1/2 -translate-y-1/2"
+                    className="absolute inset-inline-start-4 top-1/2 -translate-y-1/2"
                     state={voiceState}
                     startListening={startListening}
                     stopListening={stopListening}
@@ -184,15 +184,15 @@ export default function Step1FavoritesPage() {
             </div>
 
             {searchResults.length > 0 && (
-              <div className="absolute top-full start-0 end-0 mt-2 bg-white dark:bg-surface-elevated rounded-xl shadow-elevation-2 z-50 max-h-64 overflow-y-auto border border-primary/10 dark:border-border-subtle">
+              <div className="absolute top-full start-0 end-0 mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto border border-gray-200 dark:border-slate-600">
                 {searchResults.map((perfume) => (
                   <button
                     key={perfume.id}
                     onClick={() => handleAddPerfume(perfume)}
-                    className="min-h-[44px] min-w-[44px] w-full text-right p-4 hover:bg-cream-bg dark:hover:bg-surface-muted transition-colors border-b dark:border-border-subtle last:border-b-0 flex flex-col touch-manipulation"
+                    className="min-h-[44px] min-w-[44px] w-full text-right p-4 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors border-b border-gray-200 dark:border-slate-600 last:border-b-0 flex flex-col touch-manipulation"
                   >
-                    <span className="font-bold text-text-primary dark:text-text-primary dark:text-slate-100">{perfume.name}</span>
-                    <span className="text-sm text-text-secondary dark:text-text-muted">{perfume.brand}</span>
+                    <span className="font-bold text-gray-900 dark:text-slate-100">{perfume.name}</span>
+                    <span className="text-sm text-gray-600 dark:text-slate-300">{perfume.brand}</span>
                   </button>
                 ))}
               </div>
@@ -228,7 +228,7 @@ export default function Step1FavoritesPage() {
               onClick={handleNext}
               disabled={selectedPerfumes.length < MIN_SELECTIONS || isPending}
               isLoading={isPending}
-              className="w-full py-6 text-xl bg-gradient-to-r from-primary to-primary-dark text-primary-dark dark:text-white shadow-lg opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-6 text-xl bg-amber-700 hover:bg-amber-800 text-white dark:bg-amber-600 dark:hover:bg-amber-700 shadow-lg opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"
               size="lg"
             >
               {t('step1.nextButtonWithCount', { count: selectedPerfumes.length, max: MAX_SELECTIONS })}

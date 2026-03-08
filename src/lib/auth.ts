@@ -12,6 +12,12 @@ const secret =
   process.env.NEXTAUTH_SECRET ??
   (process.env.NODE_ENV === 'development' ? 'dev-secret-change-in-production' : undefined)
 
+if (process.env.NODE_ENV === 'production' && !secret) {
+  throw new Error(
+    'Auth secret is required in production. Set AUTH_SECRET or NEXTAUTH_SECRET in the environment.'
+  )
+}
+
 const providers = [
   // Google only when credentials are set (avoids "server configuration problem")
   ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET

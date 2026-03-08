@@ -174,10 +174,9 @@ async function searchPerfumesDirect(query: string, limit = 20): Promise<SearchRe
 export async function searchPerfumes(query: string, limit = 20): Promise<SearchResultsResponse> {
   const apiKey = process.env.FRAGELLA_API_KEY
 
-  // If no API key, use local fallback
   if (!apiKey) {
-    logger.warn('⚠️ FRAGELLA_API_KEY not set, using local search fallback')
-    return searchLocalPerfumes(query, limit)
+    logger.warn('⚠️ FRAGELLA_API_KEY not set, returning empty results (no local fallback for search)')
+    return { results: [] }
   }
 
   try {
@@ -191,14 +190,14 @@ export async function searchPerfumes(query: string, limit = 20): Promise<SearchR
 
     if (!response.ok) {
       const errText = await response.text()
-      logger.warn(`⚠️ Fragella API error (${response.status}), using local fallback. Body: ${errText.substring(0, 200)}`)
-      return searchLocalPerfumes(query, limit)
+      logger.warn(`⚠️ Fragella API error (${response.status}), returning empty results. Body: ${errText.substring(0, 200)}`)
+      return { results: [] }
     }
 
     const contentType = response.headers.get('content-type')
     if (!contentType?.includes('application/json')) {
-      logger.warn('⚠️ Invalid Fragella response format, using local fallback')
-      return searchLocalPerfumes(query, limit)
+      logger.warn('⚠️ Invalid Fragella response format, returning empty results')
+      return { results: [] }
     }
 
     const raw = await response.json() as unknown
@@ -216,8 +215,8 @@ export async function searchPerfumes(query: string, limit = 20): Promise<SearchR
     }
     return { results: [] }
   } catch (error) {
-    logger.warn('⚠️ Fragella search error, falling back to local search', error)
-    return searchLocalPerfumes(query, limit)
+    logger.warn('⚠️ Fragella search error, returning empty results', error)
+    return { results: [] }
   }
 }
 

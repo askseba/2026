@@ -1,15 +1,24 @@
 // Subscription Journey – get subscription by Moyasar payment id (for success page)
 import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
 type RouteParams = { params: Promise<{ externalId: string }> }
 
-/** GET /api/user/subscription/[externalId] – returns subscription for success page (paymentId from URL) */
+/** GET /api/user/subscription/[externalId] – returns subscription for success page (paymentId from URL). Auth required; returns only the current user's subscription. */
 export async function GET(
   request: NextRequest,
   { params }: RouteParams
 ) {
   try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'يجب تسجيل الدخول' },
+        { status: 401 }
+      )
+    }
+
     const { externalId } = await params
     if (!externalId?.trim()) {
       return NextResponse.json(
@@ -32,6 +41,13 @@ export async function GET(
       return NextResponse.json(
         { error: 'الاشتراك غير موجود' },
         { status: 404 }
+      )
+    }
+
+    if (subscription.userId !== session.user.id) {
+      return NextResponse.json(
+        { error: 'غير مصرح' },
+        { status: 403 }
       )
     }
 

@@ -294,7 +294,7 @@ export async function logConversionEvent(
         page: metadata?.page,
         fromTier: metadata?.fromTier,
         toTier: metadata?.toTier,
-        metadata: metadata ? JSON.parse(JSON.stringify(metadata)) : undefined
+        metadata: metadata ? JSON.stringify(metadata) : undefined
       }
     })
   } catch (error) {

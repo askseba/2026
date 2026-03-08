@@ -1,4 +1,4 @@
-// ✅ HeroSection - Fixed Version
+// ✅ HeroSection - Enhanced Golden Dust Particles
 // components/landing/HeroSection.tsx
 
 'use client';
@@ -13,17 +13,19 @@ type ParticlePos = {
   endX: number;
   endY: number;
   duration: number;
+  size: number;
+  blurAmount: number;
+  delay: number;
+  color: string;
 };
 
 export function HeroSection() {
   const [mounted, setMounted] = useState(false);
   const [particles, setParticles] = useState<ParticlePos[]>([]);
 
-  // ✅ React-native way للتعامل مع mouse movement
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  // تحويل موقع الماوس لزوايا دوران
   const rotateX = useTransform(mouseY, [-300, 300], [5, -5]);
   const rotateY = useTransform(mouseX, [-300, 300], [-5, 5]);
 
@@ -35,39 +37,89 @@ export function HeroSection() {
     if (!mounted) return;
     const w = typeof window !== 'undefined' ? window.innerWidth : 1920;
     const h = typeof window !== 'undefined' ? window.innerHeight : 1080;
-    setParticles(
-      [...Array(15)].map(() => ({
-        startX: Math.random() * w,
-        startY: Math.random() * h,
-        endX: Math.random() * w,
-        endY: Math.random() * h,
-        duration: 10 + Math.random() * 20,
-      }))
-    );
+
+    // صغيرة (8): لمعات ذهبية واضحة
+    const small = [...Array(8)].map((_, i) => ({
+      startX: Math.random() * w,
+      startY: Math.random() * h,
+      endX: Math.random() * w,
+      endY: Math.random() * h,
+      duration: 14 + Math.random() * 10,
+      size: 6,
+      blurAmount: 0.5,
+      delay: Math.random() * 5,
+      color: 'rgba(179, 157, 125, 0.5)',
+    }));
+
+    // متوسطة (4): دوائر ناعمة تعطي عمق
+    const medium = [...Array(4)].map((_, i) => ({
+      startX: Math.random() * w,
+      startY: Math.random() * h,
+      endX: Math.random() * w,
+      endY: Math.random() * h,
+      duration: 20 + Math.random() * 12,
+      size: 12,
+      blurAmount: 1,
+      delay: Math.random() * 8,
+      color: 'rgba(179, 157, 125, 0.35)',
+    }));
+
+    // كبيرة (3): ضبابية — تأثير bokeh فاخر
+    const large = [...Array(3)].map((_, i) => ({
+      startX: Math.random() * w,
+      startY: Math.random() * h,
+      endX: Math.random() * w,
+      endY: Math.random() * h,
+      duration: 25 + Math.random() * 15,
+      size: 20,
+      blurAmount: 4,
+      delay: Math.random() * 10,
+      color: 'rgba(179, 157, 125, 0.2)',
+    }));
+
+    setParticles([...small, ...medium, ...large]);
   }, [mounted]);
 
   return (
     <section className="relative overflow-hidden pb-12 bg-gradient-to-br from-cream via-cream to-cream/95 dark:from-surface dark:via-surface-elevated dark:to-background">
       
-      {/* ✅ Ambient light - CSS only */}
+      {/* ✅ Ambient light */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <div className="h-[600px] w-[600px] animate-pulse rounded-full bg-gradient-radial from-gold/15 via-gold/5 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent blur-3xl" />
       </div>
 
-      {/* ✅ Floating particles - opacity transition to avoid CLS */}
+      {/* ✅ Golden dust — انتشار حر في كل الفضاء */}
       <div
-        className={`pointer-events-none absolute inset-0 overflow-hidden transition-opacity duration-300 ${mounted && particles.length ? 'opacity-100' : 'opacity-0'}`}
+        className={`pointer-events-none absolute inset-0 z-[1] transition-opacity duration-700 ${mounted && particles.length ? 'opacity-100' : 'opacity-0'}`}
       >
         {particles.map((p, i) => (
           <motion.div
             key={i}
-            className="absolute h-1 w-1 rounded-full bg-gold/30 dark:bg-amber-500/20"
-            initial={{ x: p.startX, y: p.startY }}
-            animate={{ x: p.endX, y: p.endY }}
+            className="absolute rounded-full"
+            style={{
+              width: p.size,
+              height: p.size,
+              filter: `blur(${p.blurAmount}px)`,
+              backgroundColor: p.color,
+            }}
+            initial={{ x: p.startX, y: p.startY, opacity: 0 }}
+            animate={{
+              x: [p.startX, p.endX, p.startX],
+              y: [p.startY, p.endY, p.startY],
+              opacity: [0, 1, 1, 1, 0],
+            }}
             transition={{
               duration: p.duration,
               repeat: Infinity,
-              ease: 'linear',
+              ease: 'easeInOut',
+              delay: p.delay,
+              opacity: {
+                duration: p.duration,
+                times: [0, 0.1, 0.4, 0.9, 1],
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: p.delay,
+              },
             }}
           />
         ))}
@@ -75,7 +127,6 @@ export function HeroSection() {
 
       <div className="container relative z-10 mx-auto px-6">
         
-        {/* ✅ H1 sr-only for SEO; logo Image keeps alt backup */}
         <h1 className="sr-only">Ask Seba</h1>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -96,7 +147,7 @@ export function HeroSection() {
           </div>
         </motion.div>
 
-        {/* ✅ Perfume - Interactive 3D effect, reserved height for CLS */}
+        {/* ✅ Perfume - Interactive 3D effect */}
         <motion.div
           className="relative mx-auto mt-6 flex w-full max-w-[280px] min-h-[400px] aspect-[280/400] justify-center"
           onMouseMove={(e) => {
@@ -129,7 +180,6 @@ export function HeroSection() {
               className="drop-shadow-[0_20px_40px_rgba(91,66,51,0.3)] dark:drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
             />
             
-            {/* ✅ Glow effect on hover */}
             <motion.div
               className="pointer-events-none absolute inset-0 rounded-full bg-gradient-radial from-gold/20 dark:from-amber-500/15 to-transparent opacity-0"
               whileHover={{ opacity: 1 }}

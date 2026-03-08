@@ -6,7 +6,7 @@ Create a `.env.local` file in the project root with the following content:
 
 ```env
 # NextAuth Configuration
-NEXTAUTH_SECRET=Z6r9pQvKxM2nL8wT4yU0jH5fB3cN7eR1oS9gA2dF6hJ
+NEXTAUTH_SECRET=generate-with-openssl-rand-base64-32
 NEXTAUTH_URL=http://localhost:3000
 
 # Google OAuth (Optional - Leave empty for demo testing)

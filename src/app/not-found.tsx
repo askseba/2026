@@ -11,7 +11,7 @@ export default function NotFound() {
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h1>404</h1>
       <BackButton
-        href={`/${locale}`}
+        href="/"
         label={locale === 'ar' ? 'العودة للرئيسية' : 'Back to home'}
       />
     </div>

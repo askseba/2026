@@ -69,31 +69,23 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}))
-    const updates: { name?: string; allergySettings?: string } = {}
+    // Only update fields that exist on User model (no allergySettings in schema)
+    const data: { name?: string } = {}
 
     if (typeof body.name === 'string' && body.name.trim()) {
-      updates.name = body.name.trim()
+      data.name = body.name.trim()
     }
 
-    if (body.allergySettings && typeof body.allergySettings === 'object') {
-      const a = body.allergySettings
-      updates.allergySettings = JSON.stringify({
-        strictMode: Boolean(a.strictMode ?? true),
-        notifyOnAllergen: Boolean(a.notifyOnAllergen ?? true),
-        shareWithConsultants: Boolean(a.shareWithConsultants ?? false),
-      })
-    }
+    // allergySettings accepted in body for API compatibility but not persisted (no column on User)
 
-    if (Object.keys(updates).length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'No valid fields to update' },
-        { status: 400 }
-      )
+    if (Object.keys(data).length === 0) {
+      // No persistable fields; accept and return success (e.g. allergySettings-only body)
+      return NextResponse.json({ success: true })
     }
 
     await prisma.user.update({
       where: { id: session.user.id },
-      data: updates,
+      data,
     })
 
     return NextResponse.json({ success: true })

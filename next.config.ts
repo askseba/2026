@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "ask.seba",
+        hostname: "askseba.com",
         port: "",
         pathname: "/**",
       },
@@ -58,6 +58,12 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "*.fragella.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
         port: "",
         pathname: "/**",
       },

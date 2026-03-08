@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { Link } from '@/i18n/routing'
 import { useLocale, useTranslations } from 'next-intl'
-import { useTheme } from 'next-themes'
 import { Quote } from 'lucide-react'
 import { BackButton } from '@/components/ui/BackButton'
 import { motion } from 'framer-motion'
@@ -24,36 +23,12 @@ export default function AboutPage() {
   const locale = useLocale()
   const t = useTranslations('about')
   const direction = locale === 'ar' ? 'rtl' : 'ltr'
-  const { resolvedTheme } = useTheme()
   const rootRef = useRef<HTMLDivElement>(null)
 
   const sections = t.raw('sections') as SectionItem[]
   const stats = t.raw('stats') as StatItem[]
   const testimonials = t.raw('testimonials') as TestimonialItem[]
   const values = t.raw('values') as ValueItem[]
-
-  // [REMOVE AFTER AUDIT] Dark mode diagnostic: logs computed values when theme changes
-  useEffect(() => {
-    if (!rootRef.current || typeof window === 'undefined') return
-    const root = rootRef.current
-    const html = document.documentElement
-    const computed = window.getComputedStyle(root)
-    const htmlVars = window.getComputedStyle(html)
-    const bg = computed.backgroundColor
-    const color = computed.color
-    const darkOnHtml = html.classList.contains('dark')
-    const out = {
-      theme: resolvedTheme,
-      'HTML .dark': darkOnHtml,
-      'HTML class': html.getAttribute('class') ?? '(none)',
-      '--color-background': htmlVars.getPropertyValue('--color-background').trim(),
-      '--color-surface': htmlVars.getPropertyValue('--color-surface').trim(),
-      '--color-text-primary': htmlVars.getPropertyValue('--color-text-primary').trim(),
-      'Root div background-color': bg,
-      'Root div color': color,
-    }
-    console.log('[DARK MODE DIAGNOSTIC]', JSON.stringify(out, null, 2))
-  }, [resolvedTheme])
 
   return (
     <div ref={rootRef} dir={direction} className="min-h-screen bg-cream-bg dark:!bg-surface text-brand-brown dark:text-text-primary">
@@ -140,7 +115,7 @@ export default function AboutPage() {
             {t('hero.subtitle')}
           </p>
           <Link
-            href="/quiz"
+            href="/quiz/step1-favorites"
             className="inline-block border-2 border-brand-brown dark:border-text-primary text-brand-brown dark:text-text-primary bg-transparent px-8 py-4 rounded-3xl font-bold hover:bg-brand-brown/10 dark:hover:bg-accent-primary/20 transition-colors shadow-lg"
           >
             {t('hero.cta')}

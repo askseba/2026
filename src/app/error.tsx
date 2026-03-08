@@ -37,13 +37,13 @@ export default function Error({
         <div className="flex flex-col gap-4 mb-8">
           <button
             onClick={reset}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-8 py-3 text-lg font-semibold text-white hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="inline-flex items-center justify-center rounded-md bg-amber-700 hover:bg-amber-800 px-8 py-3 text-lg font-semibold text-white dark:bg-amber-600 dark:hover:bg-amber-700 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
           >
             إعادة المحاولة
           </button>
           <Link
             href="/"
-            className="inline-flex items-center justify-center rounded-md border-2 border-primary bg-white px-8 py-3 text-lg font-semibold text-primary hover:bg-primary/10 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="inline-flex items-center justify-center rounded-md border-2 border-amber-700 dark:border-amber-500 bg-white dark:bg-slate-800 px-8 py-3 text-lg font-semibold text-amber-800 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
           >
             العودة للرئيسية
           </Link>

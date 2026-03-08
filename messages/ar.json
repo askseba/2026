@@ -26,6 +26,50 @@
     "notificationsLoginPrompt": "تسجيل الدخول للإشعارات",
     "favorites": "المفضلة"
   },
+  "auth": {
+    "login": {
+      "title": "تسجيل الدخول",
+      "subtitle": "مرحباً بك مجدداً في ask seba",
+      "continueWithGoogle": "المتابعة بـ Google",
+      "emailPlaceholder": "البريد الإلكتروني",
+      "passwordPlaceholder": "كلمة المرور",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "submit": "تسجيل الدخول",
+      "noAccount": "لا تملك حساباً؟",
+      "registerNow": "إنشاء حساب جديد",
+      "registrationSuccess": "تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول"
+    },
+    "register": {
+      "title": "إنشاء حساب جديد",
+      "subtitle": "انضم إلى ask seba واكتشف عالمك العطري",
+      "continueWithGoogle": "المتابعة بـ Google",
+      "namePlaceholder": "الاسم الكامل",
+      "emailPlaceholder": "البريد الإلكتروني",
+      "passwordPlaceholder": "كلمة المرور (8+ أحرف)",
+      "confirmPasswordPlaceholder": "تأكيد كلمة المرور",
+      "submit": "إنشاء الحساب",
+      "alreadyHaveAccount": "لديك حساب بالفعل؟",
+      "signIn": "تسجيل الدخول",
+      "securityNote": "بياناتك مشفّرة وآمنة. لن نشاركها مع أي طرف ثالث",
+      "success": "تم إنشاء حسابك بنجاح! جاري تسجيل الدخول..."
+    },
+    "common": {
+      "or": "أو"
+    },
+    "errors": {
+      "emailRequired": "يرجى إدخال البريد الإلكتروني",
+      "emailInvalid": "البريد الإلكتروني غير صحيح",
+      "passwordRequired": "يرجى إدخال كلمة المرور",
+      "passwordMinLength": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
+      "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين",
+      "nameRequired": "يرجى إدخال الاسم الكامل",
+      "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+      "googleSignIn": "حدث خطأ أثناء تسجيل الدخول بـ Google",
+      "unexpected": "حدث خطأ غير متوقع",
+      "serverConnection": "فشل الاتصال بالخادم",
+      "registrationFailed": "حدث خطأ أثناء إنشاء الحساب"
+    }
+  },
   "settings": {
     "title": "الإعدادات",
     "updateName": "تحديث الاسم",
@@ -48,7 +92,30 @@
     "notifPermissionsTitle": "تفعيل الإشعارات:",
     "notifPermStep1": "افتح إعدادات المتصفح",
     "notifPermStep2": "ابحث عن أذونات الموقع (Site permissions)",
-    "notifPermStep3": "فعّل الإشعارات لموقع askseba.com"
+    "notifPermStep3": "فعّل الإشعارات لموقع askseba.com",
+    "profileSection": "الحساب الشخصي",
+    "email": "البريد الإلكتروني",
+    "language": "اللغة",
+    "languageCurrent": "العربية",
+    "notificationsManage": "تحكم في التنبيهات الواصلة",
+    "notificationsPreferences": "تحكم في ما تصلك من تنبيهات",
+    "signOutDescription": "الخروج من هذا الجهاز",
+    "deleteAccountDescription": "إجراء دائم وغير قابل للتراجع",
+    "deleteIrreversible": "هذا الإجراء لا يمكن التراجع عنه",
+    "deleteConfirmLabel": "للتأكيد، اكتب:",
+    "deleteConfirmPhrase": "احذف حسابي",
+    "nameVisibility": "سيظهر هذا الاسم للمستخدمين",
+    "fullName": "الاسم الكامل",
+    "statusActive": "نشط",
+    "securityNote": "بياناتك محمية ومشفرة بـ TLS 1.3",
+    "notifOrders": "إشعارات الطلبات",
+    "notifOrdersDesc": "تنبيه عند ورود طلب جديد",
+    "notifMessages": "الرسائل",
+    "notifMessagesDesc": "تنبيه عند استلام رسالة",
+    "notifUpdates": "التحديثات",
+    "notifUpdatesDesc": "أخبار ومستجدات التطبيق",
+    "notifReminders": "التذكيرات",
+    "notifRemindersDesc": "تذكير بالمهام والمواعيد"
   },
   "profile": {
     "pageTitle": "إعدادات الملف الشخصي",
@@ -113,7 +180,7 @@
       "subtitle": "ask.seba يحلل بصمتك العطرية، حساسيتك، وأسلوب حياتك ليقترح عليك عطراً يناسبك فعلاً – قبل أن تشتريه.",
       "badge": "تجربة مجانية • 3 دقائق فقط",
       "primaryCta": "ابدأ الاختبار الآن",
-      "primaryCtaHref": "/quiz",
+      "primaryCtaHref": "/quiz/step1-favorites",
       "secondaryCta": "كيف يعمل Ask Seba؟",
       "secondaryCtaHref": "/about",
       "trust": "موثوق من مستخدمين في الخليج والعالم العربي"
@@ -169,7 +236,7 @@
       "ctaButton": "ابدأ الرحلة",
       "loading": "جاري التحميل...",
       "primary": "ابدأ الاختبار الذكي الآن",
-      "primaryHref": "/quiz",
+      "primaryHref": "/quiz/step1-favorites",
       "secondary": "تعرّف أكثر على طريقة عملنا",
       "secondaryHref": "/about"
     }
@@ -283,7 +350,7 @@
       "title": "رحلتك تبدأ الآن",
       "body": "لا مزيد من التخمين. لا مزيد من الندم. لا مزيد من العطور المركونة. عطرك المثالي ينتظرك. مستشارك الذكي جاهز.",
       "button": "ابدأ الاختبار الآن ←",
-      "button_href": "/quiz"
+      "button_href": "/quiz/step1-favorites"
     }
   },
   "faq": {
@@ -680,7 +747,7 @@
       "currency": "ريال",
       "priceHubGatingTitle": "اشترك لرؤية جميع الأسعار",
       "priceHubGatingCta": "اشترك الآن",
-      "moreStoresLocked": "اشترك لرؤية {remaining} متجر إضافي",
+      "moreStoresLocked": "اشترك لرؤية {remaining} متاجر إضافية",
       "alertHint": "يمكنك إعداد تنبيه سعر مجاني واحد بعد التسجيل",
       "subscribeToPrices": "اشترك الآن",
       "priceAlertCta": "أخبرني عند انخفاض السعر",

@@ -87,7 +87,7 @@ export default function SearchPerfumeBar({ onResults }: SearchPerfumeBarProps) {
       <div className="relative">
         {voiceSearchEnabled && isSupported && (
           <VoiceMicButton
-            className="absolute left-4 top-1/2 -translate-y-1/2"
+            className="absolute right-4 top-1/2 -translate-y-1/2"
             state={state}
             startListening={startListening}
             stopListening={stopListening}
@@ -101,10 +101,10 @@ export default function SearchPerfumeBar({ onResults }: SearchPerfumeBarProps) {
           value={query}
           onChange={handleInputChange}
           placeholder="ابحث عن عطر..."
-          className="w-full pl-4 pr-14 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full pr-4 pl-14 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         {loading && (
-          <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
           </div>
         )}

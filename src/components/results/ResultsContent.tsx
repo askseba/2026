@@ -161,7 +161,7 @@ export function ResultsContent() {
               setError(null)
               fetchResults()
             }}
-            className="px-6 py-3 bg-primary text-white rounded-xl hover:opacity-90 transition font-medium shadow-button"
+            className="px-6 py-3 bg-amber-700 hover:bg-amber-800 text-white dark:bg-amber-600 dark:hover:bg-amber-700 rounded-xl hover:opacity-90 transition font-medium shadow-button"
           >
             {t('retry')}
           </button>
@@ -173,7 +173,7 @@ export function ResultsContent() {
     <div className="min-h-screen bg-cream-bg dark:!bg-surface pb-20" dir={direction}>
       <div className="container mx-auto px-6 pt-6">
         <BackButton
-          href={`/${locale}/dashboard`}
+          href="/dashboard"
           label={t('backToDashboard')}
           variant="link"
           className="mb-6"

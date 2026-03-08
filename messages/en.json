@@ -26,6 +26,50 @@
     "notificationsLoginPrompt": "Log in for notifications",
     "favorites": "Favorites"
   },
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "subtitle": "Welcome back to ask seba",
+      "continueWithGoogle": "Continue with Google",
+      "emailPlaceholder": "Email Address",
+      "passwordPlaceholder": "Password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign In",
+      "noAccount": "Don't have an account?",
+      "registerNow": "Register now",
+      "registrationSuccess": "Account created! You can now sign in"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Join ask seba and discover your fragrance world",
+      "continueWithGoogle": "Continue with Google",
+      "namePlaceholder": "Full Name",
+      "emailPlaceholder": "Email Address",
+      "passwordPlaceholder": "Password (8+ characters)",
+      "confirmPasswordPlaceholder": "Confirm Password",
+      "submit": "Create Account",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign In",
+      "securityNote": "Your data is encrypted and safe. We never share it with third parties.",
+      "success": "Account created! Logging you in..."
+    },
+    "common": {
+      "or": "OR"
+    },
+    "errors": {
+      "emailRequired": "Please enter your email",
+      "emailInvalid": "Invalid email format",
+      "passwordRequired": "Please enter your password",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "nameRequired": "Please enter your full name",
+      "invalidCredentials": "Invalid email or password",
+      "googleSignIn": "Error signing in with Google",
+      "unexpected": "An unexpected error occurred",
+      "serverConnection": "Server connection failed",
+      "registrationFailed": "Error creating account"
+    }
+  },
   "settings": {
     "title": "Settings",
     "updateName": "Update Your Name",
@@ -48,7 +92,30 @@
     "notifPermissionsTitle": "Enable notifications:",
     "notifPermStep1": "Open your browser settings",
     "notifPermStep2": "Find Site permissions",
-    "notifPermStep3": "Enable notifications for askseba.com"
+    "notifPermStep3": "Enable notifications for askseba.com",
+    "profileSection": "Profile",
+    "email": "Email",
+    "language": "Language",
+    "languageCurrent": "English",
+    "notificationsManage": "Manage your alerts",
+    "notificationsPreferences": "Manage your notification preferences",
+    "signOutDescription": "Sign out from this device",
+    "deleteAccountDescription": "Permanent and irreversible action",
+    "deleteIrreversible": "This action cannot be undone",
+    "deleteConfirmLabel": "To confirm, type:",
+    "deleteConfirmPhrase": "delete my account",
+    "nameVisibility": "This name is visible to others",
+    "fullName": "Full Name",
+    "statusActive": "Active",
+    "securityNote": "Your data is protected with TLS 1.3",
+    "notifOrders": "Order Notifications",
+    "notifOrdersDesc": "Alert on new orders",
+    "notifMessages": "Messages",
+    "notifMessagesDesc": "Alert on new messages",
+    "notifUpdates": "Updates",
+    "notifUpdatesDesc": "App news and updates",
+    "notifReminders": "Reminders",
+    "notifRemindersDesc": "Task and appointment reminders"
   },
   "profile": {
     "pageTitle": "Profile Settings",
@@ -113,7 +180,7 @@
       "subtitle": "ask.seba analyzes your olfactory profile, sensitivities, and lifestyle to recommend fragrances that truly fit you—before you buy.",
       "badge": "Free experience • Just 3 minutes",
       "primaryCta": "Start the quiz",
-      "primaryCtaHref": "/quiz",
+      "primaryCtaHref": "/quiz/step1-favorites",
       "secondaryCta": "How does Ask Seba work?",
       "secondaryCtaHref": "/about",
       "trust": "Trusted by fragrance lovers across the GCC and the Arab world"
@@ -169,7 +236,7 @@
       "ctaButton": "Start the journey",
       "loading": "Loading...",
       "primary": "Start the smart quiz",
-      "primaryHref": "/quiz",
+      "primaryHref": "/quiz/step1-favorites",
       "secondary": "Learn how Ask Seba works",
       "secondaryHref": "/about"
     }
@@ -283,7 +350,7 @@
       "title": "Your journey begins now",
       "body": "No more guessing. No more regret. No more abandoned bottles. Your perfect fragrance awaits. Your smart advisor is ready.",
       "button": "Start the quiz now ←",
-      "button_href": "/quiz"
+      "button_href": "/quiz/step1-favorites"
     }
   },
   "faq": {

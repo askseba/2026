@@ -4,15 +4,18 @@
 
 'use client'
 import { useState, useEffect, Suspense } from 'react'
-import { Check, Crown, Zap, TrendingUp, Users, Bell, History, ChevronRight } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { Check, Crown, Zap, ChevronRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import { Link } from '@/i18n/routing'
 import { logConversionEvent } from '@/lib/gating'
 import logger from '@/lib/logger'
 
 function PricingPageContent() {
+  const t = useTranslations('nav')
   const { data: session } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -117,6 +120,19 @@ function PricingPageContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream-bg via-white to-primary/5 py-16 px-6" dir="rtl">
       <div className="max-w-6xl mx-auto">
+        {/* Breadcrumb */}
+        <nav aria-label="Breadcrumb" className="text-center mb-4">
+          <ol className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-gray-500 dark:text-gray-300 list-none">
+            <li>
+              <Link href="/" className="hover:underline focus:underline focus:outline-none text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                {t('home')}
+              </Link>
+            </li>
+            <li aria-hidden="true" className="text-gray-400 dark:text-gray-500 select-none">/</li>
+            <li aria-current="page">{t('pricing')}</li>
+          </ol>
+        </nav>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -131,69 +147,67 @@ function PricingPageContent() {
           </p>
           
           {/* Billing Toggle */}
-          <div className="inline-flex items-center bg-white rounded-2xl p-2 shadow-lg">
+          <div className="inline-flex flex-row items-center justify-center gap-0 rounded-2xl p-2 shadow-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <button
+              type="button"
               onClick={() => setBillingCycle('monthly')}
-              className={`px-6 py-3 rounded-xl font-bold transition-all ${
+              className={`flex-1 min-w-[7rem] py-3 px-4 rounded-xl font-bold text-center transition-colors ${
                 billingCycle === 'monthly'
-                  ? 'bg-primary text-white shadow-lg'
-                  : 'text-brown-text hover:bg-gray-50'
+                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600/50'
               }`}
             >
               شهري
             </button>
             <button
+              type="button"
               onClick={() => setBillingCycle('yearly')}
-              className={`px-6 py-3 rounded-xl font-bold transition-all relative ${
+              className={`flex-1 min-w-[7rem] py-3 px-4 rounded-xl font-bold relative text-center transition-colors ${
                 billingCycle === 'yearly'
-                  ? 'bg-primary text-white shadow-lg'
-                  : 'text-brown-text hover:bg-gray-50'
+                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600/50'
               }`}
             >
               سنوي
-              <span className="absolute -top-2 -left-2 bg-safe-green text-white text-xs px-2 py-0.5 rounded-full font-bold">
+              <span className="absolute -top-2 -right-2 bg-safe-green text-white text-xs px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
                 وفّر 17%
               </span>
             </button>
           </div>
         </motion.div>
         
-        {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        {/* Pricing Cards - side-by-side on desktop, stack on mobile */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto w-full">
           {/* Free Plan */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white rounded-3xl p-8 shadow-xl border-2 border-gray-200"
+            className="w-full min-w-0 bg-white dark:bg-gray-900 rounded-3xl p-8 shadow-xl border-2 border-gray-200 dark:border-gray-700"
           >
             <div className="text-center mb-6">
               <Zap className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-brown-text mb-2">مجاني</h3>
-              <div className="text-4xl font-black text-brown-text mb-2">0 ريال</div>
-              <p className="text-brown-text/60">للأبد</p>
+              <h3 className="text-2xl font-bold text-brown-text dark:text-gray-100 mb-2">مجاني</h3>
+              <div className="text-4xl font-black text-brown-text dark:text-gray-100 mb-2">0 ريال</div>
+              <p className="text-brown-text/60 dark:text-gray-300">للأبد</p>
             </div>
             
             <ul className="space-y-3 mb-8">
-              <li className="flex items-start gap-2 text-brown-text">
+              <li className="flex items-start gap-2 text-brown-text dark:text-gray-100">
                 <Check className="w-5 h-5 text-safe-green flex-shrink-0 mt-0.5" />
-                <span>اختباران شهرياً</span>
+                <span>اختبار شهري واحد</span>
               </li>
-              <li className="flex items-start gap-2 text-brown-text">
+              <li className="flex items-start gap-2 text-brown-text dark:text-gray-100">
                 <Check className="w-5 h-5 text-safe-green flex-shrink-0 mt-0.5" />
-                <span>5 نتائج لكل اختبار</span>
+                <span>3 نتائج لكل اختبار</span>
               </li>
-              <li className="flex items-start gap-2 text-brown-text">
+              <li className="flex items-start gap-2 text-brown-text dark:text-gray-100">
                 <Check className="w-5 h-5 text-safe-green flex-shrink-0 mt-0.5" />
                 <span>حفظ المفضلات</span>
               </li>
-              <li className="flex items-start gap-2 text-brown-text">
+              <li className="flex items-start gap-2 text-brown-text dark:text-gray-100">
                 <Check className="w-5 h-5 text-safe-green flex-shrink-0 mt-0.5" />
-                <span>Scent DNA الشخصي</span>
-              </li>
-              <li className="flex items-start gap-2 text-brown-text">
-                <Check className="w-5 h-5 text-safe-green flex-shrink-0 mt-0.5" />
-                <span>تنبيه سعر واحد</span>
+                <span>البصمة العطرية الشخصية</span>
               </li>
             </ul>
             
@@ -201,8 +215,8 @@ function PricingPageContent() {
               onClick={() => !session && signIn()}
               className={`w-full py-3 px-6 rounded-xl font-bold transition-all ${
                 session
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 hover:bg-gray-300 text-brown-text'
+                  ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-brown-text dark:text-gray-100'
               }`}
               disabled={!!session}
             >
@@ -210,27 +224,12 @@ function PricingPageContent() {
             </button>
           </motion.div>
 
-          {/* Step 1 of 2: اختر الباقة */}
-          <div
-            className="flex items-center justify-center gap-2 mb-8 max-w-md mx-auto"
-            role="progressbar"
-            aria-valuenow={1}
-            aria-valuemin={0}
-            aria-valuemax={2}
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-primary border-2 border-white shadow-sm" aria-current="step" />
-              <div className="w-8 h-1 bg-gradient-to-r from-primary/50 to-primary/20 rounded-full" />
-              <div className="w-3 h-3 rounded-full bg-brown-text/20 border-2 border-brown-text/30" />
-            </div>
-          </div>
-
           {/* Premium Monthly */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-gradient-to-br from-primary to-amber-600 rounded-3xl p-8 shadow-2xl border-2 border-amber-500 relative transform scale-105"
+            className="w-full min-w-0 bg-gradient-to-br from-primary to-[#9d7a54] rounded-3xl p-8 shadow-2xl border-2 border-[#9d7a54] relative"
           >
             <div className="absolute -top-4 right-1/2 translate-x-1/2 bg-amber-500 text-white px-4 py-1 rounded-full text-sm font-bold">
               الأكثر شعبية
@@ -278,7 +277,7 @@ function PricingPageContent() {
             {isProcessing && (
               <div className="w-full bg-brown-text/10 border border-brown-text/20 rounded-full h-2 mb-6 overflow-hidden shadow-sm">
                 <div
-                  className="h-full bg-gradient-to-r from-primary via-amber-500 to-orange-500 rounded-full transition-all duration-1000 ease-in-out shadow-md"
+                  className="h-full bg-gradient-to-r from-primary via-[#9d7a54] to-[#9d7a54] rounded-full transition-all duration-1000 ease-in-out shadow-md"
                   style={{ width: '65%' }}
                 />
               </div>
@@ -300,7 +299,7 @@ function PricingPageContent() {
             <button
               onClick={() => handleSubscribe(billingCycle)}
               disabled={isProcessing}
-              className="w-full py-3 px-6 bg-white text-primary hover:bg-gray-50 rounded-xl font-bold transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 px-6 bg-white text-gray-900 border border-white/70 hover:bg-gray-100 rounded-xl font-bold transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isProcessing ? (
                 <>⏳ جاري المعالجة...</>
@@ -313,47 +312,6 @@ function PricingPageContent() {
               إلغاء في أي وقت • ضمان استرجاع خلال 7 أيام
             </p>
           </motion.div>
-          
-          {/* Free Trial Info (if implementing) */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white rounded-3xl p-8 shadow-xl border-2 border-primary/20"
-          >
-            <div className="text-center mb-6">
-              <Users className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-brown-text mb-2">للشركات</h3>
-              <div className="text-4xl font-black text-brown-text mb-2">مخصص</div>
-              <p className="text-brown-text/60">حسب الطلب</p>
-            </div>
-            
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-start gap-2 text-brown-text">
-                <Check className="w-5 h-5 text-safe-green flex-shrink-0 mt-0.5" />
-                <span>كل مميزات الباقة المميزة</span>
-              </li>
-              <li className="flex items-start gap-2 text-brown-text">
-                <Check className="w-5 h-5 text-safe-green flex-shrink-0 mt-0.5" />
-                <span>حسابات متعددة للفريق</span>
-              </li>
-              <li className="flex items-start gap-2 text-brown-text">
-                <Check className="w-5 h-5 text-safe-green flex-shrink-0 mt-0.5" />
-                <span>تقارير وتحليلات مخصصة</span>
-              </li>
-              <li className="flex items-start gap-2 text-brown-text">
-                <Check className="w-5 h-5 text-safe-green flex-shrink-0 mt-0.5" />
-                <span>دعم مخصص</span>
-              </li>
-            </ul>
-            
-            <button
-              onClick={() => router.push('/contact?type=enterprise')}
-              className="w-full py-3 px-6 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold transition-all"
-            >
-              تواصل معنا
-            </button>
-          </motion.div>
         </div>
         
         {/* FAQ Section */}
@@ -363,7 +321,7 @@ function PricingPageContent() {
           transition={{ delay: 0.5 }}
           className="mt-16 max-w-3xl mx-auto"
         >
-          <h2 className="text-3xl font-bold text-brown-text text-center mb-8">
+          <h2 className="text-3xl font-bold text-brown-text dark:text-gray-100 text-center mb-8">
             الأسئلة الشائعة
           </h2>
           
@@ -382,17 +340,17 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false)
   
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between text-right"
       >
-        <h3 className="text-lg font-bold text-brown-text">{question}</h3>
+        <h3 className="text-lg font-bold text-brown-text dark:text-gray-100">{question}</h3>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
         >
-          <ChevronRight className="w-5 h-5 text-brown-text" />
+          <ChevronRight className="w-5 h-5 text-brown-text dark:text-gray-100" />
         </motion.div>
       </button>
       
@@ -405,7 +363,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
         transition={{ duration: 0.2 }}
         className="overflow-hidden"
       >
-        <p className="text-brown-text/75 mt-4 leading-relaxed">{answer}</p>
+        <p className="text-brown-text/75 dark:text-gray-300 mt-4 leading-relaxed">{answer}</p>
       </motion.div>
     </div>
   )

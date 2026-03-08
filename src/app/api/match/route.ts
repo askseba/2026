@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import type { PerfumeForMatching, ScoredPerfume } from '@/lib/matching'
 import { calculateMatchScores } from '@/lib/matching'
-import { getResultsLimit, getBlurredCount, getUserTierInfo } from '@/lib/gating'
+import { getResultsLimit, getBlurredCount, getUserTierInfo, checkTestLimit, incrementTestCount } from '@/lib/gating'
 import type { SubscriptionTier } from '@prisma/client'
 import { searchUnified, enrichWithIFRA } from '@/lib/services/perfume-bridge.service'
 
@@ -72,6 +72,33 @@ export async function POST(request: Request) {
       symptoms: prefs.allergyProfile?.symptoms ?? [],
       families: prefs.allergyProfile?.families ?? [],
       ingredients: prefs.allergyProfile?.ingredients ?? []
+    }
+
+    // Resolve session and tier early to enforce FREE monthly test limit before heavy work
+    const session = await auth()
+    let tier: Tier = 'GUEST'
+    if (session?.user?.id) {
+      try {
+        const tierInfo = await getUserTierInfo(session.user.id)
+        tier = tierInfo.tier
+      } catch {
+        tier = 'FREE'
+      }
+    }
+
+    // Enforce FREE monthly test limit (2 tests/month)
+    if (tier === 'FREE' && session?.user?.id) {
+      const limitResult = await checkTestLimit(session.user.id)
+      if (!limitResult.canAccess) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'monthly_limit_reached',
+            message: limitResult.upgradeMessage ?? 'استنفذت الاختبارات الشهرية المجانية. اشترك للحصول على اختبارات غير محدودة بـ 15 ريال/شهر.'
+          },
+          { status: 403 }
+        )
+      }
     }
 
     const apiKey = process.env.FRAGELLA_API_KEY ?? ''
@@ -151,16 +178,6 @@ export async function POST(request: Request) {
 
     const scored: ScoredPerfume[] = calculateMatchScores(allPerfumes, userPreference)
 
-    let tier: Tier = 'GUEST'
-    const session = await auth()
-    if (session?.user?.id) {
-      try {
-        const tierInfo = await getUserTierInfo(session.user.id)
-        tier = tierInfo.tier
-      } catch {
-        tier = 'FREE'
-      }
-    }
     const limit = getResultsLimit(tier)
     const blurredCount = getBlurredCount(tier)
 
@@ -196,6 +213,12 @@ export async function POST(request: Request) {
       blurredItemsCount: response.blurredItems.length,
       tier: response.tier
     })
+
+    // Consume one FREE monthly test after successful match
+    if (tier === 'FREE' && session?.user?.id) {
+      await incrementTestCount(session.user.id)
+    }
+
     return NextResponse.json(response)
   } catch (err) {
     console.error('Match API error:', err)
