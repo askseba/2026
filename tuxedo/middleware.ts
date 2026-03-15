@@ -39,4 +39,3 @@ export const config = {
     '/(ar|en)/:path*'
   ]
 };
-

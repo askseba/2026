@@ -1,0 +1,307 @@
+import type { Prisma } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
+import logger from '@/lib/logger'
+
+const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
+
+/** Search API / local fallback response shape */
+export interface SearchResultsResponse {
+  results: unknown[]
+}
+
+/** Minimal shape for Fragella fragrance API response (used for cache upsert) */
+interface FragranceApiPayload {
+  name?: string
+  brand?: { name?: string }
+}
+
+/** Safe parse of Prisma Json field (may be string or already object). Avoids cache corruption. */
+function parseJsonField<T>(raw: unknown): T {
+  if (typeof raw === 'string') {
+    return JSON.parse(raw) as T
+  }
+  return raw as T
+}
+
+export async function getPerfume(fragellaId: string): Promise<unknown> {
+  const now = new Date()
+  
+  const cached = await prisma.fragellaPerfume.findUnique({ where: { fragellaId } })
+  if (cached && cached.expiresAt > now) {
+    logger.info(`✅ CACHE HIT: ${cached.name}`)
+    return parseJsonField(cached.payloadJson)
+  }
+
+  const apiKey = process.env.FRAGELLA_API_KEY
+  if (!apiKey) {
+    if (cached) {
+      logger.warn(`⚠️ API KEY MISSING: Serving STALE ${fragellaId}`)
+      return parseJsonField(cached.payloadJson)
+    }
+    throw new Error('FRAGELLA_API_KEY environment variable is not set')
+  }
+
+  logger.info(`🔄 CACHE MISS: ${fragellaId}`)
+  const response = await fetch(`https://api.fragella.com/api/v1/fragrances/${fragellaId}`, {
+    headers: { 'x-api-key': apiKey }
+  })
+
+  if (!response.ok) {
+    if (cached) {
+      logger.warn(`⚠️ API FAILED: Serving STALE ${fragellaId}`)
+      return parseJsonField(cached.payloadJson)
+    }
+    const errorText = await response.text()
+    throw new Error(`Fragella API: ${response.status} - ${errorText.substring(0, 200)}`)
+  }
+
+  const contentType = response.headers.get('content-type')
+  if (!contentType?.includes('application/json')) {
+    await response.text()
+    if (cached) {
+      logger.warn(`⚠️ INVALID RESPONSE: Serving STALE ${fragellaId}`)
+      return parseJsonField(cached.payloadJson)
+    }
+    throw new Error(`Invalid response format. Expected JSON, got: ${contentType}`)
+  }
+
+  const raw = await response.json() as unknown
+  const payload = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? (raw as FragranceApiPayload) : ({} as FragranceApiPayload)
+  const name = typeof payload.name === 'string' ? payload.name : 'Unknown'
+  const brandName = (payload.brand && typeof payload.brand === 'object' && typeof payload.brand.name === 'string')
+    ? payload.brand.name
+    : 'Unknown'
+  const fetchedAt = new Date()
+  const expiresAt = new Date(fetchedAt.getTime() + CACHE_TTL_MS)
+
+  const payloadJson = raw as Prisma.InputJsonValue
+  await prisma.fragellaPerfume.upsert({
+    where: { fragellaId },
+    create: {
+      fragellaId,
+      name,
+      brandName,
+      payloadJson,
+      fetchedAt,
+      expiresAt
+    },
+    update: {
+      name,
+      brandName,
+      payloadJson,
+      fetchedAt,
+      expiresAt
+    }
+  })
+
+  logger.info(`💾 CACHED: ${name}`)
+  return raw
+}
+
+/**
+ * Search local perfumes as fallback when Fragella API is unavailable
+ */
+async function searchLocalPerfumes(query: string, limit: number): Promise<SearchResultsResponse> {
+  try {
+    const { perfumes } = await import('@/lib/data/perfumes')
+    const results = perfumes
+      .filter(p =>
+        p.name.toLowerCase().includes(query.toLowerCase()) ||
+        p.brand.toLowerCase().includes(query.toLowerCase())
+      )
+      .slice(0, limit)
+
+    return {
+      results: results.map(p => ({
+        ...p,
+        source: 'local'
+      }))
+    }
+  } catch (error) {
+    logger.error('Local search fallback failed:', error)
+    return { results: [] }
+  }
+}
+
+/**
+ * Search Fragella API directly without cache (fallback when DB unavailable)
+ */
+async function searchPerfumesDirect(query: string, limit = 20): Promise<SearchResultsResponse> {
+  const apiKey = process.env.FRAGELLA_API_KEY
+  if (!apiKey) {
+    logger.warn('⚠️ FRAGELLA_API_KEY not set, using local fallback')
+    return searchLocalPerfumes(query, limit)
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.fragella.com/api/v1/fragrances?search=${encodeURIComponent(query)}&limit=${limit}`,
+      {
+        headers: { 'x-api-key': apiKey },
+        signal: AbortSignal.timeout(8000)
+      }
+    )
+
+    if (!response.ok) {
+      const errText = await response.text()
+      logger.warn(`⚠️ Fragella direct API error (${response.status}): ${errText.substring(0, 200)}`)
+      return searchLocalPerfumes(query, limit)
+    }
+
+    const contentType = response.headers.get('content-type')
+    if (!contentType?.includes('application/json')) {
+      logger.warn('⚠️ Invalid Fragella response format')
+      return searchLocalPerfumes(query, limit)
+    }
+
+    const raw = await response.json() as unknown
+    if (raw !== null && typeof raw === 'object' && 'results' in raw && Array.isArray((raw as SearchResultsResponse).results)) {
+      const count = (raw as SearchResultsResponse).results.length
+      logger.info(`Fragella direct: Found ${count} results`)
+      return raw as SearchResultsResponse
+    }
+    if (Array.isArray(raw)) {
+      logger.info(`Fragella direct: Found ${raw.length} results (array)`)
+      return { results: raw }
+    }
+    return { results: [] }
+  } catch (error) {
+    logger.warn('⚠️ Fragella direct search error, falling back to local:', error)
+    return searchLocalPerfumes(query, limit)
+  }
+}
+
+export async function searchPerfumes(query: string, limit = 20): Promise<SearchResultsResponse> {
+  const apiKey = process.env.FRAGELLA_API_KEY
+
+  if (!apiKey) {
+    logger.warn('⚠️ FRAGELLA_API_KEY not set, returning empty results (no local fallback for search)')
+    return { results: [] }
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.fragella.com/api/v1/fragrances?search=${encodeURIComponent(query)}&limit=${limit}`,
+      {
+        headers: { 'x-api-key': apiKey },
+        signal: AbortSignal.timeout(5000) // 5 second timeout
+      }
+    )
+
+    if (!response.ok) {
+      const errText = await response.text()
+      logger.warn(`⚠️ Fragella API error (${response.status}), returning empty results. Body: ${errText.substring(0, 200)}`)
+      return { results: [] }
+    }
+
+    const contentType = response.headers.get('content-type')
+    if (!contentType?.includes('application/json')) {
+      logger.warn('⚠️ Invalid Fragella response format, returning empty results')
+      return { results: [] }
+    }
+
+    const raw = await response.json() as unknown
+    // Fragella API returns { results: [...] } OR array directly
+    if (raw !== null && typeof raw === 'object' && 'results' in raw && Array.isArray((raw as SearchResultsResponse).results)) {
+      const count = (raw as SearchResultsResponse).results.length
+      logger.info(`Fragella API: Found ${count} results`)
+      return raw as SearchResultsResponse
+    }
+    // Fragella may return array directly: [{...}, {...}]
+    if (Array.isArray(raw)) {
+      const count = raw.length
+      logger.info(`Fragella API: Found ${count} results (array format)`)
+      return { results: raw } as SearchResultsResponse
+    }
+    return { results: [] }
+  } catch (error) {
+    logger.warn('⚠️ Fragella search error, returning empty results', error)
+    return { results: [] }
+  }
+}
+
+export async function searchPerfumesWithCache<T = { results: unknown[] }>(
+  query: string,
+  limit = 20
+): Promise<T> {
+  const cacheKey = `search:${query.toLowerCase()}:${limit}`
+
+  // Quick DB check — if unreachable, call Fragella directly
+  let dbAvailable = true
+  try {
+    await prisma.$queryRaw`SELECT 1`
+  } catch {
+    dbAvailable = false
+    logger.warn('⚠️ DB unavailable — calling Fragella directly')
+  }
+
+  if (!dbAvailable) {
+    return (await searchPerfumes(query, limit)) as T
+  }
+
+  try {
+    // Check cache (original code — only runs when DB is available)
+    const cached = await prisma.fragellaCache.findFirst({
+      where: {
+        key: cacheKey,
+        expiresAt: { gt: new Date() }
+      }
+    })
+
+    if (cached) {
+      logger.info('✅ Cache HIT:', cacheKey)
+      const data: T =
+        typeof cached.data === 'string'
+          ? (JSON.parse(String(cached.data)) as T)
+          : (cached.data as T)
+      return data
+    }
+
+    // Fetch fresh
+    logger.info('🔄 Cache MISS - fetching:', cacheKey)
+    const data = await searchPerfumes(query, limit)
+
+    // Don't cache local fallback results — only cache real Fragella API data
+    const hasLocalOnly = Array.isArray(data?.results) &&
+      data.results.length > 0 &&
+      data.results.every((r: any) => r.source === 'local' || r._isFallback)
+
+    if (!hasLocalOnly) {
+      // Don't cache results that are suspiciously small for the requested limit
+      // e.g. 4 results when we asked for 2000 means Fragella returned partial data
+      const resultCount = Array.isArray(data?.results) ? data.results.length : 0
+      const isTooFewResults = limit > 50 && resultCount < Math.min(limit * 0.1, 50)
+
+      if (isTooFewResults) {
+        console.warn(`[perfume.service] Skipping cache: only ${resultCount} results for limit=${limit}`)
+        return data as T
+      }
+
+      try {
+        await prisma.fragellaCache.upsert({
+          where: { key: cacheKey },
+          create: {
+            key: cacheKey,
+            data: JSON.stringify(data),
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
+          },
+          update: {
+            data: JSON.stringify(data),
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
+          }
+        })
+        logger.info('Cache updated')
+      } catch (cacheError) {
+        logger.warn('Failed to cache search results:', cacheError)
+      }
+    } else {
+      logger.info('Skipping cache — results are local fallback only')
+    }
+
+    return data as T
+  } catch (error) {
+    logger.error('Search with cache failed:', error)
+    // Last resort: return empty results instead of crashing
+    return { results: [] } as T
+  }
+}
