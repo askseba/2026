@@ -6,7 +6,8 @@ import { symptomMappings, getIngredientsForSymptom } from '@/data/symptom-mappin
 
 export interface SymptomTrigger {
   ingredient: string
-  symptoms: string[]
+  symptoms: string[] // canonical keys for matching
+  symptomsAr?: string[] // Arabic labels for display
   confidence: number
 }
 
@@ -58,7 +59,8 @@ export function calculateSymptomMatchScore(
     if (matchedMappings.length > 0) {
       triggers.push({
         ingredient,
-        symptoms: matchedMappings.map(m => m.symptomAr),
+        symptoms: matchedMappings.map(m => m.symptom),
+        symptomsAr: matchedMappings.map(m => m.symptomAr),
         confidence: Math.max(...matchedMappings.map(m => m.confidence))
       })
     }
