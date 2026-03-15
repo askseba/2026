@@ -110,12 +110,11 @@ export class IFRAService {
    */
   async searchMaterials(query: string): Promise<IfraMaterial[]> {
     try {
-      const lowerQuery = query.toLowerCase()
       return await prisma.ifraMaterial.findMany({
         where: {
           OR: [
-            { name: { contains: lowerQuery } },
-            { nameAr: { contains: query } }
+            { name: { contains: query, mode: 'insensitive' } },
+            { nameAr: { contains: query, mode: 'insensitive' } }
           ]
         },
         orderBy: {
@@ -141,7 +140,8 @@ export class IFRAService {
       const materials = await prisma.ifraMaterial.findMany({
         where: {
           name: {
-            in: ingredients
+            in: ingredients,
+            mode: 'insensitive'
           }
         },
         include: {
