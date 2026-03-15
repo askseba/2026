@@ -214,10 +214,10 @@ export class IFRAService {
     } catch (error) {
       logger.error('Error checking safety:', error)
       return {
-        isSafe: true,
+        isSafe: false,
         warnings: [],
         allergens: [],
-        severity: 'safe'
+        severity: 'caution'
       }
     }
   }
