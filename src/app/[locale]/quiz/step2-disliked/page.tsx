@@ -66,7 +66,7 @@ export default function Step2DislikedPage() {
   }, [searchTerm])
 
   useEffect(() => {
-    if (!debouncedSearchTerm.trim() || debouncedSearchTerm.length < 2) {
+    if (!debouncedSearchTerm.trim() || debouncedSearchTerm.length < 3) {
       setSearchResults([])
       setSearchError(null)
       setIsSearching(false)

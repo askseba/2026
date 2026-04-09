@@ -9,6 +9,39 @@ import { searchUnified, enrichWithIFRA, convertFragellaToUnified } from '@/lib/s
 import { getPerfume } from '@/lib/services/perfume.service'
 import { ifraService } from '@/lib/services/ifra.service'
 import { getIngredientsForNote } from '@/data/note-to-ingredient-map'
+import { prisma } from '@/lib/prisma'
+
+// ── TestHistory write helper (non-critical: never throws) ──
+async function saveTestHistory(params: {
+  userId: string
+  likedPerfumes: string[]
+  dislikedPerfumes: string[]
+  allergySymptoms: string[]
+  allergyFamilies: string[]
+  totalMatches: number
+  topMatchId: string | null
+  topMatchScore: number | null
+  scentDNA: Record<string, number> | null
+}): Promise<void> {
+  try {
+    await prisma.testHistory.create({
+      data: {
+        userId: params.userId,
+        likedPerfumes: JSON.stringify(params.likedPerfumes),
+        dislikedPerfumes: JSON.stringify(params.dislikedPerfumes),
+        allergySymptoms: JSON.stringify(params.allergySymptoms),
+        allergyFamilies: JSON.stringify(params.allergyFamilies),
+        totalMatches: params.totalMatches,
+        topMatchId: params.topMatchId,
+        topMatchScore: params.topMatchScore,
+        scentDNA: params.scentDNA ? JSON.stringify(params.scentDNA) : null,
+      }
+    })
+    console.log('[match] TestHistory saved for user:', params.userId)
+  } catch (err) {
+    console.warn('[match] Failed to save TestHistory (non-critical):', err)
+  }
+}
 
 const PRIORITY_BRANDS: string[] = [
   'Acqua di Parma','Alexandre J','Amouage','Amouroud','Arabian Oud',
@@ -397,6 +430,21 @@ export async function POST(request: Request) {
         })
 
         if (tier === 'FREE' && session?.user?.id) await incrementTestCount(session.user.id)
+
+        // V1: save TestHistory for authenticated users (fire-and-forget, non-critical)
+        if (session?.user?.id) {
+          void saveTestHistory({
+            userId: session.user.id,
+            likedPerfumes: prefs.likedPerfumeIds ?? [],
+            dislikedPerfumes: prefs.dislikedPerfumeIds ?? [],
+            allergySymptoms: allergyProfile.symptoms,
+            allergyFamilies: allergyProfile.families,
+            totalMatches: visible.length,
+            topMatchId: visible[0]?.id ?? null,
+            topMatchScore: visible[0]?.finalScore ?? null,
+            scentDNA: null, // similar path: no DNA computed in V1
+          })
+        }
 
         return NextResponse.json({
           success: true,
@@ -806,6 +854,23 @@ export async function POST(request: Request) {
     // Consume one FREE monthly test after successful match
     if (tier === 'FREE' && session?.user?.id) {
       await incrementTestCount(session.user.id)
+    }
+
+    // V1: save TestHistory for authenticated users (fire-and-forget, non-critical)
+    if (session?.user?.id) {
+      const dnaEntries = [...userScentDNA].map(f => [f, 1] as [string, number])
+      const scentDNAObj = dnaEntries.length > 0 ? Object.fromEntries(dnaEntries) : null
+      void saveTestHistory({
+        userId: session.user.id,
+        likedPerfumes: prefs.likedPerfumeIds ?? [],
+        dislikedPerfumes: prefs.dislikedPerfumeIds ?? [],
+        allergySymptoms: allergyProfile.symptoms,
+        allergyFamilies: allergyProfile.families,
+        totalMatches: visible.length,
+        topMatchId: visible[0]?.id ?? null,
+        topMatchScore: visible[0]?.finalScore ?? null,
+        scentDNA: scentDNAObj,
+      })
     }
 
     return NextResponse.json(response)

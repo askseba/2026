@@ -34,7 +34,7 @@ interface MatchResponse {
 export function ResultsContent() {
   const locale = useLocale()
   const t = useTranslations('results')
-  const { data: quizData } = useQuiz()
+  const { data: quizData, isHydrated } = useQuiz()
   const { data: session } = useSession()
   const [scoredPerfumes, setScoredPerfumes] = useState<ScoredPerfume[]>([])
   const [blurredItems, setBlurredItems] = useState<BlurredItem[]>([])
@@ -79,7 +79,14 @@ export function ResultsContent() {
     }
   }, [step1Liked, step2Disliked, step3Allergy, t])
 
-  useEffect(() => { fetchResults() }, [fetchResults])
+  useEffect(() => {
+    if (!isHydrated) return
+    if (step1Liked.length < 3) {
+      setIsLoading(false)
+      return
+    }
+    fetchResults()
+  }, [fetchResults, isHydrated])
 
   const toggleCompare = (id: string) => {
     setCompareIds(prev => 
@@ -96,6 +103,33 @@ export function ResultsContent() {
   const lockedCount = blurredItems.length
   const totalCount = scoredPerfumes.length + (lockedCount || 0)
   const topScore = scoredPerfumes.length > 0 ? Math.round(scoredPerfumes[0].finalScore) : 0
+
+  // V1: no quiz context → empty state only (no history fallback)
+  if (isHydrated && step1Liked.length < 3 && !isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-cream-bg dark:!bg-surface gap-4 px-6" dir={direction}>
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+            <Sparkles className="w-8 h-8 text-primary dark:text-amber-500" />
+          </div>
+          <h2 className="text-xl font-bold text-text-primary dark:text-text-primary mb-2">
+            {locale === 'ar' ? 'لا توجد نتائج محفوظة' : 'No results available'}
+          </h2>
+          <p className="text-text-secondary dark:text-text-secondary mb-6">
+            {locale === 'ar'
+              ? 'أكمل الاختبار للحصول على توصيات مخصصة لك'
+              : 'Complete the quiz to get personalized recommendations'}
+          </p>
+          <Button
+            onClick={() => { window.location.href = `/${locale}/quiz/step1-favorites` }}
+            className="bg-primary hover:bg-primary/90 text-white font-medium px-8 py-3 rounded-xl"
+          >
+            {locale === 'ar' ? 'ابدأ الاختبار' : 'Start Quiz'}
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   if (isLoading) {
     return <ResultsLoadingScreen direction={direction} />
