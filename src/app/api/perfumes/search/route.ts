@@ -16,15 +16,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Quiz step1/step2: Fragella-only; no local seed when key is set
-    if (!process.env.FRAGELLA_API_KEY) {
-      return NextResponse.json(
-        { success: false, error: 'Fragella unavailable', data: [], perfumes: [], total: 0 },
-        { status: 503 }
-      )
-    }
-
-    const results = await searchUnified(q.trim(), { limit, includeLocal: false, includeFragella: true })
+    const hasFragellaKey = Boolean(process.env.FRAGELLA_API_KEY)
+    const results = await searchUnified(q.trim(), {
+      limit,
+      includeLocal: !hasFragellaKey,
+      includeFragella: hasFragellaKey,
+    })
     const data = results.map((p) => ({
       id: p.id,
       _id: p.id,
@@ -64,14 +61,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!process.env.FRAGELLA_API_KEY) {
-      return NextResponse.json(
-        { success: false, error: 'Fragella unavailable', data: [], perfumes: [], total: 0 },
-        { status: 503 }
-      )
-    }
-
-    const results = await searchUnified(query, { limit, includeLocal: false, includeFragella: true })
+    const hasFragellaKey = Boolean(process.env.FRAGELLA_API_KEY)
+    const results = await searchUnified(query, {
+      limit,
+      includeLocal: !hasFragellaKey,
+      includeFragella: hasFragellaKey,
+    })
     const data = results.map((p) => ({
       id: p.id,
       _id: p.id,

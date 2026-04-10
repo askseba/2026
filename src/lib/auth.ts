@@ -18,6 +18,24 @@ if (process.env.NODE_ENV === 'production' && !secret) {
   )
 }
 
+// Guard: if NEXTAUTH_URL or AUTH_URL is set to localhost in production,
+// next-auth v5 reqWithEnvURL() will replace the real host with localhost,
+// causing Google OAuth redirect_uri to become http://localhost:3000/api/auth/callback/google
+// which Google rejects with a "dangerous site" warning.
+if (process.env.NODE_ENV === 'production') {
+  const configuredUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL
+  if (configuredUrl && /localhost|127\.0\.0\.1/.test(configuredUrl)) {
+    console.error(
+      '[Auth] FATAL: AUTH_URL/NEXTAUTH_URL is set to a localhost value in production: ' +
+        configuredUrl +
+        '. This breaks Google OAuth. Set AUTH_URL=https://askseba.com in Vercel env vars.'
+    )
+    // Clear the variable at runtime so next-auth falls back to the real request host (trustHost:true)
+    delete process.env.AUTH_URL
+    delete process.env.NEXTAUTH_URL
+  }
+}
+
 const providers = [
   // Google only when credentials are set (avoids "server configuration problem")
   ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
