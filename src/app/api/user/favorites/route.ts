@@ -22,9 +22,9 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    logger.error('Favorites GET error:', error)
+    console.error('[favorites GET] Error:', error)
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch favorites', data: [] },
+      { success: false, error: error instanceof Error ? error.message : String(error), data: [] },
       { status: 500 }
     )
   }

@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     console.error('[test-history] Error:', err)
     return NextResponse.json(
-      { success: false, error: 'حدث خطأ في الخادم' },
+      { success: false, error: err instanceof Error ? err.message : String(err) },
       { status: 500 }
     )
   }
